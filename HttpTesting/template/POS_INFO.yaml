@@ -1,0 +1,139 @@
+TEST_CASE:
+
+    Case1:
+    -   Desc: PZ新增保存->PZ提交->PZ审核->PZ过账->PZ反过账->PZ反审核->PZ删除
+        USER_VAR: 
+            token: 'xxxxxxxx'
+    -   Desc: PZ新增保存
+        Url: /cloudfi/voucher
+        Method: PUT
+        Headers:
+            content-type: application/json;charset=UTF-8
+            corpId: 2f19d3a991a547b09a5aad8df82cddb2
+            userId: 7a86cd7c203b45ee9b881fc3a5312f32
+        Data:
+            vouchertypeid: 341945e09b7c407f8e12e4ac89a33df8
+            corpid: 2f19d3a991a547b09a5aad8df82cddb2
+            busidate: '2019-04-30'
+            bookeddate: '2019-04-30'
+            periodid: 2af176077e324879a6f7b09d10ee17c2
+            attachments: 0
+            localdebitamount: '111.11'
+            localcreditamount: '111.11'
+            vdef3: ''
+            aggVoucherEntries:
+            -   originalamount: 111.11
+                accountid: 8e11ba3e53604b9d87a72399fa4d0612
+                entrydc: 1
+                description: ZY
+                seq: 1
+                assitrecords:
+                -   busidate: '2019-04-30'
+                    originalamount: '111.11'
+                    description: ZY
+                    seq: 1
+                    assistanthg:
+                        asstaccountid: adce2a7077914a3dbc9e944d5d9dce96
+                        customerid: 1a11425cfda84dcabe2a025c6363e8f7
+                        vdef10: adce2a7077914a3dbc9e944d5d9dce96
+                vdef1: a0a50758-b2d6-464b-8df7-afa746448915
+            -   originalamount: 111.11
+                accountid: dc0932b5efc244e6977798818c974f7e
+                entrydc: 0
+                description: ZY
+                seq: 2
+                assitrecords: []
+                vdef1: 2c9213a4-13af-4429-8d16-c3c881ac1ef5
+            cashflowrecords: []
+        OutPara: 
+            ${data_id}$: result.data
+            ${corpId}$: header.corpId
+            ${userId}$: header.userId
+        Assert: 
+            - ai: ['创建成功', 'result.message']
+            - eq: ['result.status', 'success']
+
+    -   Desc: PZ提交
+        Url: /cloudfi/voucher/submit
+        Method: POST
+        Headers:
+            content-type: application/json;charset=UTF-8
+            corpId: ${corpId}$
+            userId: ${userId}$
+        Data:
+            id: ${data_id}$
+            localdebitamount: '111.11'
+            localcreditamount: '111.11'
+            version: 26
+        OutPara: ''
+        Assert: 
+            - ai: ['提交成功', 'result.message']
+            - eq: ['result.status', 'success']
+
+    -   Desc: PZ审核
+        Url: /cloudfi/voucher/audit
+        Method: POST
+        Headers:
+            content-type: application/json;charset=UTF-8
+            corpId: ${corpId}$
+            userId: ${userId}$
+        Data:
+            ids:
+            -   id: ${data_id}$
+        OutPara: 
+        Assert: 
+            - eq: ['result.status', 'success']
+
+    -   Desc: PZ过账
+        Url: /cloudfi/voucher/post/${data_id}$
+        Method: POST
+        Headers:
+            content-type: application/json;charset=UTF-8
+            corpId: ${corpId}$
+            userId: ${userId}$
+        Data:
+        OutPara: 
+        Assert: 
+            - eq: ['result.message', '过账成功']
+            - eq: ['result.status', 'success']
+
+    -   Desc: PZ反过账
+        Url: /cloudfi/voucher/despost/${data_id}$
+        Method: POST
+        Headers:
+            content-type: application/json;charset=UTF-8
+            corpId: ${corpId}$
+            userId: ${userId}$
+        Data:
+        OutPara: 
+        Assert: 
+            - ai: ['反过账成功', 'result.message']
+            - eq: ['result.status', 'success']
+
+    -   Desc: PZ反审核
+        Url: /cloudfi/voucher/anti_audit
+        Method: POST
+        Headers:
+            content-type: application/json;charset=UTF-8
+            corpId: ${corpId}$
+            userId: ${userId}$
+        Data:
+            ids:
+            -   id: ${data_id}$
+        OutPara: 
+        Assert: 
+            - eq: ['result.status', 'success']
+
+    -   Desc: PZ删除
+        Url: /cloudfi/voucher/batchdelete
+        Method: POST
+        Headers:
+            content-type: application/json;charset=UTF-8
+            corpId: ${corpId}$
+            userId: ${userId}$
+        Data:
+            ids:
+            -   id: ${data_id}$
+        OutPara: 
+        Assert: 
+            - eq: ['result.status', 'success']
