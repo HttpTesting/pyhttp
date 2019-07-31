@@ -41,7 +41,6 @@ DD_TOKEN: 3ba50c804de8e286a95948fdbeb3e8b8177f4e32099643c98388c53adc36e3ed
 
 ##########################测试报告设置########################################
 #report外网发布地址ip+端口号
-REPORT_SERVICE_ENABLE: False
 REPORT_HOST: 127.0.0.1
 REPORT_PORT: 5001
 REPORT_URL: http://60.205.217.8:5002

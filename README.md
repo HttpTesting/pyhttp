@@ -292,6 +292,14 @@ Assert字段默认为[].
 - 3、修改基本配置，并保存
 
 
+### 配置功能对比
+|序号|功能|V1.0|V1.1|配置参数|
+|--|--|--|--|--|
+|1|并发执行|-|√|ENABLE_EXECUTION:False EXECUTION_NUM: 4|
+|2|失败重新执行|√|√|ENABLE_RERUN: False  RERUN_NUM:  2|
+|3|重复执行|-|√|ENABLE_REPEAT: False REPEAT_NUM: 2
+|4|钉钉消息|√|√|ENABLE_DDING:  False |
+|5|发送报告邮件|√|√|EMAIL_ENABLE: False|
 
 
 ## 代码打包与上传PyPi
