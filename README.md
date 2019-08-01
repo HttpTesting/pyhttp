@@ -1,7 +1,6 @@
 ﻿# HttpTesting
 
-[![Build status](https://travis-ci.org/atotto/travisci-golang-example.png)](https://travis-ci.org/atotto/travisci-golang-example)
-
+![PyPI](https://img.shields.io/pypi/v/HttpTesting?style=plastic)
 
 
 HttpTesting 是HTTP(S) 协议测试框架，通过YAML来编写测试用例；支持通过pip直接从PyPi安装，支持命令行运行代码，不固定结构，通过命令生成脚手架。

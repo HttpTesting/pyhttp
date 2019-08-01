@@ -27,7 +27,6 @@ setup(
     #依赖包
     install_requires = [
         'pytest',
-        'Flask',
         'PyYAML==5.1.1',
         'requests',
         'requests-toolbelt',
