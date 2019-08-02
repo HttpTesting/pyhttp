@@ -164,6 +164,7 @@ class Run_Test_Case(object):
         renum = config['RERUN_NUM']  
         repeat = config['ENABLE_REPEAT']
         repeat_num = config['REPEAT_NUM']
+        exec_mode = config['ENABLE_EXEC_MODE']
 
         #Enable repeat case.
         peatargs = ''
@@ -184,14 +185,19 @@ class Run_Test_Case(object):
         #Load the pytest framework, which must be written here or DDT will be loaded first.
         # from HttpTesting.case import test_load_case
         casePath = gl.loadcasePath
-        cmd = 'cd {} && py.test {} {} {} {} --html={} --tb=no --self-contained-html'.format(
-            casePath, 
-            pyargs,
-            reargs,
-            'test_load_case.py', 
-            peatargs,
-            filePath
-        )
+        
+        #Output mode console or report.
+        if exec_mode:
+            cmd = 'cd {} && py.test -q -s --tb=no {}'.format(casePath, 'test_load_case.py')
+        else:
+            cmd = 'cd {} && py.test {} {} {} {} --html={} --tb=no --self-contained-html'.format(
+                casePath, 
+                pyargs,
+                reargs,
+                'test_load_case.py', 
+                peatargs,
+                filePath
+            )
         os.system(cmd)
 
 
@@ -206,12 +212,8 @@ class Run_Test_Case(object):
         dd_enable = config['ENABLE_DDING']
         dd_token = config['DD_TOKEN']
         dd_url = config['DING_URL']
-        report_service = config['REPORT_SERVICE_ENABLE']
         email_enable = config['EMAIL_ENABLE']
         ########################################################################
-        #Enable a test reporting web service.
-        _HOST = config['REPORT_HOST']
-        _PORT = config['REPORT_PORT']
 
         # Test report file name.
         time_str = time.strftime('%Y%m%d_%H%M%S', time.localtime())

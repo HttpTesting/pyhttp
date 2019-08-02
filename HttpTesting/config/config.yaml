@@ -15,6 +15,9 @@ RETRY:
 ###########################################################################
 
 ##########################执行设置##########################################
+#输出模式: True控制台与 False报告模式
+ENABLE_EXEC_MODE: False
+
 #是否启用并发执行,提高速度
 ENABLE_EXECUTION: False  
 #进程数
@@ -55,9 +58,6 @@ TESTER_BY: 微生活测试
 
 #EMAIL_ENABLE: ###False不启用邮箱，True启用邮邮箱
 EMAIL_ENABLE: False
-
-#EMAIL_ENVIRON: ##True启用，系统环境变量配置密码，False为config.yaml配置
-EMAIL_ENVIRON: True
 
 #邮箱配置信息
 EMAIL:

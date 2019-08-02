@@ -249,4 +249,10 @@
     #             - eq: [result.errcode, 0]
     #             - bt: [result.res.status]
 
+import requests
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
+def
+res = requests.request('GET',"https://www.baidu.com/", verify=False)
+print(res.status_code)

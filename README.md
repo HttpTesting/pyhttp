@@ -299,6 +299,7 @@ Assert字段默认为[].
 |3|重复执行|-|√|ENABLE_REPEAT: False REPEAT_NUM: 2
 |4|钉钉消息|√|√|ENABLE_DDING:  False |
 |5|发送报告邮件|√|√|EMAIL_ENABLE: False|
+|6|控制台输出|-|√|ENABLE_EXEC_MODE: False|
 
 
 ## 代码打包与上传PyPi

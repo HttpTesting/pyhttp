@@ -4,15 +4,15 @@ from HttpTesting.library.scripts import (
     retry, 
     get_yaml_field
     )
+import requests
 from requests.exceptions import (HTTPError, ConnectionError, ConnectTimeout)
 from HttpTesting.globalVar import gl
 from HttpTesting.library.Multipart import MultipartFormData
 #########################################################################
 #requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 #Remove warnings when SSL is turned off dueto requests.
-import requests
-from requests.packages.urllib3.exceptions import InsecureRequestWarning
-requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 ###########################################################################
 class HttpWebRequest(object):
     """
