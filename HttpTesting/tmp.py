@@ -249,21 +249,7 @@
     #             - eq: [result.errcode, 0]
     #             - bt: [result.res.status]
 
-import time
-
-def sleep_time(ses):
-    """
-    Main thread sleep time.
-
-    Args:
-        ses: seconds; Support decimals such as 0.5 or 0.8.
-        1, 1 seconds, 0.5, 500 milliseconds.
-    
-    Usage:
-        import time
-        sleep_time(0.5) #500 milliseconds.
-
-    Returns:
-        There is no return.
-    """
-    time.sleep(ses)
+import json
+st2 = {'errcode': 30004, 'errmsg': '券码错误', 'res': None}
+b = json.dumps(st2, sort_keys=True, indent=4)
+print(b)

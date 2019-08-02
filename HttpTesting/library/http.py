@@ -1,3 +1,4 @@
+import json
 from HttpTesting.base.base_config import BaseConfig
 from HttpTesting.library.scripts import (
     get_datetime_str, 
@@ -68,7 +69,7 @@ class HttpWebRequest(object):
         else:
             url = str(kwargs['gurl']).strip()
 
-
+        params = json.dumps(kwargs['params'], sort_keys=True, indent=4)
         #Report output template.   
         tmpl = self.OUT_TMPL.format(
             kwargs['desc'],
@@ -96,7 +97,8 @@ class HttpWebRequest(object):
         except Exception as ex:
             result = {"errcode": 9003, "errmsg": str(ex) }
 
-        print('{}\n'.format(result)) #The Response results are output to the report.
+        tmpl_result = json.dumps(result, sort_keys=True, indent=4, ensure_ascii=False)
+        print(tmpl_result) #The Response results are output to the report.
         return res, headers, cookie, result
 
 
@@ -112,14 +114,16 @@ class HttpWebRequest(object):
             url = str(kwargs['gurl']).strip()
 
         data = kwargs['data']
-
+        
+        #format output
+        tmpl_data = json.dumps(data, sort_keys=True, indent=4, ensure_ascii=False)
         #Report output template. 
         tmpl = self.OUT_TMPL.format(
             kwargs['desc'],
             get_datetime_str(),
             kwargs['method'],
             url,
-            data
+            tmpl_data
         )
         print(tmpl)
 
@@ -173,8 +177,12 @@ class HttpWebRequest(object):
 
         except (HTTPError, ConnectionError, ConnectTimeout) as ex:
             result =  {"errcode": 9002, "errmsg": str(ex)}
+        
+        # format output.
+        tmpl_result = json.dumps(result, sort_keys=True, indent=4, ensure_ascii=False)
+        #The Response results are output to the report.
+        print(tmpl_result) 
 
-        print('{}\n'.format(result)) #The Response results are output to the report.
         return res, headers, cookie, result
 
 
