@@ -1,8 +1,0 @@
-pytest
-PyYAML==5.1.1
-requests
-requests-toolbelt
-pytest-html
-pytest-xdist
-pytest-rerunfailures
-pytest-repeat
