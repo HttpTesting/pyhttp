@@ -258,3 +258,24 @@
 #         for klist in content:
 #             tmp[key] = eval(str(val).replace(str(klist), str(tmp[klist])))
 
+
+# extfunc.py
+class Extend:
+    @staticmethod
+    def demo2():
+        print('demo2')
+
+try:
+    from aaa import ak
+except ImportError:
+    ak = object
+
+class AC(Extend):
+    
+    @staticmethod
+    def demo():
+        print('demo')
+
+
+AC.demo()
+AC.demo2()

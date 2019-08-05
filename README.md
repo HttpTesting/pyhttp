@@ -302,6 +302,27 @@ Assert字段默认为[].
 |sleep_time|-|线程睡眠,0.5为500毫秒，1为1秒|
 - 其它后续添加
 
+### 自定义函数扩展功能说明
+- 在执行用例root目录，新建extfunc.py文件
+- 按模型自定义函数
+- 类名 Extend不可更改
+- @staticmethod函数必须定义为静态
+- 函数各数不做限制
+
+### 自定义函数扩展功能模型
+	class Extend:
+		@staticmethod
+		def func1():
+			return 'ext func'
+		
+		@staticmethod
+		def func2(args):
+			return args
+
+- 使用示例1："%{func1()}%" 
+- 使用示例2: "%{func1('aaaa')}%" 
+
+
 
 ## 常用对象(通常做参数变量时使用)
 - res: 请求Response对象

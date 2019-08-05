@@ -5,7 +5,15 @@ import uuid
 import datetime
 from HttpTesting.library.scripts import parse_args_func
 
-class FUNC:
+"""
+User-defined extension function import
+"""
+try:
+    from HttpTesting.case.extfunc import Extend
+except ImportError:
+    Extend = object
+
+class FUNC(Extend):
     """
     Framework function library.
 
