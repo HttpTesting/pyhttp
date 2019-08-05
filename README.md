@@ -116,7 +116,7 @@ har命令来解析, Charles抓包工具导出的http .har请求文件, 自动生
 
 ### YAML用例格式  
 
-
+### 场景模式
     TESTCASE:
 	    #Case1由两个请求组成的场景
         Case1:
@@ -133,10 +133,10 @@ har命令来解析, Charles抓包工具导出的http .har请求文件, 自动生
 	                name: "test"
 	                pass: "test123"
 	            OutPara: 
-	                "$H_token$": result.data
-					"${content_type}$": header.content-type
-					"${name}$": Data.name 
-					"${pass}$": Data.pass
+	                "H_token": result.data
+					"content_type": header.content-type
+					"name": Data.name 
+					"pass": Data.pass
 	            Assert:
 	                - eq: [result.status, 'success']
 	        -
@@ -156,6 +156,7 @@ har命令来解析, Charles抓包工具导出的http .har请求文件, 自动生
 	                - ai: ['success', result.status]
 					- eq: ['result.status', '修改成功']
 
+### 多CASE模式
 
     TESTCASE:
 	    #同一接口,不同参数,扩充为多个CASE
@@ -173,7 +174,7 @@ har命令来解析, Charles抓包工具导出的http .har请求文件, 自动生
 	                name: "test"
 	                pass: "test123"
 	            OutPara: 
-	                "$H_cookie$": cookie.SESSION
+	                "H_cookie": cookie.SESSION
 	            Assert:
 	                - eq: [result.status, 'success']
 		Case2:
@@ -190,9 +191,10 @@ har命令来解析, Charles抓包工具导出的http .har请求文件, 自动生
 	                name: "test"
 	                pass: "test123"
 	            OutPara:
-	                "$H_cookie$": cookie.SESSION 
+	                "H_cookie": cookie.SESSION 
 	            Assert:
 	                - eq: [result.status, 'error']
+
 
 ### 参数说明
 
@@ -204,7 +206,7 @@ har命令来解析, Charles抓包工具导出的http .har请求文件, 自动生
 变量作用域为当前CASE.
 
 
-### 示例(部分代码片断)
+### 示例1(自定义变量)
 
     TESTCASE: 
         Case1:
@@ -215,13 +217,41 @@ har命令来解析, Charles抓包工具导出的http .har请求文件, 自动生
             -
                 Url: /xxxx/xxxx
                 Method: POST
-                Headers: {}
+                Headers: 
+				    token: ${token}$
                 Data:
                 OutPara:
                 Assert: []
 
+### 示例2(自定义变量)
 
-	
+	TEST_CASE:
+		Case1:
+		-   
+			Desc: 扫码校验券(支持检测微信券二维码码、微信会员h5券二维码、条码)
+			USER_VAR:
+				version: 1.0
+				data: 
+					req:
+						sid: '1380598237'
+						wxcode: "164073966187485312752286" #209736174428
+					appid: dp0Rm4wNl6A7q6w1QzcZQstr
+					sig: 9c8c96b38d759abe6633c124a5d37225
+					v: "${version}$"
+					ts: 1564643536
+			
+		-   Desc: 扫码校验券
+			Url: /pos/checkcoupon
+			Method: POST
+			Headers:
+				content-type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+				cache-control: no-cache
+			Data: ${data}$
+			OutPara: 
+			Assert:
+			-   eq: [result.errcode, 0]
+
+
 - 以上通过USER_VAR字典对象来定义变量, key为变量名, value为变量值; 使用方法: ${token}$
 
 - 无需定义变量, USER_VAR字段在用例中,可以省略.
@@ -230,7 +260,7 @@ har命令来解析, Charles抓包工具导出的http .har请求文件, 自动生
 
 OutPara字段用来做公共变量,供其它接口使用,默认为""; 
 
--  示例: "${H_token}$": result.data 是请求结果，返回的嵌套级别
+-  示例: "H_token": result.data 是请求结果，返回的嵌套级别,使用方法: ${H_token}$
 -  OutPara为dict类型,可以做多个公共变量.
 
 

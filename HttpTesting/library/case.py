@@ -264,7 +264,11 @@ def param_to_queue(queue, data, param_dict, res, headers, cookie, result):
                     queue_val = '; '.join(temp_list)
                 else:
                     queue_val = eval(value)
-
+                    
+            #custom var.
+            if not "${" in key:
+                key = "${%s}$" % key
             param_dict[key] = queue_val
+
         queue.append(param_dict)
 
