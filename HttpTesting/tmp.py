@@ -258,32 +258,3 @@
 #         for klist in content:
 #             tmp[key] = eval(str(val).replace(str(klist), str(tmp[klist])))
 
-def param_content_parse(queue, data):
-
-    for ki, value in enumerate(queue):
-        for key, val in value.items():
-            filed_list= ['Headers', 'Data', 'Url', 'Assert']
-            for filed in filed_list:
-                #data参数 正则匹配
-                m = str(data[filed])
-                content = re.findall('\$\{.*?}\$', m)
-                if content:
-                    k = ""
-                    #替换数到data中
-                    for k in content:
-                        if key in content:
-                            try:
-                                m = eval(m.replace(str(k), str(val)))
-                            except Exception:
-                                m = m.replace(str(k), str(val))                                  
-                        data[filed] = m
-                        break #break
-
-queue = []
-data = {
-    "Headers": {},
-    "Data":{},
-    "Url":"xxxx",
-    "Assert":["aaa", "bbb"]
-}
-param_content_parse(queue, data)
