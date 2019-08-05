@@ -1,7 +1,13 @@
 ﻿# HttpTesting
 
 ![PyPI](https://img.shields.io/pypi/v/HttpTesting?style=plastic)
-
+![GitHub release](https://img.shields.io/github/release/HttpTesting/HttpTesting)
+![PyPI - License](https://img.shields.io/pypi/l/HttpTesting)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/HttpTesting)
+![PyPI - Wheel](https://img.shields.io/pypi/wheel/HttpTesting)
+![PyPI - Status](https://img.shields.io/pypi/status/HttpTesting)
+![GitHub stars](https://img.shields.io/github/stars/HttpTesting/HttpTesting?style=social)
+![GitHub issues](https://img.shields.io/github/issues/HttpTesting/HttpTesting)
 
 HttpTesting 是HTTP(S) 协议测试框架，通过YAML来编写测试用例；支持通过pip直接从PyPi安装，支持命令行运行代码，不固定结构，通过命令生成脚手架。
 
