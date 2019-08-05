@@ -1,6 +1,6 @@
 ﻿# HttpTesting
 
-![PyPI](https://img.shields.io/pypi/v/HttpTesting?style=plastic)
+![PyPI](https://img.shields.io/pypi/v/Httptesting)
 ![PyPI - License](https://img.shields.io/pypi/l/HttpTesting)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/HttpTesting)
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/HttpTesting)
