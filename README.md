@@ -117,83 +117,83 @@ har命令来解析, Charles抓包工具导出的http .har请求文件, 自动生
 ### YAML用例格式  
 
 ### 场景模式
-    TESTCASE:
-	    #Case1由两个请求组成的场景
-        Case1:
-	        -
-	            Desc: xxxx业务场景(登录->编辑)
-	        -
-			    Desc: 登录接口
-	            Url: /login/login
-	            Method: GET
-	            Headers:
-	                content-type: "application/json"
-	                cache-control: "no-cache"
-	            Data:
-	                name: "test"
-	                pass: "test123"
-	            OutPara: 
-	                "H_token": result.data
+	TESTCASE:
+		#Case1由两个请求组成的场景
+		Case1:
+			-
+				Desc: xxxx业务场景(登录->编辑)
+			-
+				Desc: 登录接口
+				Url: /login/login
+				Method: GET
+				Headers:
+					content-type: "application/json"
+					cache-control: "no-cache"
+				Data:
+					name: "test"
+					pass: "test123"
+				OutPara: 
+					"H_token": result.data
 					"content_type": header.content-type
 					"name": Data.name 
 					"pass": Data.pass
-	            Assert:
-	                - eq: [result.status, 'success']
-	        -
-			    Desc: 编辑接口
-	            Url: /user/edit
-	            Method: GET
-	            Headers:
-	                content-type: "${content_type}$"   
-	                cache-control: "no-cache"
+				Assert:
+					- eq: [result.status, 'success']
+			-
+				Desc: 编辑接口
+				Url: /user/edit
+				Method: GET
+				Headers:
+					content-type: "${content_type}$"   
+					cache-control: "no-cache"
 					token: "$H_token$"
-	            Data:
-	                name: "${name}$"
-	                pass: "${pass}$"
-	            OutPara: 
-	                "$H_token$": result.data
-	            Assert:
-	                - ai: ['success', result.status]
+				Data:
+					name: "${name}$"
+					pass: "${pass}$"
+				OutPara: 
+					"$H_token$": result.data
+				Assert:
+					- ai: ['success', result.status]
 					- eq: ['result.status', '修改成功']
 
 ### 多CASE模式
 
-    TESTCASE:
-	    #同一接口,不同参数,扩充为多个CASE
+	TESTCASE:
+		#同一接口,不同参数,扩充为多个CASE
 		Case1:
-		    -
-			    Desc: 登录接口-正常登录功能
-            -
-			    Desc: 登录接口
-	            Url: /login/login
-	            Method: GET
-	            Headers:
-	                content-type: "application/json"
-	                cache-control: "no-cache"
-	            Data:
-	                name: "test"
-	                pass: "test123"
-	            OutPara: 
-	                "H_cookie": cookie.SESSION
-	            Assert:
-	                - eq: [result.status, 'success']
+			-
+				Desc: 登录接口-正常登录功能
+			-
+				Desc: 登录接口
+				Url: /login/login
+				Method: GET
+				Headers:
+					content-type: "application/json"
+					cache-control: "no-cache"
+				Data:
+					name: "test"
+					pass: "test123"
+				OutPara: 
+					"H_cookie": cookie.SESSION
+				Assert:
+					- eq: [result.status, 'success']
 		Case2:
-		    -
-			    Desc: 登录接口-错误密码
-            -
-			    Desc: 登录接口
-	            Url: /login/login
-	            Method: GET
-	            Headers:
-	                content-type: "application/json"
-	                cache-control: "no-cache"
-	            Data:
-	                name: "test"
-	                pass: "test123"
-	            OutPara:
-	                "H_cookie": cookie.SESSION 
-	            Assert:
-	                - eq: [result.status, 'error']
+			-
+				Desc: 登录接口-错误密码
+			-
+				Desc: 登录接口
+				Url: /login/login
+				Method: GET
+				Headers:
+					content-type: "application/json"
+					cache-control: "no-cache"
+				Data:
+					name: "test"
+					pass: "test123"
+				OutPara:
+					"H_cookie": cookie.SESSION 
+				Assert:
+					- eq: [result.status, 'error']
 
 
 ### 参数说明
@@ -208,20 +208,20 @@ har命令来解析, Charles抓包工具导出的http .har请求文件, 自动生
 
 ### 示例1(自定义变量)
 
-    TESTCASE: 
-        Case1:
-            - 
-                Desc: 接口详细描述
-                USER_VAR:
-                    token:  xxxxxxxx
-            -
-                Url: /xxxx/xxxx
-                Method: POST
-                Headers: 
-				    token: ${token}$
-                Data:
-                OutPara:
-                Assert: []
+	TESTCASE: 
+		Case1:
+			- 
+				Desc: 接口详细描述
+				USER_VAR:
+					token:  xxxxxxxx
+			-
+				Url: /xxxx/xxxx
+				Method: POST
+				Headers: 
+					token: ${token}$
+				Data:
+				OutPara:
+				Assert: []
 
 ### 示例2(自定义变量)
 

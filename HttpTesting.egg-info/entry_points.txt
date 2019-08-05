@@ -1,0 +1,4 @@
+[console_scripts]
+AMT = HttpTesting.main:run_min
+amt = HttpTesting.main:run_min
+
