@@ -249,7 +249,15 @@
     #             - eq: [result.errcode, 0]
     #             - bt: [result.res.status]
 
-import json
-st2 = {'errcode': 30004, 'errmsg': '券码错误', 'res': None}
-b = json.dumps(st2, sort_keys=True, indent=4)
-print(b)
+# import re
+# tmp = {'${version}$': 1.0, '${data}$': {'req': {'sid': '1380598237', 'wxcode': '164073966187485312752286'}, 'appid': 'dp0Rm4wNl6A7q6w1QzcZQstr', 'sig': '9c8c96b38d759abe6633c124a5d37225', 'v': '${version}$', 'ts': 1564643536}}
+
+# for key, val in tmp.items():
+#     content = re.findall('\$\{.*?}\$', str(val))
+#     if content:
+#         for klist in content:
+#             tmp[key] = eval(str(val).replace(str(klist), str(tmp[klist])))
+
+import os
+
+os.system().close()

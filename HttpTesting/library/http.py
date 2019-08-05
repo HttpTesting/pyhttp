@@ -69,6 +69,7 @@ class HttpWebRequest(object):
         else:
             url = str(kwargs['gurl']).strip()
 
+        #format output.
         params = json.dumps(kwargs['params'], sort_keys=True, indent=4)
         #Report output template.   
         tmpl = self.OUT_TMPL.format(
@@ -76,7 +77,7 @@ class HttpWebRequest(object):
             get_datetime_str(),
             kwargs['method'],
             url,
-            kwargs['params']
+            params
         )
         print(tmpl)    
 

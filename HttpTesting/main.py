@@ -78,7 +78,10 @@ def run_min():
 
     #Setting global var.
     if config == 'set':
-        os.system(gl.configFile)
+        try:
+            os.system(gl.configFile)
+        except (KeyboardInterrupt, SystemExit):
+            print("已终止执行.")
 
     if start_project !='':
         create_falsework(os.path.join(os.getcwd(), start_project))
@@ -198,7 +201,11 @@ class Run_Test_Case(object):
                 peatargs,
                 filePath
             )
-        os.system(cmd)
+        try:
+            os.system(cmd)
+        except (KeyboardInterrupt, SystemExit):
+            print('已终止执行.')
+
 
 
     @staticmethod
