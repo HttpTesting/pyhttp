@@ -139,6 +139,15 @@ class Run_Test_Case(object):
         return cls.filePath
 
 
+    @staticmethod
+    def copy_custom_function():
+        #自定义函数功能
+        func = os.path.join(os.getcwd(), 'extfunc.py')
+        target = os.path.join(gl.loadcasePath, 'extfunc.py')
+
+        if os.path.exists(func):
+            shutil.copy(func, target)   
+
 
     @staticmethod
     def tmpl_msg(low_path, file_name):
@@ -168,6 +177,10 @@ class Run_Test_Case(object):
         repeat = config['ENABLE_REPEAT']
         repeat_num = config['REPEAT_NUM']
         exec_mode = config['ENABLE_EXEC_MODE']
+
+
+        #custom function
+        Run_Test_Case.copy_custom_function()
 
         #Enable repeat case.
         peatargs = ''
