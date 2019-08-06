@@ -5,7 +5,7 @@
 #ENABLE_BASE_URL为True时，启用基础URL；为Fasle不启用使用case中url
 ENABLE_BASE_URL: True
 ####接口基本url地址####
-BASE_URL: http://111.203.187.99:2222
+BASE_URL: http://111.111.111.111:2222
 
 ##########################CASE配置#########################################
 #请求失败重试设置
@@ -43,11 +43,8 @@ DD_TOKEN: 3ba50c804de8e286a95948fdbeb3e8b8177f4e32099643c98388c53adc36e3ed
 
 
 ##########################测试报告设置########################################
-#report外网发布地址ip+端口号
-REPORT_HOST: 127.0.0.1
-REPORT_PORT: 5001
-REPORT_URL: http://60.205.217.8:5002
-TESTER_BY: 微生活测试
+#report外网发布地址
+REPORT_URL: http://60.60.217.8:5004
 #############################################################################
 
 
@@ -65,12 +62,12 @@ EMAIL:
     Smtp_Server: smtp.exmail.qq.com
     #发送Email邮箱
     Smtp_Sender: lengyaohui.bj@acewill.cn
-    #密码，以环境变量配置为先
-    Password: --  #最好配置到环境变量
+    #密码，以环境变量配置为先;最好配置到环境变量
+    Password: --  
     #邮箱标题
     Msg_Title: 接口自动化测试结果
     #收件人[]多个人用列表存储
-    Receivers: ['lengyaohui@163.com']  #收件人
+    Receivers: ['lengyaohui@163.com'] 
     From: 自动化测试系统
     To: 微生活测试组
 ##############################################################################

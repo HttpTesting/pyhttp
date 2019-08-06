@@ -10,7 +10,6 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "cwd": "${workspaceFolder}",
             "pythonPath": "${config:python.pythonPath}",
             "env": {"PYTHONPATH":"${workspaceRoot}"},
         },
@@ -48,15 +47,12 @@
             "django": true
         },
         {
-            "name": "Flask",
+            "name": "Python: Flask",
             "type": "python",
             "request": "launch",
-            "stopOnEntry": false,
-            "pythonPath": "${config:python.pythonPath}",
             "module": "flask",
-            "cwd": "${workspaceFolder}",
             "env": {
-                "FLASK_APP": "${workspaceFolder}/service.py"
+                "FLASK_APP": "app.py"
             },
             "args": [
                 "run",
@@ -64,6 +60,13 @@
                 "--no-reload"
             ],
             "jinja": true
+        },
+        {
+            "name": "Python: Current File (External Terminal)",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "externalTerminal"
         }
     ]
 }

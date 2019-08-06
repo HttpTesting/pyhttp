@@ -103,6 +103,10 @@ class FUNC(Extend):
         Returns:
             There is no return.
         """
+        try:
+            ses = int(ses)
+        except (ValueError, TypeError):
+            ses = float(ses)
         time.sleep(ses)
 
 
