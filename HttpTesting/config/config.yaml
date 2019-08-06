@@ -39,6 +39,8 @@ ENABLE_DDING: False
 DING_URL: https://oapi.dingtalk.com/robot/send?access_token=
 #钉钉机器人token
 DD_TOKEN: 3ba50c804de8e286a95948fdbeb3e8b8177f4e32099643c98388c53adc36e3ed
+#钉钉标题
+DING_TITLE: 接口自动化测试
 #############################################################################
 
 

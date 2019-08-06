@@ -152,13 +152,14 @@ class Run_Test_Case(object):
     @staticmethod
     def tmpl_msg(low_path, file_name):
         # 发送钉钉模版测试结果
-
+        config = get_yaml_field(gl.configFile)
         #report外网发布地址ip+port
-        report_url = get_yaml_field(gl.configFile)['REPORT_URL']
-
+        report_url = config['REPORT_URL']
+        #钉钉标题
+        content = config['DING_TITLE']
         # 发送钉钉消息
-        msg = """接口自动化测试已完成:\n测试报告地址:{}/{}/{}"""
-        msg = msg.format(report_url, low_path, file_name)
+        msg = """{}已完成:\n测试报告地址:{}/{}/{}"""
+        msg = msg.format(content, report_url, low_path, file_name)
 
         return msg
 
