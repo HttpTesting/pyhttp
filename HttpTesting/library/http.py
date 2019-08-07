@@ -61,6 +61,10 @@ class HttpWebRequest(object):
             cookie: Request cookie.
             result: Request results result.json() or result.text
         """
+        try:
+            params = eval(kwargs['params'])
+        except (TypeError, ValueError):
+            params = kwargs['params']
 
         #Whether to adopt , url = base_url + url
         if self.config['ENABLE_BASE_URL']:
@@ -69,7 +73,7 @@ class HttpWebRequest(object):
             url = str(kwargs['gurl']).strip()
 
         #format output.
-        params = json.dumps(kwargs['params'], sort_keys=True, indent=4)
+        params = json.dumps(params, sort_keys=True, indent=4)
         #Report output template.   
         tmpl = self.OUT_TMPL.format(
             kwargs['desc'],
@@ -81,7 +85,7 @@ class HttpWebRequest(object):
         print(tmpl)    
 
         try:
-            res =requests.request(kwargs['method'], url, params=kwargs['params'], headers=kwargs['headers'], verify=False)
+            res =requests.request(kwargs['method'], url, params=params, headers=kwargs['headers'], verify=False)
             headers = res.headers
             cookie = res.cookies.get_dict()
             if res.status_code ==200:
@@ -112,8 +116,10 @@ class HttpWebRequest(object):
             url = '{}{}'.format(self.baseUrl, str(kwargs['gurl']).strip())
         else:
             url = str(kwargs['gurl']).strip()
-
-        data = kwargs['data']
+        try:
+            data = eval(kwargs['data'])
+        except (TypeError, ValueError):
+            data = kwargs['data']
         
         #format output
         tmpl_data = json.dumps(data, sort_keys=True, indent=4, ensure_ascii=False)

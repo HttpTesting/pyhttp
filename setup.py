@@ -7,7 +7,7 @@ with io.open('README.md', encoding='utf-8') as fp:
 
 setup(
     name='HttpTesting', # 应用名
-    version='1.1.45', # 版本号
+    version='1.1.47', # 版本号
     description="HttpTesting",
     long_description=long_description,
     long_description_content_type='text/markdown',

@@ -110,7 +110,8 @@ def param_content_parse(queue, data):
                     for k in content:
                         if key in content:
                             try:
-                                m = eval(m.replace(str(k), str(val)))
+                                m = m.replace(str(k), str(val))
+                                m = eval(m)
                             except Exception:
                                 m = m.replace(str(k), str(val))                                  
                         data[filed] = m
