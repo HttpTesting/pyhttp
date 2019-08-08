@@ -205,6 +205,8 @@ har命令来解析, Charles抓包工具导出的http .har请求文件, 自动生
 
 变量作用域为当前CASE.
 
+- 通过在Case下定义USER_VAR字段，来自定义变量
+- USER_VAR字段下定义的字段为用户变量，作用于当前Case
 
 ### 示例1(自定义变量)
 
@@ -325,6 +327,51 @@ Assert字段默认为[].
 - 使用示例2: "%{func1('aaaa')}%" 
 
 
+### 参数化功能
+定义参数化参数后，同一用例会按照参数个数决定用例执行次数。
+- 通过在用例Case下定义PARAM_VAR字段
+- PARAM_VAR字段下定义参数化变量，供之后引用
+- 如果在PARAM_VAR下定义多个，参数化变量，参数个数要匹配。
+- 现在如果定义了多个参数化变量，执行用例的次数是排列组合数。
+- 之后如有必要会改成，按参数化变量内参数的各数决定执行用例次数。
+
+### 参数化功能模型
+	TEST_CASE:
+		Case2:
+		-   Desc: 给指定用户发送验证码
+			USER_VAR:
+				cno_list:
+				- '1674921314241197'
+				- '1581199496593872'
+				- '1623770534820512'
+				- '1674921701066628'
+				- '1581199096195979'
+				- '1623770606653991'
+			PARAM_VAR: 
+				sig: [1,2,3,4,5]
+
+		-   Desc: 给指定用户发送验证码
+			Url: /user/sendcode
+			Method: POST
+			Headers:
+				content-type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+				cache-control: no-cache
+			Data:
+				req:
+					cno: '%{rnd_list("${cno_list}$")}%'
+				appid: dp1svA1gkNt8cQMkoIv7HmD1
+				sig: "${sig}$"
+				v: 2.0
+				ts: 123
+			OutPara: null
+			Assert:
+			-   eq:
+				- result.errcode
+				- 0
+			-   eq:
+				- result.res.result
+				- SUCCESS
+
 
 ## 常用对象(通常做参数变量时使用)
 - res: 请求Response对象
@@ -348,7 +395,7 @@ Assert字段默认为[].
 - 3、修改基本配置，并保存
 
 
-### 配置功能对比
+### 功能对比
 |序号|功能|V1.0|V1.1|配置参数|
 |--|--|--|--|--|
 |1|并发执行|-|√|ENABLE_EXECUTION:False EXECUTION_NUM: 4|
@@ -358,6 +405,8 @@ Assert字段默认为[].
 |5|发送报告邮件|√|√|EMAIL_ENABLE: False|
 |6|控制台输出|-|√|ENABLE_EXEC_MODE: False|
 |7|自定义函数扩展|√|√|用例执行root目录增加extfunc.py|
+|8|自定义变量|√|√|在用例中用USER_VAR字段定义变量，作用于当前Case|
+|9|用例参数化|√|√|在用例中用PARAM_VAR字段定义参数化变量,作用于当前Case|
 
 
 ## 代码打包与上传PyPi

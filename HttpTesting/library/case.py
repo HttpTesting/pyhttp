@@ -118,6 +118,123 @@ def param_content_parse(queue, data):
                         break #break
 
 
+def user_params_variables(data):
+    """
+        User parameterized execution.
+
+        Args:
+            data:
+            [
+                {
+                    "Desc": "接口用例详细描述",
+                    "PARAM_VAR":{
+                        "sig": [1,2]
+                    },
+                },
+                {   
+                    "Desc": "接口名称1",
+                    "Url": "/send/code",
+                    "Method": "POST",
+                    "Headers":{},
+                    "Data":                 
+                        {
+                            "appid": "dp1svA1gkNt8cQMkoIv7HmD1",
+                            "req": {
+                                "cno": "1623770534820512"
+                            },
+                            "sig": "${sig}$",
+                            "ts": 123,
+                            "v": 2.0
+                        },
+                    "OutPara": None,
+                    "Assert": [],
+
+                }
+
+            ]
+        
+        Usage:
+            user_params_variables(data) 
+        
+        After:
+            data:
+            [
+                {
+                    "Desc": "接口用例详细描述",
+                    "PARAM_VAR":{
+                        "sig": [1,2]
+                    },
+                },
+                {   
+                    "Desc": "接口名称1_2",
+                    "Url": "/send/code",
+                    "Method": "POST",
+                    "Headers":{},
+                    "Data":                 
+                        {
+                            "appid": "dp1svA1gkNt8cQMkoIv7HmD1",
+                            "req": {
+                                "cno": "1623770534820512"
+                            },
+                            "sig": "2",
+                            "ts": 123,
+                            "v": 2.0
+                        },
+                    "OutPara": None,
+                    "Assert": [],
+
+                },
+                {   
+                    "Desc": "接口名称1_1",
+                    "Url": "/send/code",
+                    "Method": "POST",
+                    "Headers":{},
+                    "Data":                 
+                        {
+                            "appid": "dp1svA1gkNt8cQMkoIv7HmD1",
+                            "req": {
+                                "cno": "1623770534820512"
+                            },
+                            "sig": "1",
+                            "ts": 123,
+                            "v": 2.0
+                        },
+                    "OutPara": None,
+                    "Assert": [],
+
+                }
+            ] 
+        Returns:
+            There is no return.
+    """
+    if 'PARAM_VAR' in data[0].keys():
+        params_dict = data[0]['PARAM_VAR']
+        if params_dict:
+            for key, value in params_dict.items():
+                #取到参数${key}$，到其它case中遍历，并扩充case
+                for _num, val_dict in enumerate(data):
+                    if _num == 0:
+                        continue
+                    content = val_dict
+                    init_desc = val_dict['Desc']
+                    #如果${key}$变量在Data中，说明要进行参数化。
+                    var_name = "${%s}$" % str(key)
+                    if var_name in str(content):
+                        #遍历参数化，增加case
+                        params_len = len(params_dict[str(key)])
+                        for _iter , val in enumerate(params_dict[str(key)]):
+                            #更改Desc描述，给加个序号
+                            content['Desc'] = '{}_{}'.format(content['Desc'], _iter + 1)
+                            #最后一个参数化后，将原来${sig}$替换掉
+                            if val != params_len:
+                                new_content = eval(str(content).replace(str(var_name), str(val)))
+                                data.append(new_content)
+                            else:
+                                data[_num] = eval(str(content).replace(str(var_name), str(val)))
+                            
+                            #恢复最初描述
+                            content['Desc'] = init_desc
+
 
 def user_custom_variables(queue, args, data):
     """
@@ -165,14 +282,17 @@ def exec_test_case(data):
     req = HttpWebRequest()
 
     #Through the case.
-    for i in range(0, len(data)):
+    for i, _ in enumerate(data):
         if i == 0:
+            #User parameterized execution
+            user_params_variables(data)
+
+            #Handles custom variables in USER_VAR
+            user_custom_variables(queue_list, args_dict, data[0])
             continue
+
         res = None
         
-        #Handles custom variables in USER_VAR
-        user_custom_variables(queue_list, args_dict, data[0])
-
         #Pass parameters with DATA information.
         param_content_parse(queue_list, data[i])
         
