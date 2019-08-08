@@ -1,9 +1,5 @@
-/library/__pycache__/
-/base/__pycache__/
-/case/__pycache__/
-/globalVar/__pycache__/
-/testcase/__pycache__/
-/.idea/
-/dist/
-/.vscode/
-/HttpTesting/__pycache__/
+*.pyc
+__pycache__
+.idea
+dist/*
+.vscode
