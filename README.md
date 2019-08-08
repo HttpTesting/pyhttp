@@ -375,3 +375,10 @@ Assert字段默认为[].
 - 上传PyP: twine upload dist/*
 
   
+### 通过poetry工具打包
+
+- poetry build
+
+- poetry config repositories.testpypi https://pypi.org/project/HttpTesting
+
+- poetry pushlish  输入pypi用户名和密码
