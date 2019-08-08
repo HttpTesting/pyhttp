@@ -456,4 +456,5 @@ def generate_case_tmpl(fileyaml):
     print("Conversion to complete.")
 
 if __name__=="__main__":
-    env = get_sys_environ('HttpTesting_PWD')
+    env = get_ip_or_name()
+    print(env)
