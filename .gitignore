@@ -5,3 +5,5 @@
 /testcase/__pycache__/
 /.idea/
 /dist/
+/.vscode/
+/HttpTesting/__pycache__/
