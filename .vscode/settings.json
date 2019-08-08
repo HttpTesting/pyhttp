@@ -1,5 +1,0 @@
-{
-    "python.pythonPath": "D:\\test_project\\venv\\pytest_env\\Scripts\\python3.exe",
-    "python.linting.flake8Enabled": true,
-    "python.formatting.provider": "yapf",
-}
