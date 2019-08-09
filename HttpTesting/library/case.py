@@ -1,10 +1,10 @@
-import queue
 import re
 from HttpTesting.library.http import HttpWebRequest
 from HttpTesting.library.assert_case import Ac
 from HttpTesting.library.func import FUNC
 from HttpTesting.library.scripts import parse_args_func
-    
+
+
 def out_param_parse(oname, param):
     """
     Parse args
@@ -23,34 +23,32 @@ def out_param_parse(oname, param):
         Example:
         result['res']['data'][0]['id']
     """
-    paramList = param.split(".")
+    param_list = param.split(".")
     dt = oname
     tmpl = "['{}']"
-    mJion = ''
-    
-    #Filter parameters.
-    if paramList[0] in ('result', 'res', 'cookie', 'headers', 'header'):
-        paramList.pop(0)
+    m_jion = ''
 
-    ds = paramList[0]
-    #Parse parammeters.
-    if ds in  paramList:
-        for args in paramList:
+    # Filter parameters.
+    if param_list[0] in ('result', 'res', 'cookie', 'headers', 'header'):
+        param_list.pop(0)
+
+    ds = param_list[0]
+    # Parse parammeters.
+    if ds in param_list:
+        for args in param_list:
             if "[" in args:
-                aJion = ''
-                for num,val in enumerate(args.split("[")):
+                a_jion = ''
+                for num, val in enumerate(args.split("[")):
                     if num == 0:
                         val = "['{}']".format(val)
-                    aJion = aJion + val +"["
-                
-                aJion = (aJion[:-1])
-                mJion = mJion + aJion
+                        a_jion = a_jion + val + "["           
+                        a_jion = (a_jion[:-1])
+                m_jion = m_jion + a_jion
             else:
-                mJion = mJion + tmpl.format(args)
+                m_jion = m_jion + tmpl.format(args)
     else:
         print("出参错误,格式应为data.2级.3级:{}".format(param))
-    return dt + mJion
-
+    return dt + m_jion
 
 
 def assert_func(res, headers, cookie, result, assertlist):
@@ -65,7 +63,7 @@ def assert_func(res, headers, cookie, result, assertlist):
     Usage:
         assert_func(self, res, headers, cookie, result, data[i]['Assert'])
     Return:
-        There is no.
+        There is no return.
     """
     for ass_dit in assertlist:
 
@@ -76,13 +74,12 @@ def assert_func(res, headers, cookie, result, assertlist):
             for ite, val in enumerate(value):
 
                 if '.' in str(val):
-                    value[ite]= eval(out_param_parse(val.split(".")[0], val))
-            #Distinguish between two parameters and one parameter by key.
+                    value[ite] = eval(out_param_parse(val.split(".")[0], val))
+            # Distinguish between two parameters and one parameter by key.
             if value.__len__() == 1:
                 assert eval(ac.format(value[0]))
             if value.__len__() == 2:
-                assert eval(ac.format(value[0], value[1]))    
-
+                assert eval(ac.format(value[0], value[1]))
 
 
 def param_content_parse(queue, data):
@@ -92,21 +89,21 @@ def param_content_parse(queue, data):
     args:
         queue: List the queue.
         data: The DATA content.
-    
+
     return:
         There is no return.
     """
 
     for ki, value in enumerate(queue):
         for key, val in value.items():
-            filed_list= ['Headers', 'Data', 'Url', 'Assert']
+            filed_list = ['Headers', 'Data', 'Url', 'Assert']
             for filed in filed_list:
-                #data参数 正则匹配
+                # data参数 正则匹配
                 m = str(data[filed])
                 content = re.findall('\$\{.*?}\$', m)
                 if content:
                     k = ""
-                    #替换数到data中
+                    # 替换数到data中
                     for k in content:
                         if key in content:
                             try:
@@ -115,7 +112,7 @@ def param_content_parse(queue, data):
                             except Exception:
                                 m = m.replace(str(k), str(val))                                  
                         data[filed] = m
-                        break #break
+                        break  # break
 
 
 def user_params_variables(data):
@@ -136,7 +133,7 @@ def user_params_variables(data):
                     "Url": "/send/code",
                     "Method": "POST",
                     "Headers":{},
-                    "Data":                 
+                    "Data":         
                         {
                             "appid": "dp1svA1gkNt8cQMkoIv7HmD1",
                             "req": {
@@ -152,10 +149,10 @@ def user_params_variables(data):
                 }
 
             ]
-        
+
         Usage:
             user_params_variables(data) 
-        
+
         After:
             data:
             [
@@ -184,12 +181,12 @@ def user_params_variables(data):
                     "Assert": [],
 
                 },
-                {   
+                {
                     "Desc": "接口名称1_1",
                     "Url": "/send/code",
                     "Method": "POST",
                     "Headers":{},
-                    "Data":                 
+                    "Data":
                         {
                             "appid": "dp1svA1gkNt8cQMkoIv7HmD1",
                             "req": {
@@ -203,7 +200,7 @@ def user_params_variables(data):
                     "Assert": [],
 
                 }
-            ] 
+            ]
         Returns:
             There is no return.
     """
@@ -211,28 +208,27 @@ def user_params_variables(data):
         params_dict = data[0]['PARAM_VAR']
         if params_dict:
             for key, value in params_dict.items():
-                #取到参数${key}$，到其它case中遍历，并扩充case
+                # 取到参数${key}$，到其它case中遍历，并扩充case
                 for _num, val_dict in enumerate(data):
                     if _num == 0:
                         continue
                     content = val_dict
                     init_desc = val_dict['Desc']
-                    #如果${key}$变量在Data中，说明要进行参数化。
+                    # 如果${key}$变量在Data中，说明要进行参数化。
                     var_name = "${%s}$" % str(key)
                     if var_name in str(content):
-                        #遍历参数化，增加case
+                        # 遍历参数化，增加case
                         params_len = len(params_dict[str(key)])
-                        for _iter , val in enumerate(params_dict[str(key)]):
-                            #更改Desc描述，给加个序号
+                        for _iter, val in enumerate(params_dict[str(key)]):
+                            # 更改Desc描述，给加个序号
                             content['Desc'] = '{}_{}'.format(content['Desc'], _iter + 1)
-                            #最后一个参数化后，将原来${sig}$替换掉
+                            # 最后一个参数化后，将原来${sig}$替换掉
                             if val != params_len:
                                 new_content = eval(str(content).replace(str(var_name), str(val)))
                                 data.append(new_content)
                             else:
                                 data[_num] = eval(str(content).replace(str(var_name), str(val)))
-                            
-                            #恢复最初描述
+                            # 恢复最初描述
                             content['Desc'] = init_desc
 
 
@@ -244,11 +240,11 @@ def user_custom_variables(queue, args, data):
         queue: variables queue
         args: User variables
         data: user variables value
-    
+ 
     return:
         There is no return.
     """
-    #User-defined variables.
+    # User-defined variables.
     if 'USER_VAR' in data.keys():
         for key, value in data['USER_VAR'].items():
             args['${%s}$' % key] = parse_args_func(FUNC, value)
@@ -257,7 +253,7 @@ def user_custom_variables(queue, args, data):
 
         var_dict = queue[0]
 
-        #Handles custom variables in USER_VAR
+        # Handles custom variables in USER_VAR
         for key, val in var_dict.items():
             content = re.findall('\$\{.*?}\$', str(val))
             if content:
