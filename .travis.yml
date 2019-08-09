@@ -7,14 +7,14 @@ python:
 install:
   - pip install poetry
   - poetry install -vvv
-  - pip install pyyaml = "5.1.1"
-  - pip install pytest = "5.0.1"
-  - pip install pytest-html = "1.21.1"
-  - pip install pytest-repeat = "0.8.0"
-  - pip install pytest-rerunfailures = "7.0"
-  - pip install pytest-xdist = "1.29.0"
-  - pip install requests = "2.22.0"
-  - pip install requests-toolbelt = "0.9.1"
+  - pip install pyyaml == "5.1.1"
+  - pip install pytest == "5.0.1"
+  - pip install pytest-html == "1.21.1"
+  - pip install pytest-repeat == "0.8.0"
+  - pip install pytest-rerunfailures == "7.0"
+  - pip install pytest-xdist == "1.29.0"
+  - pip install requests == "2.22.0"
+  - pip install requests-toolbelt == "0.9.1"
 script:
   - poetry build
   - poetry run python -m HttpTesting.main.run_min amt -h
