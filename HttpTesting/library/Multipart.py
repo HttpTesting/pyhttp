@@ -1,5 +1,7 @@
 
 # multipart/form-data
+
+
 class MultipartFormData(object):
     """multipart/form-data格式转化"""
 
@@ -7,7 +9,7 @@ class MultipartFormData(object):
     def to_form_data(data, boundary="----WebKitFormBoundary7MA4YWxkTrZu0gW", headers={}):
         """
         form data
-        :param: data:  {"req":{"cno":"18990876","flag":"Y"},"ts":1,"sig":1,"v": 2.0}
+        :param: data:  {"req":{"cno":"18990876","flag":"Y"},"ts":1,"sig":1,"v":2.0}
         :param: boundary: "----WebKitFormBoundary7MA4YWxkTrZu0gW"
         :param: headers: 包含boundary的头信息；如果boundary与headers同时存在以headers为准
         :return: str
@@ -21,7 +23,7 @@ class MultipartFormData(object):
                 boundary = fd_val.split("=")[1].strip()
             else:
                 raise("multipart/form-data头信息错误，请检查content-type key是否包含boundary")
-        #form-data格式定式
+        # form-data格式定式
         jion_str = '--{}\r\nContent-Disposition: form-data; name="{}"\r\n\r\n{}\r\n'
         end_str = "--{}--".format(boundary)
         args_str = ""
@@ -30,7 +32,7 @@ class MultipartFormData(object):
             raise("multipart/form-data参数错误，data参数应为dict类型")
         for key, value in data.items():
             args_str = args_str + jion_str.format(boundary, key, value)
-        
+
         args_str = args_str + end_str.format(boundary)
         args_str = args_str.replace("\'", "\"")
         args_str = args_str.replace('True', 'true').replace('False', 'false')

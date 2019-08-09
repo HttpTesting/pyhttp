@@ -274,5 +274,5 @@ class Run_Test_Case(object):
             email.send(filePath)
 
 
-if __name__ == "__main__":
-    run_min()
+# if __name__ == "__main__":
+#     run_min()

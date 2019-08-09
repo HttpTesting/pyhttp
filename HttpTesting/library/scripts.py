@@ -5,8 +5,9 @@ import random
 import re
 import socket
 import collections
+import yaml
 from functools import wraps
-import yaml,requests
+import requests
 from HttpTesting.globalVar import gl
 from requests.exceptions import (
     ConnectTimeout,
@@ -17,9 +18,7 @@ from requests.exceptions import (
 from HttpTesting.library.case_queue import case_exec_queue
 
 
-'''
-Datetime string.
-'''
+# Datetime string.
 def get_datetime_str():
     """
     Randrom time string.
@@ -27,8 +26,9 @@ def get_datetime_str():
         Time string.
     """
     time.sleep(0.5)
-    datetime= str(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()))
+    datetime = str(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()))
     return datetime
+
 
 @property
 def get_timestamp_int():
@@ -41,9 +41,8 @@ def get_timestamp_int():
     """
     return int(time.time())
 
-'''
-Write YAML file content.
-'''
+
+# Write YAML file content.
 def write_ymal(path,data):
     """
     Write YAML file content.
@@ -55,13 +54,11 @@ def write_ymal(path,data):
     return:
         There is no.
     """
-    with open(path,'wb') as fp:
-        yaml.dump(data,fp)
+    with open(path, 'wb') as fp:
+        yaml.dump(data, fp)
 
 
-'''
-Read YAML file.
-'''
+# Read YAML file.
 def get_yaml_field(path):
     """
     Gets the YAML configuration file content.
@@ -72,15 +69,14 @@ def get_yaml_field(path):
     return:
         ret_dict is all of YAML's content.
     """
-    with open(path,'rb') as fp:
+    with open(path, 'rb') as fp:
         cont = fp.read()
 
     ret = yaml.load(cont, Loader=yaml.FullLoader)
     return ret
 
 
-
-#Get the flag in the configuration file.
+# Get the flag in the configuration file.
 def get_run_flag(skey):
     """
     Get the flag in the configuration file.
@@ -98,9 +94,9 @@ def get_run_flag(skey):
 
 def load_case_data(flag='TEST_CASE'):
     """
-    :Desc: 
+    :Desc:
         load DDT data form YAML.
-    :param flag:  
+    :param flag:
         The starting node of the interface case in YAML.
         default:
             TEST_CASE
@@ -121,15 +117,15 @@ def load_case_data(flag='TEST_CASE'):
         if not case_exec_queue.empty():
             case_name = case_exec_queue.get()
 
-            #Read the case
+            # Read the case
             readYam = get_yaml_field(case_name)
-            #yaml start the node，The default is TEST_CASE.
+            # yaml start the node，The default is TEST_CASE.
             dictCase = readYam[flag]
 
-            #Loop through the configuration data under the node, 
+            # Loop through the configuration data under the node, 
             # so case begins the use case
             for key in dictCase:
-                #What begins with a case in configuration data is considered a use case.
+                # What begins with a case in configuration data is considered a use case.
                 if str(key).lower().startswith('case'):
 
                     #Organize DDT [] data, and each case is a dict object
@@ -137,7 +133,6 @@ def load_case_data(flag='TEST_CASE'):
         else:
             raise Exception("The CASE execution queue is empty.")
     return ddtData
-
 
 
 def retry(**kw):
@@ -149,20 +144,19 @@ def retry(**kw):
     """
     def wrapper(func):
         @wraps(func)
-        def _wrapper(*args,**kwargs):
+        def _wrapper(*args, **kwargs):
             raise_ex = None
             for n in range(kw['reNum']):
                 try:
-                    ret = func(*args,**kwargs)
-                    time.sleep(random.randint(1,3))
+                    ret = func(*args, **kwargs)
+                    time.sleep(random.randint(1, 3))
                     return ret
-                except (ConnectTimeout,ConnectionError,Timeout,HTTPError) as ex:
+                except (ConnectTimeout, ConnectionError, Timeout, HTTPError) as ex:
                     raise_ex = ex
                 print('Retry the {0} time'.format(n))
             return ret
         return _wrapper
     return wrapper
-
 
 
 def rm_dirs_files(dirpath):
@@ -174,7 +168,7 @@ def rm_dirs_files(dirpath):
     listdir = os.listdir(dirpath)
     if listdir:
         for f in listdir:
-            filepath = os.path.join(dirpath,f)
+            filepath = os.path.join(dirpath, f)
             if os.path.isfile(filepath):
                 os.remove(filepath)
             if os.path.isdir(filepath):
@@ -193,7 +187,7 @@ def send_msg_dding(msg, token, url=''):
             "msgtype": "text", 
             "text": {
                 "content": msg
-            }, 
+            },
             # "at": {
             #     "isAtAll": True
             # }
@@ -217,6 +211,7 @@ def get_sys_environ(name):
         raise ex
     return value
 
+
 def check_http_status(host, port, **kwargs):
     """
     Check that the  HTTP status is normal.
@@ -229,37 +224,8 @@ def check_http_status(host, port, **kwargs):
         res = requests.request("GET", url, **kwargs)
         if res.status_code == 200:
             return True
-    except:
+    except Exception:
         return False
-
-
-def start_web_service():
-    """
-    Start a web service.
-
-    Args: 
-
-    Uasge:
-        start_web_service()
-
-    Return:
-        There is no.
-    """
-    #Get configuration information.
-    ret = get_yaml_field(gl.configFile)
-
-    # Host and port Numbers.
-    _HOST = ret['REPORT_HOST']
-    _PORT = ret['REPORT_PORT']
-
-    # Web startup file.
-    service =  'service.py'
-
-    #Set the web directory to the current command line directory.
-    cmd = 'cd {} && python {} --host {} --port {}'.format(gl.webPath, service, _HOST, _PORT)
-
-    #Command to start service.
-    os.system(cmd)
 
 
 def parse_args_func(func_class, data):
@@ -278,8 +244,8 @@ def parse_args_func(func_class, data):
         data_bool = True
         data = str(data)
 
-    take = re.findall('\%\{.*?}\%', data)
-    
+    take = re.findall('\\%{.*?}\\%', data)
+
     for val in take:
         fStr = val.split("%{")[1][:-2]
         func = fStr.split('(')
@@ -299,7 +265,7 @@ def parse_args_func(func_class, data):
     return data
 
 
-def write_file(filepath, mode,txt):
+def write_file(filepath, mode, txt):
     """
     The write file.
 
@@ -307,7 +273,7 @@ def write_file(filepath, mode,txt):
         filepath: File absolute path.
         mode: Read and Write.
         txt: text content.
-    
+
     Usage:
         write_file('/xxxx/temp.txt', 'w', 'xxxxxx')
 
@@ -318,7 +284,6 @@ def write_file(filepath, mode,txt):
         fp.write(txt)
 
 
-
 def get_ip_or_name():
     """
     To obtain the local computer name or IP address.
@@ -327,17 +292,16 @@ def get_ip_or_name():
 
     Usage:
         addr, name = get_ip_or_name()
-    
+
     Return:
         IP address, Computer name.
     """
-    #Access to the local computer name.
+    # Access to the local computer name.
     name = socket.getfqdn(socket.gethostname())
-    #Access to the local computer address.
+    # Access to the local computer address.
     addr = socket.gethostbyname(name)
 
     return addr, name
-
 
 
 def ordered_dump(data, stream=None, Dumper=yaml.Dumper, **kwds):
@@ -353,13 +317,13 @@ def ordered_dump(data, stream=None, Dumper=yaml.Dumper, **kwds):
     """
     class OrderedDumper(Dumper):
         pass
+
     def _dict_representer(dumper, data):
         return dumper.represent_mapping(
             yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
             data.items())
     OrderedDumper.add_representer(collections.OrderedDict, _dict_representer)
     return yaml.dump(data, stream, OrderedDumper, **kwds)
-
 
 
 def ordered_yaml_load(yaml_path, Loader=yaml.Loader, object_pairs_hook=collections.OrderedDict):
@@ -376,8 +340,6 @@ def ordered_yaml_load(yaml_path, Loader=yaml.Loader, object_pairs_hook=collectio
         return yaml.load(fp.read(), OrderedLoader)
 
 
-
-
 def write_case_to_yaml(yamFile, data):
     """
     Write the test case to yaml.
@@ -388,11 +350,11 @@ def write_case_to_yaml(yamFile, data):
     """
     with io.open(yamFile, 'w', encoding='utf-8') as fp:
         ordered_dump(
-            data, 
-            fp, 
-            Dumper=yaml.SafeDumper, 
-            allow_unicode=True, 
-            default_flow_style=False, 
+            data,
+            fp,
+            Dumper=yaml.SafeDumper,
+            allow_unicode=True,
+            default_flow_style=False,
             indent=4
         )
 
@@ -401,9 +363,9 @@ def convert_yaml(yamlfile):
     """
     ReWrite YAML.
     """
-    #YAML content dict.
+    # YAML content dict.
     data = ordered_yaml_load(yamlfile)
-    #Write YAML content.
+    # Write YAML content.
     write_case_to_yaml(yamlfile, data)
     #
     print("Conversion to complete.")
@@ -415,10 +377,10 @@ def generate_case_tmpl(fileyaml):
 
     param:
         fileyaml: yaml file path.
-    
+
     usage:
         generate_case_tmpl(fileyaml)
-    
+
     returns:
         There is no.
     """
@@ -442,7 +404,7 @@ def generate_case_tmpl(fileyaml):
         d['Assert'] = []
         # case template.
         tmpl = {
-            "TEST_CASE":{
+            "TEST_CASE": {
                 "Case1": [
                     {'Desc': '接口场景描述,报告描述'},
                     d
@@ -455,6 +417,7 @@ def generate_case_tmpl(fileyaml):
     write_case_to_yaml(fileyaml, tmpl)
     print("Conversion to complete.")
 
-if __name__=="__main__":
+
+if __name__ == "__main__":
     env = get_ip_or_name()
     print(env)

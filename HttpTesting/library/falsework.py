@@ -16,12 +16,12 @@ def create_falsework(path):
         :invoke
             from HttpTesting.library.falsework import create_falsework
             create_falsework(path)
-        :return : 
+        :return :
     """
-    #创建结构
+    # 创建结构
     if not os.path.exists(path):
 
-        #处理测试用例结构及模版
+        # 处理测试用例结构及模版
         dirs = os.path.join(path, 'testcase')
         try:
             os.makedirs(dirs)
@@ -33,7 +33,7 @@ def create_falsework(path):
             else:
                 raise Exception("template.yaml模版未找到。")
 
-        except Exception as ex:
+        except Exception:
             shutil.rmtree(dirs)
     else:
         raise Exception("项目结构已存在")

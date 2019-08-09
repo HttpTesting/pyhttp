@@ -41,7 +41,7 @@ def out_param_parse(oname, param):
                 for num, val in enumerate(args.split("[")):
                     if num == 0:
                         val = "['{}']".format(val)
-                        a_jion = a_jion + val + "["           
+                        a_jion = a_jion + val + "["
                         a_jion = (a_jion[:-1])
                 m_jion = m_jion + a_jion
             else:
@@ -100,7 +100,7 @@ def param_content_parse(queue, data):
             for filed in filed_list:
                 # data参数 正则匹配
                 m = str(data[filed])
-                content = re.findall('\$\{.*?}\$', m)
+                content = re.findall('\\${.*?}\\$', m)
                 if content:
                     k = ""
                     # 替换数到data中
@@ -255,11 +255,10 @@ def user_custom_variables(queue, args, data):
 
         # Handles custom variables in USER_VAR
         for key, val in var_dict.items():
-            content = re.findall('\$\{.*?}\$', str(val))
+            content = re.findall('\\${.*?}\\$', str(val))
             if content:
                 for klist in content:
                     var_dict[key] = eval(str(val).replace(str(klist), str(var_dict[klist])))
-
 
 
 def exec_test_case(data):
@@ -274,58 +273,57 @@ def exec_test_case(data):
     """
     queue_list = []
     args_dict = {}
-    #HTTP request instance.
+    # HTTP request instance.
     req = HttpWebRequest()
 
-    #Through the case.
+    # Through the case.
     for i, _ in enumerate(data):
         if i == 0:
-            #User parameterized execution
+            # User parameterized execution
             user_params_variables(data)
 
-            #Handles custom variables in USER_VAR
+            # Handles custom variables in USER_VAR
             user_custom_variables(queue_list, args_dict, data[0])
             continue
 
         res = None
-        
-        #Pass parameters with DATA information.
+
+        # Pass parameters with DATA information.
         param_content_parse(queue_list, data[i])
-        
-        #Parse the custom functions in the following fields
+
+        # Parse the custom functions in the following fields
         data[i]['Desc'] = parse_args_func(FUNC, data[i]['Desc'])
         data[i]['Data'] = parse_args_func(FUNC, data[i]['Data'])
         data[i]['Url'] = parse_args_func(FUNC, data[i]['Url'])
         data[i]['Headers'] = parse_args_func(FUNC, data[i]['Headers'])
         data[i]['OutPara'] = parse_args_func(FUNC, data[i]['OutPara'])
 
-        #处理请求
+        # 处理请求
         method = str(data[i]['Method']).upper()
         if ('GET' in method) or (r'DELETE' in method):
             res, headers, cookie, result = req.get(
-                params=data[i]['Data'], 
-                desc=data[i]['Desc'], 
+                params=data[i]['Data'],
+                desc=data[i]['Desc'],
                 gurl=data[i]['Url'],
                 headers=data[i]['Headers'],
-                method= method
+                method=method
                 )
         elif ('POST' in method) or ('PUT' in method):
             res, headers, cookie, result = req.post(
-                data=data[i]['Data'], 
-                desc=data[i]['Desc'], 
+                data=data[i]['Data'],
+                desc=data[i]['Desc'],
                 gurl=data[i]['Url'],
                 headers=data[i]['Headers'],
-                method= method
+                method=method
                 )
         else:
             raise "Error:请求Mehod:{}错误.".format(data[i]['Method'])
-            
-        #Assertions parsing
+
+        # Assertions parsing
         assert_func(res, headers, cookie, result, data[i]['Assert'])
 
-        #Output parameters are written to the queue
+        # Output parameters are written to the queue
         param_to_queue(queue_list, data[i], args_dict, res, headers, cookie, result)
-
 
 
 def param_to_queue(queue, data, param_dict, res, headers, cookie, result):
@@ -334,25 +332,25 @@ def param_to_queue(queue, data, param_dict, res, headers, cookie, result):
 
     args:
         queue: List the queue.
-        data: The DATA content 
+        data: The DATA content
         param_dict: Temporary storage queue parameters.
         res: Request object.
         headers: Repsonse headers.
         cookie: Repsonse cookies.
         result: Repsonse content JSON or text.
-    
+
     usage:
         param_to_queue(outParaQueue, data[i], oPara, res, headers, cookie, result)
 
     return:
         There is no return.
     """
-    #出参写入队列
+    # 出参写入队列
     if data['OutPara']:
         header = data['Headers']
-        #组参数
+        # 组参数
         for key, value in data['OutPara'].items():
-            #解释用例中的出参
+            # 解释用例中的出参
             out_data = data
             #
             if '.' in value:
@@ -361,11 +359,11 @@ def param_to_queue(queue, data, param_dict, res, headers, cookie, result):
                 if '[' in stra:
                     stra = stra.split("[")[0]
 
-                if stra.lower() != "data": 
+                if stra.lower() != "data":
                     head = stra
                 else:
                     head = "out_data"
-                #处理cookie 
+                # 处理cookie
                 if strsplit[0].lower() == 'cookie':
                     queue_val = '{}={}'.format(
                         strsplit[1], 
@@ -373,7 +371,7 @@ def param_to_queue(queue, data, param_dict, res, headers, cookie, result):
                         )
                 else:
                     queue_val = eval(out_param_parse(head, value))
-            else: #Parameter cookie  result 
+            else:  # Parameter cookie  result
                 if 'cookie' in str(value).lower():
                     temp_list = []
                     for ky, vak in cookie.items():
@@ -381,11 +379,10 @@ def param_to_queue(queue, data, param_dict, res, headers, cookie, result):
                     queue_val = '; '.join(temp_list)
                 else:
                     queue_val = eval(value)
-                    
-            #custom var.
-            if not "${" in key:
+
+            # custom var.
+            if "${" not in key:
                 key = "${%s}$" % key
             param_dict[key] = queue_val
 
         queue.append(param_dict)
-

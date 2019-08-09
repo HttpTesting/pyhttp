@@ -1,10 +1,8 @@
-import hashlib 
-import re
+import hashlib
 import time
 import uuid
 import datetime
 from random import randint
-from HttpTesting.library.scripts import parse_args_func
 
 """
 User-defined extension function import
@@ -13,6 +11,7 @@ try:
     from HttpTesting.case.extfunc import Extend
 except ImportError:
     Extend = object
+
 
 class FUNC(Extend):
     """
@@ -39,10 +38,9 @@ class FUNC(Extend):
         """
         mo = hashlib.md5()
         src = txt.encode(encoding='utf-8')
-        mo.update(src)   
-        
-        return mo.hexdigest()
+        mo.update(src)
 
+        return mo.hexdigest()
 
     @staticmethod
     def timestamp():
@@ -50,7 +48,6 @@ class FUNC(Extend):
         The timestamp
         """
         return int(time.time())
-
 
     @staticmethod
     def datetimestr():
@@ -62,9 +59,8 @@ class FUNC(Extend):
         Return:
             String  2019-07-16 10:50:16
         """
-        datetime= str(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()))
+        datetime = str(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()))
         return datetime
-
 
     @staticmethod
     def uuid1():
@@ -78,7 +74,6 @@ class FUNC(Extend):
         """
 
         return str(uuid.uuid1()).replace('-','')
-
 
     @staticmethod
     def mstimestamp():
@@ -96,7 +91,7 @@ class FUNC(Extend):
         Args:
             ses: seconds; Support decimals such as 0.5 or 0.8.
             1, 1 seconds, 0.5, 500 milliseconds.
-        
+
         Usage:
             import time
             sleep_time(0.5) #500 milliseconds.
@@ -110,31 +105,29 @@ class FUNC(Extend):
             ses = float(ses)
         time.sleep(ses)
 
-        
     @staticmethod
     def rnd_list(lt):
         """
         To pick a random value from a list.
-    
+
         Args:
             lt: A list of str.
-        
+
         Usage:
             from random import randint
             value = rnd_list(['a','b','c'])
-        
+
         Return:
             [] Returns a list of values.
         """
         lt = lt[1:][:-1]
         lt = eval(lt)
-        
+
         len_list = len(lt) - 1
         rint = randint(0, len_list)
         return lt[rint]
-    
+
 
 if __name__ == "__main__":
     a = FUNC.uuid1()
     print(a)
-    

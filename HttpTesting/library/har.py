@@ -4,6 +4,7 @@ import os
 import collections
 import yaml
 
+
 class ConvertHarToYAML:
 
     @classmethod
@@ -18,7 +19,7 @@ class ConvertHarToYAML:
         if os.path.exists(harpath):
 
             with io.open(harpath, 'r+', encoding='utf-8-sig') as fp:
-                rjson =fp.read()
+                rjson = fp.read()
                 content_dict = json.loads(rjson)
                 return content_dict['log']['entries']
         else:
@@ -55,7 +56,7 @@ class ConvertHarToYAML:
         except (KeyError, TypeError) as ex:
             raise ex
         return headers
-    
+  
     @classmethod
     def parse_post_data(cls, postData):
         """
@@ -90,8 +91,8 @@ class ConvertHarToYAML:
         """
         Convert the unordered dictionary to ordered and write yaml.
         param:
-            data: 
-            stream: 
+            data:
+            stream:
             allow_unicode:
             default_flow_style:
             indent:
@@ -99,13 +100,13 @@ class ConvertHarToYAML:
         """
         class OrderedDumper(Dumper):
             pass
+
         def _dict_representer(dumper, data):
             return dumper.represent_mapping(
                 yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
                 data.items())
         OrderedDumper.add_representer(collections.OrderedDict, _dict_representer)
         return yaml.dump(data, stream, OrderedDumper, **kwds)
-
 
     @classmethod
     def write_case_to_yaml(cls, yampath, contentDict):
@@ -119,14 +120,13 @@ class ConvertHarToYAML:
         yamFile = os.path.join(yampath, 'har_testcase.yaml')
         with io.open(yamFile, 'w', encoding='utf-8') as fp:
             cls.ordered_dump(
-                contentDict, 
-                fp, 
-                Dumper=yaml.SafeDumper, 
-                allow_unicode=True, 
-                default_flow_style=False, 
+                contentDict,
+                fp,
+                Dumper=yaml.SafeDumper,
+                allow_unicode=True,
+                default_flow_style=False,
                 indent=4
             )
-
 
     @classmethod
     def convert_har_to_ht(cls, harfile):
@@ -142,12 +142,11 @@ class ConvertHarToYAML:
         temp_dict['TEST_CASE'] = collections.OrderedDict()
 
         ret = cls.convert_to_list(harfile)
-        # print(ret[0])
 
         for n, val in enumerate(ret):
             case = 'case{}'.format(n)
-            temp_dict['TEST_CASE'][case] =[]
-            temp_dict['TEST_CASE'][case].append({'Desc':'请添加接口描述'})
+            temp_dict['TEST_CASE'][case] = []
+            temp_dict['TEST_CASE'][case].append({'Desc': '请添加接口描述'})
 
             if val['queryString']:
                 data = val['queryString']
@@ -172,9 +171,3 @@ class ConvertHarToYAML:
             }))
         # print(temp_dict)
         return temp_dict
-
-
-
-# if __name__ == "__main__":
-#     temp_dict = ConvertHarToYAML.convert_har_to_ht(r'D:\httphar.har')
-#     ConvertHarToYAML.write_case_to_yaml('', temp_dict)
