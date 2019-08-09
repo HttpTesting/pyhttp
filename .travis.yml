@@ -1,7 +1,7 @@
-sudo: False
-
+sudo: false
 language: python
-python: 
+python:
+  - 3.5
   - 3.6
 
 install:
@@ -15,11 +15,7 @@ install:
   - pip install pytest-xdist=="1.29.0"
   - pip install requests=="2.22.0"
   - pip install requests-toolbelt=="0.9.1"
-
-
-script: 
-  - poetry build
+script:
   - python -m  HttpTesting.main -startproject demo
-
-after_success:
+  - poetry build
   - poetry run python -V
