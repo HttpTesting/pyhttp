@@ -17,4 +17,4 @@ install:
   - pip install requests-toolbelt=="0.9.1"
 script:
   - poetry build
-  - poetry run python -m HttpTesting.main.run_min amt -h
+  - poetry run python -V
