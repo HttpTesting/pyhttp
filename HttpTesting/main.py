@@ -1,9 +1,7 @@
 import unittest
 import shutil
 import os,time,json,io
-import logging
 from HttpTesting.globalVar import gl
-from HttpTesting.library import HTMLTESTRunnerCN
 from HttpTesting.library import scripts
 from HttpTesting.library.scripts import (get_yaml_field, start_web_service, write_file)
 from HttpTesting.library.emailstmp import EmailClass
