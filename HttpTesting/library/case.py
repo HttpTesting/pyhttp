@@ -261,6 +261,34 @@ def user_custom_variables(queue, args, data):
                     var_dict[key] = eval(str(val).replace(str(klist), str(var_dict[klist])))
 
 
+def req_headers_default(data, index):
+    """
+    Specify the default request header.
+    Args:
+        data: [
+            {"Desc": 'xxxx', "REQ_HEADER": {"content-type": 'application/json'}},
+            {"Desc": 'xxxx', 'Url': 'ccc', "Assert":[], "Method": "POST", "Data": 'xxx', "OutPara": "xxxx"}
+            {"Desc": 'xxxx', 'Url': 'ccc', "Assert":[], "Method": "POST", "Data": 'xxx', "OutPara": "xxxx"}
+        ]
+        index:
+            data[index]
+    Usage:
+        req_headers_default(data)
+    Return:
+        There is no return.
+    """
+    if 'REQ_HEADER' in data[0].keys():
+        headers_default = data[0]['REQ_HEADER']
+        if 'Headers' in data[index].keys():
+            if not data[index]['Headers']:
+                data[index]['Headers'] = headers_default
+        else:
+            data[index]['Headers'] = headers_default
+    else:
+        # No request header is specified.
+        pass
+
+
 def exec_test_case(data):
     """
     Execute pytest test framework.
@@ -288,8 +316,12 @@ def exec_test_case(data):
 
         res = None
 
+        # Request header default value.
+        req_headers_default(data, i)
+
         # Pass parameters with DATA information.
         param_content_parse(queue_list, data[i])
+
 
         # Parse the custom functions in the following fields
         data[i]['Desc'] = parse_args_func(FUNC, data[i]['Desc'])

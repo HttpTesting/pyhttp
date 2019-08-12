@@ -395,6 +395,69 @@ Assert字段默认为[].
 - 3、修改基本配置，并保存
 
 
+## 新增功能
+
+### 请求头默认值
+	TEST_CASE:
+		Case1:
+		-   Desc: 给用户发送验证码业务场景(发送1->发送2)
+			USER_VAR:
+				cno_list:
+				- '1674921314241197'
+				- '1581199496593872'
+				- '1623770534820512'
+				- '1674921701066628'
+				- '1581199096195979'
+				- '1623770606653991'
+
+			REQ_HEADER:
+				content-type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+				cache-control: no-cache            
+
+		-   Desc: 给指定用户发送验证码1
+			Url: /user/sendcode
+			Method: POST
+			Data:
+				req:
+					cno: '%{rnd_list("${cno_list}$")}%'
+				appid: dp1svA1gkNt8cQMkoIv7HmD1
+				sig: "123"
+				v: 2.0
+				ts: 123
+			OutPara: null
+			Assert:
+			-   eq:
+				- result.errcode
+				- 0
+			-   eq:
+				- result.res.result
+				- SUCCESS
+		-   Desc: 给指定用户发送验证码2
+			Url: /user/sendcode
+			Method: POST
+			Data:
+				req:
+					cno: '%{rnd_list("${cno_list}$")}%'
+				appid: dp1svA1gkNt8cQMkoIv7HmD1
+				sig: "123"
+				v: 2.0
+				ts: 123
+			Headers:
+				content-type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+				cache-control: no-cache    			
+			OutPara: null
+			Assert:
+			-   eq:
+				- result.errcode
+				- 0
+			-   eq:
+				- result.res.result
+				- SUCCESS
+- 在Case中增加REQ_HEADER字段来做为公共的请求头。
+- 之后Case中执行共享此请求头
+- 如果在用例中设置了REQ_HEADER字段与请求中也单独设置了请求头，那么第一顺序为请求中的为主。
+- 上边的例子为场景用例，由两个请求组成，请求1，使用的是请求头默认值，请求2，使用自身请求头。
+
 ### 功能对比
 |序号|功能|V1.0|V1.1|配置参数|
 |--|--|--|--|--|
@@ -407,7 +470,7 @@ Assert字段默认为[].
 |7|自定义函数扩展|√|√|用例执行root目录增加extfunc.py|
 |8|自定义变量|√|√|在用例中用USER_VAR字段定义变量，作用于当前Case|
 |9|用例参数化|√|√|在用例中用PARAM_VAR字段定义参数化变量,作用于当前Case|
-
+|10|请求头默认值|√|√|设置用例请求头默认值,整个case共享请求头。|
 
 ## 代码打包与上传PyPi
 

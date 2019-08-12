@@ -128,7 +128,7 @@ def load_case_data(flag='TEST_CASE'):
                 # What begins with a case in configuration data is considered a use case.
                 if str(key).lower().startswith('case'):
 
-                    #Organize DDT [] data, and each case is a dict object
+                    # Organize DDT [] data, and each case is a dict object
                     ddtData.append(dictCase[key])
         else:
             raise Exception("The CASE execution queue is empty.")
