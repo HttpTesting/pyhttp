@@ -59,12 +59,14 @@ HttpTesting 是HTTP(S) 协议测试框架，通过YAML来编写测试用例；�
 
 |序号|命令参数|描述|
 |:---|:---|:---|  
-|1|amt -config set|此命令用来设置config.yaml基本配置|
-|2|amt -file template.yaml|执行YAML用例，支持绝对或相对路径|
-|3|amt -dir testcase|批量执行testcase目录下的YAML用例，支持绝对路径或相对路径|
-|4|amt -startproject demo|生成脚手架demo目录,以及用例模版|
+|1|amt -conf set 或--config set|此命令用来设置config.yaml基本配置|
+|2|amt -f template.yaml或--file template.yaml|执行YAML用例，支持绝对或相对路径|
+|3|amt -d testcase或--dir testcase|批量执行testcase目录下的YAML用例，支持绝对路径或相对路径|
+|4|amt -sp demo或--startproject demo|生成脚手架demo目录,以及用例模版|
 |5|amt -har httphar.har|根据抓包工具导出的http har文件，生成测试用例YAML|
-|6|amt -convert demo.yaml|转换数据为HttpTesting测试用例|
+|6|amt -c demo.yaml或--convert demo.yaml|转换数据为HttpTesting测试用例|
+
+
 
 
 #### 基本配置
@@ -397,6 +399,12 @@ Assert字段默认为[].
 
 ## 新增功能
 
+### 指定case编号执行
+
+- 指定单个Case执行 amt -f xxxx.yaml Case1
+- 指定多个Case执行 amt -f xxxx.yaml Case1 Case2 Case3
+
+
 ### 请求头默认值
 	TEST_CASE:
 		Case1:
@@ -471,6 +479,7 @@ Assert字段默认为[].
 |8|自定义变量|√|√|在用例中用USER_VAR字段定义变量，作用于当前Case|
 |9|用例参数化|√|√|在用例中用PARAM_VAR字段定义参数化变量,作用于当前Case|
 |10|请求头默认值|√|√|设置用例请求头默认值,整个case共享请求头。|
+|11|指定case执行|√|√|单个yaml文件指定case执行|
 
 ## 代码打包与上传PyPi
 

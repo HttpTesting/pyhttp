@@ -33,24 +33,28 @@ def run_min():
     os.chdir(cur_dir)
 
     parse = argparse.ArgumentParser(description='HttpTesting parameters')
-
     parse.add_argument(
-        "-file",
+        "-f",
+        "--file",
+        nargs='+',
         default='',
         help='The file path; File absolute or relative path.'
         )
     parse.add_argument(
-        "-dir",
+        "-d",
+        "--dir",
         default='',
         help='The folder path; folder absolute or relative path.'
         )
     parse.add_argument(
-        "-startproject",
+        "-sp",
+        "--startproject",
         default='',
         help='Generate test case templates.'
         )
     parse.add_argument(
-        "-config",
+        "-conf",
+        "--config",
         default='',
         help='Basic setting of framework.'
         )
@@ -60,7 +64,8 @@ def run_min():
         help='Convert the har files to YAML. har file is *.har'
         )
     parse.add_argument(
-        "-convert",
+        "-c",
+        "--convert",
         default='',
         help='Convert the har files to YAML. YAML file is *.yaml'
         )
@@ -97,7 +102,10 @@ def run_min():
     temp_list = []
     # Get the yaml file name and write to the queue.
     if case_file:
-        temp_list.append(os.path.join(cur_dir, case_file))
+        # Specify the execution CASE.
+        fargs = '&#'.join(case_file)
+        temp_list.append(os.path.join(cur_dir, fargs))
+
         write_file(
             os.path.join(gl.loadcasePath, 'temp.txt'),
             'w',

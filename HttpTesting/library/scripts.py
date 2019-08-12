@@ -111,28 +111,46 @@ def load_case_data(flag='TEST_CASE'):
 
     :return: [] DDT data list
     """
-    ddtData = []
+    data_list = []
 
     for _ in range(0, case_exec_queue.qsize()):
         if not case_exec_queue.empty():
             case_name = case_exec_queue.get()
 
+            # OFF/ON Specify the execution case.
+            parse_bool = False
+            # Specify the execution CASE.
+            if '&#' in case_name:
+                parse_bool = True
+                path_parse = case_name.split('&#')
+                case_name = path_parse[0]
+                path_parse.pop(0)
+
             # Read the case
-            readYam = get_yaml_field(case_name)
+            read_yaml = get_yaml_field(case_name)
             # yaml start the node，The default is TEST_CASE.
-            dictCase = readYam[flag]
+            case_dict = read_yaml[flag]
 
-            # Loop through the configuration data under the node, 
-            # so case begins the use case
-            for key in dictCase:
-                # What begins with a case in configuration data is considered a use case.
-                if str(key).lower().startswith('case'):
+            # OFF/ON Specify the execution case.
+            if parse_bool:
+                for case_name in path_parse:
+                    try:
+                        data_list.append(case_dict[case_name])
+                    except KeyError as ex:
+                        print('{}测试用例名称错误,请检查拼写、大小写.'.format(case_name))
+                        raise ex
+            else:
+                # Loop through the configuration data under the node, 
+                # so case begins the use case
+                for key in case_dict:
+                    # What begins with a case in configuration data is considered a use case.
+                    if str(key).lower().startswith('case'):
 
-                    # Organize DDT [] data, and each case is a dict object
-                    ddtData.append(dictCase[key])
+                        # Organize DDT [] data, and each case is a dict object
+                        data_list.append(case_dict[key])
         else:
             raise Exception("The CASE execution queue is empty.")
-    return ddtData
+    return data_list
 
 
 def retry(**kw):
