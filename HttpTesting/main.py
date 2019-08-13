@@ -225,7 +225,12 @@ class Run_Test_Case(object):
         case_path = gl.loadcasePath
         # Output mode console or report.
         if exec_mode:
-            cmd = 'cd {} && py.test -q -s --tb=no {}'.format(case_path, 'test_load_case.py')
+            cmd = 'cd {} && py.test -q -s {} {} {} --tb=no'.format(
+                case_path, 
+                reargs,
+                'test_load_case.py', 
+                peatargs
+            ) 
         else:
             cmd = 'cd {} && py.test {} {} {} {} --html={} --tb=no --self-contained-html'.format(
                 case_path, 

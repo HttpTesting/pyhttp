@@ -107,13 +107,16 @@ def param_content_parse(queue, data):
                     for k in content:
                         if key in content:
                             try:
-                                m = m.replace(str(k), str(val))
+                                # string replace diff
+                                if isinstance(val, str):
+                                    m = m.replace(str(k), str(val))
+                                else:
+                                    m = m.replace("'{}'".format(k), str(val))
                                 m = eval(m)
                             except Exception:
-                                m = m.replace(str(k), str(val))                                  
+                                m = m.replace("'{}'".format(k), str(val))                                  
                         data[filed] = m
                         break  # break
-
 
 def user_params_variables(data):
     """
@@ -222,12 +225,16 @@ def user_params_variables(data):
                         for _iter, val in enumerate(params_dict[str(key)]):
                             # 更改Desc描述，给加个序号
                             content['Desc'] = '{}_{}'.format(content['Desc'], _iter + 1)
+
                             # 最后一个参数化后，将原来${sig}$替换掉
-                            if val != params_len:
-                                new_content = eval(str(content).replace(str(var_name), str(val)))
-                                data.append(new_content)
+                            if isinstance(val, str):
+                                tmp_val = str(content).replace(str(var_name), str(val))
                             else:
-                                data[_num] = eval(str(content).replace(str(var_name), str(val)))
+                                tmp_val = str(content).replace("'{}'".format(var_name), str(val))
+                            if val != params_len:
+                                data.append(eval(tmp_val))
+                            else:
+                                data[_num] = eval(tmp_val)
                             # 恢复最初描述
                             content['Desc'] = init_desc
 
@@ -258,7 +265,12 @@ def user_custom_variables(queue, args, data):
             content = re.findall('\\${.*?}\\$', str(val))
             if content:
                 for klist in content:
-                    var_dict[key] = eval(str(val).replace(str(klist), str(var_dict[klist])))
+                    # replace string diff
+                    if isinstance(var_dict[klist], str):
+                        temp_val = str(val).replace(str(klist), str(var_dict[klist]))
+                    else:   
+                        temp_val = str(val).replace("'{}'".format(klist), str(var_dict[klist]))
+                    var_dict[key] = eval(temp_val)
 
 
 def req_headers_default(data, index):
@@ -329,6 +341,7 @@ def exec_test_case(data):
         data[i]['Url'] = parse_args_func(FUNC, data[i]['Url'])
         data[i]['Headers'] = parse_args_func(FUNC, data[i]['Headers'])
         data[i]['OutPara'] = parse_args_func(FUNC, data[i]['OutPara'])
+        
 
         # 处理请求
         method = str(data[i]['Method']).upper()

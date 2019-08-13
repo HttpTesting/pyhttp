@@ -110,7 +110,7 @@ class HttpWebRequest(object):
     def post(self, **kwargs):
         """post请求"""
 
-        #Whether to adopt , url = base_url + url
+        # Whether to adopt , url = base_url + url
         if self.config['ENABLE_BASE_URL']:
             url = '{}{}'.format(self.baseUrl, str(kwargs['gurl']).strip())
         else:
