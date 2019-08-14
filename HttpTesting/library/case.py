@@ -247,30 +247,39 @@ def user_custom_variables(queue, args, data):
         queue: variables queue
         args: User variables
         data: user variables value
- 
+
     return:
         There is no return.
     """
     # User-defined variables.
     if 'USER_VAR' in data.keys():
         for key, value in data['USER_VAR'].items():
-            args['${%s}$' % key] = parse_args_func(FUNC, value)
+            if "${" in str(value):
+                content = re.findall('\$\{.*?}\$', str(value))
+                for ilist in content:
+                    if str(ilist) in args.keys():
+                        va = args[str(ilist)]
+                        if isinstance(value, str):
+                            value = str(value).replace(str(ilist), str(va))
+                        else:
+                            value = str(value).replace("'{}'".format(ilist), str(va))
 
+            if '%{' in str(value):
+                temp = parse_args_func(FUNC, value)
+            else:
+                temp = value
+
+            args['${%s}$' % key] = temp
         queue.append(args)
 
         var_dict = queue[0]
 
         # Handles custom variables in USER_VAR
         for key, val in var_dict.items():
-            content = re.findall('\\${.*?}\\$', str(val))
+            content = re.findall('\$\{.*?}\$', str(val))
             if content:
                 for klist in content:
-                    # replace string diff
-                    if isinstance(var_dict[klist], str):
-                        temp_val = str(val).replace(str(klist), str(var_dict[klist]))
-                    else:   
-                        temp_val = str(val).replace("'{}'".format(klist), str(var_dict[klist]))
-                    var_dict[key] = eval(temp_val)
+                    var_dict[key] = eval(str(val).replace(str(klist), str(var_dict[klist])))
 
 
 def req_headers_default(data, index):

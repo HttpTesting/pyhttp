@@ -1,5 +1,13 @@
-import shutil
+# ########################################################
+# 将根目录加入sys.path中,解决命令行找不到包的问题
+import sys
 import os
+curPath = os.path.abspath(os.path.dirname(__file__))
+rootPath = os.path.split(curPath)[0]
+sys.path.insert(0, rootPath)
+# ########################################################
+
+import shutil
 import time
 from HttpTesting.globalVar import gl
 from HttpTesting.library import scripts
@@ -176,8 +184,8 @@ class Run_Test_Case(object):
         # 钉钉标题
         content = config['DING_TITLE']
         # 发送钉钉消息
-        msg = """{}已完成:\n测试报告地址:{}/{}/{}"""
-        msg = msg.format(content, report_url, low_path, file_name)
+        msg = """{}已完成:\n测试报告地址:{}/{}"""
+        msg = msg.format(content, report_url, low_path)
 
         return msg
 
@@ -198,6 +206,7 @@ class Run_Test_Case(object):
         repeat = config['ENABLE_REPEAT']
         repeat_num = config['REPEAT_NUM']
         exec_mode = config['ENABLE_EXEC_MODE']
+        debug_mode = config['ENABLE_DEBUG_MODE']
 
         # custom function
         Run_Test_Case.copy_custom_function()
@@ -217,6 +226,12 @@ class Run_Test_Case(object):
         if rerun:
             reargs = ' --reruns {} '.format(renum)
 
+        # debug mode print debug info.
+        if debug_mode:
+            debug = '--tb=no'
+        else:
+            debug = ''
+
         """
         Load the pytest framework,
         which must be written here or DDT will be loaded first.
@@ -225,20 +240,22 @@ class Run_Test_Case(object):
         case_path = gl.loadcasePath
         # Output mode console or report.
         if exec_mode:
-            cmd = 'cd {} && py.test -q -s {} {} {} --tb=no'.format(
-                case_path, 
+            cmd = 'cd {} && py.test -q -s {} {} {} {}'.format(
+                case_path,
                 reargs,
-                'test_load_case.py', 
-                peatargs
+                'test_load_case.py',
+                peatargs,
+                debug
             ) 
         else:
-            cmd = 'cd {} && py.test {} {} {} {} --html={} --tb=no --self-contained-html'.format(
-                case_path, 
+            cmd = 'cd {} && py.test {} {} {} {} --html={} {} --self-contained-html'.format(
+                case_path,
                 pyargs,
                 reargs,
-                'test_load_case.py', 
+                'test_load_case.py',
                 peatargs,
-                filePath
+                filePath,
+                debug
             )
         try:
             os.system(cmd)
@@ -287,5 +304,6 @@ class Run_Test_Case(object):
             email.send(filePath)
 
 
-# if __name__ == "__main__":
-#     run_min()
+if __name__ == "__main__":
+    run_min()
+    
