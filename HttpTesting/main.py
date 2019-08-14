@@ -11,12 +11,13 @@ import shutil
 import time
 from HttpTesting.globalVar import gl
 from HttpTesting.library import scripts
-from HttpTesting.library.scripts import (get_yaml_field, 
+from HttpTesting.library.scripts import (get_yaml_field,
                                          write_file
                                          )
 from HttpTesting.library.emailstmp import EmailClass
 from HttpTesting.library.falsework import create_falsework
 from HttpTesting.library.har import ConvertHarToYAML
+from HttpTesting import __version__
 import argparse
 
 ########################################################################
@@ -40,7 +41,17 @@ def run_min():
     cur_dir = os.getcwd()
     os.chdir(cur_dir)
 
-    parse = argparse.ArgumentParser(description='HttpTesting parameters')
+    parse = argparse.ArgumentParser(
+        description='Httptesting HTTP(s) interface testing framework.',
+        prog='httptesting'
+        )
+    parse.add_argument(
+        "-v",
+        "--version",
+        action='version',
+        version="%(prog)s {}".format(__version__),
+        help='Framework version.'
+        )
     parse.add_argument(
         "-f",
         "--file",

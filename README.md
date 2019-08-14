@@ -62,7 +62,14 @@ httptesting通过YAML编写测试用例，安装httptesting后通过amt命令执
 
 
 
-### amt 或 AMT命令
+### 命令
+
+以下四个命令作用相同
+
+- am 
+- AM
+- amt
+- AMT
 
 |序号|命令参数|描述|
 |:---|:---|:---|  
