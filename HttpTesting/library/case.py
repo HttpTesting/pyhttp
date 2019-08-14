@@ -41,8 +41,8 @@ def out_param_parse(oname, param):
                 for num, val in enumerate(args.split("[")):
                     if num == 0:
                         val = "['{}']".format(val)
-                        a_jion = a_jion + val + "["
-                        a_jion = (a_jion[:-1])
+                    a_jion = a_jion + val + "["
+                a_jion = (a_jion[:-1])
                 m_jion = m_jion + a_jion
             else:
                 m_jion = m_jion + tmpl.format(args)
