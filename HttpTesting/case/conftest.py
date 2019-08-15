@@ -1,12 +1,7 @@
 import pytest
 from py._xmlgen import html
 from datetime import datetime
-
-from HttpTesting.library.scripts import (
-    get_ip_or_name, 
-    get_yaml_field
-    )
-from HttpTesting.globalVar import gl
+from HttpTesting.library.scripts import get_ip_addr
 
 
 """
@@ -14,18 +9,17 @@ Summary部分在此设置
 """
 @pytest.mark.optionalhook
 def pytest_html_results_summary(prefix, summary, postfix):
-    #Get configure content.
+    # Get configure content.
     prefix.extend([html.p("测试人: 测试组")])
-
 
 
 """
 Environment部分在此设置
 """
 def pytest_configure(config):
-    
-    config._metadata['测试地址'] = get_ip_or_name()[0]
-    #Remove fields from the list of environment variables.
+
+    config._metadata['测试地址'] = get_ip_addr()
+    # Remove fields from the list of environment variables.
     envirList = [
         'Plugins', 'Packages', 'WORKSPACE', 
         'JAVA_HOME', 'BUILD_ID', 'BUILD_NUMBER',

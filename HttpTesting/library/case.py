@@ -111,10 +111,10 @@ def param_content_parse(queue, data):
                                 if isinstance(val, str):
                                     m = m.replace(str(k), str(val))
                                 else:
-                                    m = m.replace("'{}'".format(k), str(val))
+                                    m = m.replace("'{}'".format(k), str(val)).replace('"{}"'.format(k), str(val))    
                                 m = eval(m)
                             except Exception:
-                                m = m.replace("'{}'".format(k), str(val))                                  
+                                m = m.replace("'{}'".format(k), str(val)).replace('"{}"'.format(k), str(val))                                  
                         data[filed] = m
                         break  # break
 
@@ -230,7 +230,7 @@ def user_params_variables(data):
                             if isinstance(val, str):
                                 tmp_val = str(content).replace(str(var_name), str(val))
                             else:
-                                tmp_val = str(content).replace("'{}'".format(var_name), str(val))
+                                tmp_val = str(content).replace("'{}'".format(var_name), str(val)).replace('"{}"'.format(var_name), str(val))
                             if val != params_len:
                                 data.append(eval(tmp_val))
                             else:
@@ -262,7 +262,7 @@ def user_custom_variables(queue, args, data):
                         if isinstance(value, str):
                             value = str(value).replace(str(ilist), str(va))
                         else:
-                            value = str(value).replace("'{}'".format(ilist), str(va))
+                            value = str(value).replace("'{}'".format(ilist), str(va)).replace('"{}"'.format(ilist), str(va))
 
             if '%{' in str(value):
                 temp = parse_args_func(FUNC, value)

@@ -317,4 +317,3 @@ class Run_Test_Case(object):
 
 if __name__ == "__main__":
     run_min()
-    

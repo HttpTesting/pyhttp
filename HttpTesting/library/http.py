@@ -2,7 +2,8 @@ import json
 from HttpTesting.library.scripts import (
     get_datetime_str,
     retry,
-    get_yaml_field
+    get_yaml_field,
+    print_font_color
     )
 import requests
 from requests.exceptions import (HTTPError, ConnectionError, ConnectTimeout)
@@ -30,7 +31,7 @@ class HttpWebRequest(object):
     def __init__(self):
         self.config = get_yaml_field(gl.configFile)
         self.baseUrl = self.config['BASE_URL']
-        self.OUT_TMPL = """{0}:\n{1} {2}请求:{3}\n请求:\n{4}\n响应:"""
+        self.OUT_TMPL = """{0} {1}请求:{2}\n请求:\n{3}\n响应:"""
 
     def header_lower(self, hdict):
         """
@@ -74,9 +75,13 @@ class HttpWebRequest(object):
 
         # format output.
         params = json.dumps(params, sort_keys=True, indent=4)
+        # console print color
+        if self.config['ENABLE_EXEC_MODE']:
+            print_font_color('{}:'.format(kwargs['desc']), color='green')
+        else:
+            print(kwargs['desc'])
         # Report output template.   
         tmpl = self.OUT_TMPL.format(
-            kwargs['desc'],
             get_datetime_str(),
             kwargs['method'],
             url,
@@ -122,9 +127,13 @@ class HttpWebRequest(object):
 
         # format output
         tmpl_data = json.dumps(data, sort_keys=True, indent=4, ensure_ascii=False)
+        # console print color
+        if self.config['ENABLE_EXEC_MODE']:
+            print_font_color('{}:'.format(kwargs['desc']), color='green')
+        else:
+            print(kwargs['desc'])
         # Report output template.
         tmpl = self.OUT_TMPL.format(
-            kwargs['desc'],
             get_datetime_str(),
             kwargs['method'],
             url,

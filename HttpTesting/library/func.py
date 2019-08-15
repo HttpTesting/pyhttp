@@ -120,14 +120,14 @@ class FUNC(Extend):
         Return:
             [] Returns a list of values.
         """
-        lt = lt[1:][:-1]
-        lt = eval(lt)
-
         len_list = len(lt) - 1
         rint = randint(0, len_list)
         return lt[rint]
 
-
+    @staticmethod
+    def demo(a, b):
+        return a + b
+        
 if __name__ == "__main__":
     a = FUNC.uuid1()
     print(a)

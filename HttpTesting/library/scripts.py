@@ -8,6 +8,7 @@ import collections
 import yaml
 from functools import wraps
 import requests
+from colorama import (Fore, Back, Style)
 from HttpTesting.globalVar import gl
 from requests.exceptions import (
     ConnectTimeout,
@@ -16,7 +17,7 @@ from requests.exceptions import (
     HTTPError
     )
 from HttpTesting.library.case_queue import case_exec_queue
-
+from HttpTesting.library.func import *
 
 # Datetime string.
 def get_datetime_str():
@@ -262,25 +263,48 @@ def parse_args_func(func_class, data):
         data_bool = True
         data = str(data)
 
-    take = re.findall('\\%{.*?}\\%', data)
+    take = re.findall('\%\{.*?}\%', data)
 
     for val in take:
-        fStr = val.split("%{")[1][:-2]
-        func = fStr.split('(')
+        func = val.split("%{")[1][:-2]
 
-        fName = func[0]
-        fPara = func[1][:-1]
+        func = '{}.{}'.format(func_class.__name__, func)
+        ret = eval_string_parse(func)
 
-        if fPara == '':
-            ret = getattr(func_class, fName)()
-        else:
-            ret = getattr(func_class, fName)(fPara)
-
+        # print_backgroup_color(ret, color='green')
         data = data.replace(val, str(ret))
 
     if data_bool:
         data = eval(data)
     return data
+
+
+def eval_string_parse(string):
+    """
+    Parse the string to native.
+
+    Args:
+        string: A string to be parsed.
+    Example:
+        >>> eval_string_parse("123")
+        123 <class 'int'>
+
+        >>> eval_string_parse("12.3")
+        12.3 <class 'float'>
+
+        >>> eval_string_parse("{'name': 'yhleng', 'age': 27}")
+        {'name': 'yhleng', 'age': 27}  <class 'dict'>
+
+        >>> eval_string_parse("[1,2,3,4,5]")
+        [1,2,3,4,5] <class 'list'>
+    Return:
+        String prototype.
+    """
+    try:
+        ret = eval(string)
+    except (TypeError, ValueError, NameError, SyntaxError):
+        ret = string
+    return ret
 
 
 def write_file(filepath, mode, txt):
@@ -302,6 +326,30 @@ def write_file(filepath, mode, txt):
         fp.write(txt)
 
 
+def get_ip_addr():
+    """
+    Returns the actual ip of the local machine.
+    This code figures out what source address would be used if some traffic
+    were to be sent out to some well known address on the Internet. In this
+    case, a Google DNS server is used, but the specific address does not
+    matter much.  No traffic is actually sent.
+
+    Usage:
+        import socket
+        ip_addr = get_ip_addr()
+    Return:
+        ip Address.
+    """
+    try:
+        csock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        csock.connect(('8.8.8.8', 80))
+        (addr, port) = csock.getsockname()
+        csock.close()
+        return addr
+    except socket.error:
+        return "127.0.0.1"
+
+
 def get_ip_or_name():
     """
     To obtain the local computer name or IP address.
@@ -309,6 +357,7 @@ def get_ip_or_name():
     Args:
 
     Usage:
+        import socket
         addr, name = get_ip_or_name()
 
     Return:
@@ -320,6 +369,48 @@ def get_ip_or_name():
     addr = socket.gethostbyname(name)
 
     return addr, name
+
+
+def print_font_color(msg, color='WHITE'):
+    """
+    Print console font color.
+
+    Args:
+        msg: Print message content.
+        color: Set the font to color; The default is white.
+               BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE, RESET
+    Usage:
+        from colorama import Fore
+        msg = 'font color.'
+        print_font_color(msg, 'red')
+
+        Set the font to red.
+    Return:
+        There is no return.
+    """
+    color = getattr(Fore, color.upper())
+    print(color, msg.strip(), Style.RESET_ALL)
+
+
+def print_backgroup_color(msg, color='WHITE'):
+    """
+    Print console backgroup color.
+
+    Args:
+        msg: Print message content.
+        color: Set the font to backgroup color; The default is white.
+               BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE, RESET
+    Usage:
+        from colorama import Back
+        msg = 'font backgroup color.'
+        print_backgroup_color(msg, 'red')
+
+        Set the font to backgroup is red.
+    Return:
+        There is no return.
+    """
+    color = getattr(Back, color.upper())
+    print(color, str(msg).strip(), Style.RESET_ALL)
 
 
 def ordered_dump(data, stream=None, Dumper=yaml.Dumper, **kwds):
