@@ -198,3 +198,7 @@ class HttpWebRequest(object):
         print(tmpl_result) 
 
         return res, headers, cookie, result
+
+
+# singleton mode.
+req = HttpWebRequest()

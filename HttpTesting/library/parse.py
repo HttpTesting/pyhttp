@@ -8,7 +8,8 @@ def parse_output_parameters(params):
 
     Args:
         params: res[0].tr.id
-    Example:
+
+    Examples:
         ret = parse_output_parameters('result.res.data[0].id')
         e.g. Data.tr.id => Data['tr']['id']
              res.tr.id => res['tr]['id]
@@ -25,29 +26,69 @@ def parse_output_parameters(params):
     # Template string.
     template = "['{}']"
     parse_string = ''
+
     # Parse the test case output parameters.
     for args in param_list:
+
+        # Resolves whether a list is included in a string.
         if "[" in args:
             left_string = ''
+            # parse
             for num, val in enumerate(args.split("[")):
                 if num == 0:
                     val = "['{}']".format(val)
+                # Join the string
                 left_string = left_string + val + "["
+
             left_string = (left_string[:-1])
+            # jion
             parse_string = parse_string + left_string
         else:
+            # Concatenate strings by template.
             parse_string = parse_string + template.format(args)
+
+    # Parse the test case output parameters.
     ret_string = param_obj.lower() + parse_string
+
     return ret_string
 
 
 def parse_param_variables(data):
     """
     """
-    var_regx_compile = re.compile(r"\${(.*?)}")
+    var_regx_compile = re.compile(r"\${(.*?)}\$")
 
-    take_list = var_regx_compile.findall(str(data))
+    take_list = var_regx_compile.findall(data.__str__())
 
+    # User-defined variables.
+    if 'USER_VAR' in data.keys():
+        for key, value in data['USER_VAR'].items():
+            if "${" in str(value):
+                content = re.findall(r'\$\{.*?}\$', str(value))
+                for ilist in content:
+                    if str(ilist) in args.keys():
+                        va = args[str(ilist)]
+                        if isinstance(value, str):
+                            value = str(value).replace(str(ilist), str(va))
+                        else:
+                            value = str(value).replace("'{}'".format(ilist), str(va)).replace('"{}"'.format(ilist), str(va))
+
+            if '%{' in str(value):
+                temp = parse_args_func(FUNC, value)
+            else:
+                temp = value
+
+            args['${%s}$' % key] = temp
+        queue.append(args)
+
+        var_dict = queue[0]
+
+        # Handles custom variables in USER_VAR
+        for key, val in var_dict.items():
+            content = re.findall('\$\{.*?}\$', str(val))
+            if content:
+                for klist in content:
+                    var_dict[key] = eval(str(val).replace(str(klist), str(var_dict[klist])))
     return take_list
 
 
@@ -62,8 +103,9 @@ def parse_args_func(func_class, data):
     Example:
         import re
         from HttpTesting.library.func import *
+
         >>> parse_args_func(FUNC, 'md5:%{md5("123")}; timestamp:%{timestamp()}')
-        md5:202cb962ac59075b964b07152d234b70; timestamp:1565840163
+            md5:202cb962ac59075b964b07152d234b70; timestamp:1565840163
 
     Return:
         Replacement data.
@@ -78,6 +120,7 @@ def parse_args_func(func_class, data):
     for val in take:
         func = val.split("%{")[1][:-2]
 
+        # Execution function.
         func = '{}.{}'.format(func_class.__name__, func)
         ret = eval_string_parse(func)
 

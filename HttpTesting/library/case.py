@@ -1,5 +1,5 @@
 import re
-from HttpTesting.library.http import HttpWebRequest
+from HttpTesting.library.http import req
 from HttpTesting.library.assert_case import Ac
 from HttpTesting.library.func import FUNC
 from HttpTesting.library.parse import (
@@ -305,11 +305,19 @@ def req_headers_default(data, index):
     Return:
         There is no return.
     """
+    # Determines whether to set the request default value.
     if 'REQ_HEADER' in data[0].keys():
+
         headers_default = data[0]['REQ_HEADER']
+
+        # Use itself or request header default; Itself is preferred
         if 'Headers' in data[index].keys():
+            # The request header itself is not set,
+            # and the request header default is adopted.
             if not data[index]['Headers']:
+
                 data[index]['Headers'] = headers_default
+
         else:
             data[index]['Headers'] = headers_default
     else:
@@ -325,18 +333,16 @@ def exec_test_case(data):
     Usage:
         exec_test_case(data)
     Return:
-        There is no.
+        There is no return.
     """
     # Parameter storage queue.
     queue_list = []
     # To store variables.
     args_dict = {}
-    # HTTP request instance.
-    req = HttpWebRequest()
 
     # Through the case.
-    for i, _ in enumerate(data):
-        if i == 0:
+    for index, _ in enumerate(data):
+        if index == 0:
             # User parameterized execution
             user_params_variables(data)
 
@@ -346,27 +352,38 @@ def exec_test_case(data):
 
         res = None
         # Request header default value.
-        req_headers_default(data, i)
+        req_headers_default(data, index)
 
         # Pass parameters with DATA information.
-        param_content_parse(queue_list, data[i])
+        param_content_parse(queue_list, data[index])
 
         # Parse the custom functions in the following fields
-        for key, value in data[i].items():
-            data[i][key] = parse_args_func(FUNC, data[i][key])
+        for key, value in data[index].items():
+            data[index][key] = parse_args_func(FUNC, data[index][key])
 
         # Send http request.
-        res, headers, cookie, result = send_http_request(req, data[i])
+        res, headers, cookie, result = send_http_request(req, data[index])
         # Assertions parsing
-        assert_func(res, headers, cookie, result, data[i]['Assert'])
+        assert_func(res, headers, cookie, result, data[index]['Assert'])
 
         # Output parameters are written to the queue
-        param_to_queue(queue_list, data[i], args_dict, res, headers, cookie, result)
+        param_to_queue(queue_list, data[index], args_dict, res, headers, cookie, result)
 
 
 def send_http_request(req, data):
     """
     Handling HTTP is fun.
+
+    Args:
+        req: request class object.  singleton mode.
+        data: case data. data[index]
+
+    Example:
+        from HttpTesting.library.http import req
+        res, headers, cookie, result = send_http_request(req, data[index])
+
+    Return:
+        res, headers, cookie, result
     """
     # Handling HTTP is fun.
     method = str(data['Method']).upper()
