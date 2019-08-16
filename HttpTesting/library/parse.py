@@ -8,8 +8,7 @@ def parse_output_parameters(params):
 
     Args:
         params: res[0].tr.id
-
-    Examples:
+    Example:
         ret = parse_output_parameters('result.res.data[0].id')
         e.g. Data.tr.id => Data['tr']['id']
              res.tr.id => res['tr]['id]
@@ -26,69 +25,29 @@ def parse_output_parameters(params):
     # Template string.
     template = "['{}']"
     parse_string = ''
-
     # Parse the test case output parameters.
     for args in param_list:
-
-        # Resolves whether a list is included in a string.
         if "[" in args:
             left_string = ''
-            # parse
             for num, val in enumerate(args.split("[")):
                 if num == 0:
                     val = "['{}']".format(val)
-                # Join the string
                 left_string = left_string + val + "["
-
             left_string = (left_string[:-1])
-            # jion
             parse_string = parse_string + left_string
         else:
-            # Concatenate strings by template.
             parse_string = parse_string + template.format(args)
-
-    # Parse the test case output parameters.
     ret_string = param_obj.lower() + parse_string
-
     return ret_string
 
 
 def parse_param_variables(data):
     """
     """
-    var_regx_compile = re.compile(r"\${(.*?)}\$")
+    var_regx_compile = re.compile(r"\${(.*?)}")
 
-    take_list = var_regx_compile.findall(data.__str__())
+    take_list = var_regx_compile.findall(str(data))
 
-    # User-defined variables.
-    if 'USER_VAR' in data.keys():
-        for key, value in data['USER_VAR'].items():
-            if "${" in str(value):
-                content = re.findall(r'\$\{.*?}\$', str(value))
-                for ilist in content:
-                    if str(ilist) in args.keys():
-                        va = args[str(ilist)]
-                        if isinstance(value, str):
-                            value = str(value).replace(str(ilist), str(va))
-                        else:
-                            value = str(value).replace("'{}'".format(ilist), str(va)).replace('"{}"'.format(ilist), str(va))
-
-            if '%{' in str(value):
-                temp = parse_args_func(FUNC, value)
-            else:
-                temp = value
-
-            args['${%s}$' % key] = temp
-        queue.append(args)
-
-        var_dict = queue[0]
-
-        # Handles custom variables in USER_VAR
-        for key, val in var_dict.items():
-            content = re.findall('\$\{.*?}\$', str(val))
-            if content:
-                for klist in content:
-                    var_dict[key] = eval(str(val).replace(str(klist), str(var_dict[klist])))
     return take_list
 
 
@@ -103,9 +62,8 @@ def parse_args_func(func_class, data):
     Example:
         import re
         from HttpTesting.library.func import *
-
         >>> parse_args_func(FUNC, 'md5:%{md5("123")}; timestamp:%{timestamp()}')
-            md5:202cb962ac59075b964b07152d234b70; timestamp:1565840163
+        md5:202cb962ac59075b964b07152d234b70; timestamp:1565840163
 
     Return:
         Replacement data.
@@ -120,7 +78,6 @@ def parse_args_func(func_class, data):
     for val in take:
         func = val.split("%{")[1][:-2]
 
-        # Execution function.
         func = '{}.{}'.format(func_class.__name__, func)
         ret = eval_string_parse(func)
 
@@ -231,6 +188,68 @@ def parse_cookie_string(cookie, cookie_string):
             queue_val = '; '.join(temp_list)
 
     return queue_val
+
+
+def parse_parameters_variables(queue, data):
+    """
+    Parse variables.
+        e.g. ['Headers', 'Data', 'Url', 'Assert', 'Desc', 'OutPara']
+
+    Args:
+        queue: List the queue.
+        data: data[index].
+
+    Examples:
+        parse_parameters_variables(queue, data)
+        e.g.
+        Headers:{
+            'content-type': 'application/json',
+            'token': ${token}$
+        }
+        =>
+        Headers:{
+            'content-type': 'application/json',
+            'token': '1q2w3e4r5t6y7u8i9o0a2s3d4f5g6h7j8k0l'
+        }
+    return:
+        There is no return.
+    """
+    # Prepare the parsed list of CASE fields.
+    parse_field_list = ['Headers', 'Data', 'Url', 'Assert', 'Desc']
+
+    # regx
+    var_regx_compile = re.compile(r"\${.*?}\$")
+
+    # Parses the parameters in the fields separately.
+    for _, field in enumerate(parse_field_list):
+
+        # Regular match field.
+        take_list = var_regx_compile.findall(data[field].__str__())
+
+        # Field to a variable.
+        for regx_field in take_list:
+            # queue value
+            for var_dict in queue:
+                try:
+                    var_value = var_dict[regx_field]
+                    break
+                except KeyError:
+                    pass
+
+            if isinstance(var_value, str):
+                # Replace
+                data[field] = data[field].__str__().replace(regx_field, var_value.__str__())
+            else:
+                data[field] = data[field].__str__().replace('"{}"'.format(regx_field), var_value.__str__()).replace("'{}'".format(regx_field), var_value.__str__())                
+
+            # Parse the function in the argument.
+            data_string = parse_args_func(FUNC, data[field])
+
+            # source
+            data[field] = eval_string_parse(data_string)
+
+
+
 
 
 if __name__ == "__main__":

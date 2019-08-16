@@ -7,58 +7,14 @@ from HttpTesting.library.parse import (
     parse_output_parameters, 
     eval_string_parse, 
     parse_string_value,
-    parse_cookie_string
+    parse_cookie_string,
+    parse_parameters_variables
     )
 from HttpTesting.library.scripts import (print_backgroup_color, print_font_color)
 
 
-def out_param_parse(oname, param):
-    """
-    Parse args
-    Param:
-        oname: object
-        param: args
-    Usage:
-        ret = out_param_parse('result', 'result.res.data[0].id')
-    Example:
-        Data.tr.id为 Data['tr']['id']
-        res.tr.id为 res['tr]['id]
-        res[0].tr.id 为res[0]['tr']['id']
-        cookie.SESSION 为 Response cookie, cookie['SESSION']
-        headers.Content-Type为 headers['Content-Type']
-    Return: 
-        Example:
-        result['res']['data'][0]['id']
-    """
-    param_list = param.split(".")
-    dt = oname
-    tmpl = "['{}']"
-    m_jion = ''
 
-    # Filter parameters.
-    if param_list[0] in ('result', 'res', 'cookie', 'headers', 'header'):
-        param_list.pop(0)
-
-    ds = param_list[0]
-    # Parse parammeters.
-    if ds in param_list:
-        for args in param_list:
-            if "[" in args:
-                a_jion = ''
-                for num, val in enumerate(args.split("[")):
-                    if num == 0:
-                        val = "['{}']".format(val)
-                    a_jion = a_jion + val + "["
-                a_jion = (a_jion[:-1])
-                m_jion = m_jion + a_jion
-            else:
-                m_jion = m_jion + tmpl.format(args)
-    else:
-        print("出参错误,格式应为data.2级.3级:{}".format(param))
-    return dt + m_jion
-
-
-def assert_func(res, headers, cookie, result, assertlist):
+def assert_test_case(res, headers, cookie, result, assert_list):
     """
     Assertion function.
     Args:
@@ -68,62 +24,28 @@ def assert_func(res, headers, cookie, result, assertlist):
         cookie: Reponse cookie object.
         result: Reponse text or reponse json.
     Usage:
-        assert_func(self, res, headers, cookie, result, data[i]['Assert'])
+        assert_test_case(self, res, headers, cookie, result, data[index]['Assert'])
     Return:
         There is no return.
     """
-    for ass_dit in assertlist:
+    for ass_dict in assert_list:
 
-        for key, value in ass_dit.items():
+        for key, value in ass_dict.items():
 
             ac = getattr(Ac, key)
 
             for ite, val in enumerate(value):
 
                 if '.' in str(val):
-                    value[ite] = eval(out_param_parse(val.split(".")[0], val))
+
+                    value[ite] = eval(parse_output_parameters(val))
+
             # Distinguish between two parameters and one parameter by key.
             if value.__len__() == 1:
                 assert eval(ac.format(value[0]))
-            if value.__len__() == 2:
+            else:
                 assert eval(ac.format(value[0], value[1]))
 
-
-def param_content_parse(queue, data):
-    """
-    Pass parameters with DATA information.
-
-    args:
-        queue: List the queue.
-        data: The DATA content.
-
-    return:
-        There is no return.
-    """
-
-    for ki, value in enumerate(queue):
-        for key, val in value.items():
-            filed_list = ['Headers', 'Data', 'Url', 'Assert']
-            for filed in filed_list:
-                # data参数 正则匹配
-                m = str(data[filed])
-                content = re.findall('\\${.*?}\\$', m)
-                if content:
-                    k = ""
-                    # 替换数到data中
-                    for k in content:
-                        if key in content:
-                            try:
-                                # string replace diff
-                                if isinstance(val, str):
-                                    m = m.replace(str(k), str(val))
-                                else:
-                                    m = m.replace("'{}'".format(k), str(val)).replace('"{}"'.format(k), str(val))    
-                                m = eval(m)
-                            except Exception:
-                                m = m.replace("'{}'".format(k), str(val)).replace('"{}"'.format(k), str(val))                                  
-                        data[filed] = m
-                        break  # break
 
 def user_params_variables(data):
     """
@@ -160,58 +82,17 @@ def user_params_variables(data):
 
             ]
 
-        Usage:
+        Examples:
             user_params_variables(data) 
 
-        After:
-            data:
-            [
-                {
-                    "Desc": "接口用例详细描述",
-                    "PARAM_VAR":{
-                        "sig": [1,2]
-                    },
-                },
-                {   
-                    "Desc": "接口名称1_2",
-                    "Url": "/send/code",
-                    "Method": "POST",
-                    "Headers":{},
-                    "Data":                 
-                        {
-                            "appid": "dp1svA1gkNt8cQMkoIv7HmD1",
-                            "req": {
-                                "cno": "1623770534820512"
-                            },
-                            "sig": "2",
-                            "ts": 123,
-                            "v": 2.0
-                        },
-                    "OutPara": None,
-                    "Assert": [],
+            e.g. "PARAM_VAR":{
+                    "sig_var": [1,2]
+                    }
 
-                },
-                {
-                    "Desc": "接口名称1_1",
-                    "Url": "/send/code",
-                    "Method": "POST",
-                    "Headers":{},
-                    "Data":
-                        {
-                            "appid": "dp1svA1gkNt8cQMkoIv7HmD1",
-                            "req": {
-                                "cno": "1623770534820512"
-                            },
-                            "sig": "1",
-                            "ts": 123,
-                            "v": 2.0
-                        },
-                    "OutPara": None,
-                    "Assert": [],
-
-                }
-            ]
-        Returns:
+            e.g. "sig": "${sig_var}$"
+                 "sig": 1
+                 "sig": 2
+        Return:
             There is no return.
     """
     if 'PARAM_VAR' in data[0].keys():
@@ -333,12 +214,14 @@ def exec_test_case(data):
     Usage:
         exec_test_case(data)
     Return:
-        There is no return.
+        There is no.
     """
     # Parameter storage queue.
     queue_list = []
     # To store variables.
     args_dict = {}
+    # HTTP request instance.
+    # req = HttpWebRequest()
 
     # Through the case.
     for index, _ in enumerate(data):
@@ -354,8 +237,8 @@ def exec_test_case(data):
         # Request header default value.
         req_headers_default(data, index)
 
-        # Pass parameters with DATA information.
-        param_content_parse(queue_list, data[index])
+        # Parse parameter variable and function
+        parse_parameters_variables(queue_list, data[index])
 
         # Parse the custom functions in the following fields
         for key, value in data[index].items():
@@ -364,7 +247,7 @@ def exec_test_case(data):
         # Send http request.
         res, headers, cookie, result = send_http_request(req, data[index])
         # Assertions parsing
-        assert_func(res, headers, cookie, result, data[index]['Assert'])
+        assert_test_case(res, headers, cookie, result, data[index]['Assert'])
 
         # Output parameters are written to the queue
         param_to_queue(queue_list, data[index], args_dict, res, headers, cookie, result)
@@ -373,17 +256,6 @@ def exec_test_case(data):
 def send_http_request(req, data):
     """
     Handling HTTP is fun.
-
-    Args:
-        req: request class object.  singleton mode.
-        data: case data. data[index]
-
-    Example:
-        from HttpTesting.library.http import req
-        res, headers, cookie, result = send_http_request(req, data[index])
-
-    Return:
-        res, headers, cookie, result
     """
     # Handling HTTP is fun.
     method = str(data['Method']).upper()
