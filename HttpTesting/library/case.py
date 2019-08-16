@@ -2,7 +2,14 @@ import re
 from HttpTesting.library.http import HttpWebRequest
 from HttpTesting.library.assert_case import Ac
 from HttpTesting.library.func import FUNC
-from HttpTesting.library.scripts import parse_args_func
+from HttpTesting.library.parse import (
+    parse_args_func, 
+    parse_output_parameters, 
+    eval_string_parse, 
+    parse_string_value,
+    parse_cookie_string
+    )
+from HttpTesting.library.scripts import (print_backgroup_color, print_font_color)
 
 
 def out_param_parse(oname, param):
@@ -320,7 +327,9 @@ def exec_test_case(data):
     Return:
         There is no.
     """
+    # Parameter storage queue.
     queue_list = []
+    # To store variables.
     args_dict = {}
     # HTTP request instance.
     req = HttpWebRequest()
@@ -336,43 +345,18 @@ def exec_test_case(data):
             continue
 
         res = None
-
         # Request header default value.
         req_headers_default(data, i)
 
         # Pass parameters with DATA information.
         param_content_parse(queue_list, data[i])
 
-
         # Parse the custom functions in the following fields
-        data[i]['Desc'] = parse_args_func(FUNC, data[i]['Desc'])
-        data[i]['Data'] = parse_args_func(FUNC, data[i]['Data'])
-        data[i]['Url'] = parse_args_func(FUNC, data[i]['Url'])
-        data[i]['Headers'] = parse_args_func(FUNC, data[i]['Headers'])
-        data[i]['OutPara'] = parse_args_func(FUNC, data[i]['OutPara'])
-        
+        for key, value in data[i].items():
+            data[i][key] = parse_args_func(FUNC, data[i][key])
 
-        # 处理请求
-        method = str(data[i]['Method']).upper()
-        if ('GET' in method) or (r'DELETE' in method):
-            res, headers, cookie, result = req.get(
-                params=data[i]['Data'],
-                desc=data[i]['Desc'],
-                gurl=data[i]['Url'],
-                headers=data[i]['Headers'],
-                method=method
-                )
-        elif ('POST' in method) or ('PUT' in method):
-            res, headers, cookie, result = req.post(
-                data=data[i]['Data'],
-                desc=data[i]['Desc'],
-                gurl=data[i]['Url'],
-                headers=data[i]['Headers'],
-                method=method
-                )
-        else:
-            raise "Error:请求Mehod:{}错误.".format(data[i]['Method'])
-
+        # Send http request.
+        res, headers, cookie, result = send_http_request(req, data[i])
         # Assertions parsing
         assert_func(res, headers, cookie, result, data[i]['Assert'])
 
@@ -380,9 +364,37 @@ def exec_test_case(data):
         param_to_queue(queue_list, data[i], args_dict, res, headers, cookie, result)
 
 
-def param_to_queue(queue, data, param_dict, res, headers, cookie, result):
+def send_http_request(req, data):
     """
-    Output parameters are written to the queue.
+    Handling HTTP is fun.
+    """
+    # Handling HTTP is fun.
+    method = str(data['Method']).upper()
+    if ('GET' in method) or (r'DELETE' in method):
+        res, headers, cookie, result = req.get(
+            params=data['Data'],
+            desc=data['Desc'],
+            gurl=data['Url'],
+            headers=data['Headers'],
+            method=method
+            )
+    elif ('POST' in method) or ('PUT' in method):
+        res, headers, cookie, result = req.post(
+            data=data['Data'],
+            desc=data['Desc'],
+            gurl=data['Url'],
+            headers=data['Headers'],
+            method=method
+            )
+    else:
+        raise "Error request method: {}".format(data['Method'])    
+
+    return (res, headers, cookie, result)
+
+
+def param_to_queue(queue, dt, param_dict, res, headers, cookie, result):
+    """
+    Parse output parameters are written to the queue.
 
     args:
         queue: List the queue.
@@ -400,43 +412,29 @@ def param_to_queue(queue, data, param_dict, res, headers, cookie, result):
         There is no return.
     """
     # 出参写入队列
-    if data['OutPara']:
-        header = data['Headers']
+    if dt['OutPara']:
+        header = eval_string_parse(dt['Headers'])
+        data = eval_string_parse(dt['Data'])
+
         # 组参数
-        for key, value in data['OutPara'].items():
-            # 解释用例中的出参
-            out_data = data
-            #
-            if '.' in value:
-                strsplit = str(value).split(".")
-                stra = strsplit[0]
-                if '[' in stra:
-                    stra = stra.split("[")[0]
+        for key, value in dt['OutPara'].items():
+            # Parse output string. e.g ${var}$. write queue.
+            output_string = parse_output_parameters(value)
 
-                if stra.lower() != "data":
-                    head = stra
-                else:
-                    head = "out_data"
-                # 处理cookie
-                if strsplit[0].lower() == 'cookie':
-                    queue_val = '{}={}'.format(
-                        strsplit[1], 
-                        eval(out_param_parse(head, value))
-                        )
-                else:
-                    queue_val = eval(out_param_parse(head, value))
-            else:  # Parameter cookie  result
-                if 'cookie' in str(value).lower():
-                    temp_list = []
-                    for ky, vak in cookie.items():
-                        temp_list.append('{}={}'.format(ky, vak))
-                    queue_val = '; '.join(temp_list)
-                else:
-                    queue_val = eval(value)
+            # Parse cookie object as strings.
+            cookie_string = parse_cookie_string(cookie, output_string)
 
-            # custom var.
+            # custom variables format ${var}$.
             if "${" not in key:
                 key = "${%s}$" % key
-            param_dict[key] = queue_val
+
+            if not cookie_string:
+                try:
+                    ret = eval(output_string)
+                except (TypeError, ValueError, NameError, SyntaxError):
+                    ret = output_string
+            else:
+                ret = cookie_string
+            param_dict[key] = ret
 
         queue.append(param_dict)

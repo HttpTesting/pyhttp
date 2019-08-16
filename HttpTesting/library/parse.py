@@ -2,6 +2,45 @@ import re
 from HttpTesting.library.func import *
 
 
+def parse_output_parameters(params):
+    """
+    Parse the test case output parameters.
+
+    Args:
+        params: res[0].tr.id
+    Example:
+        ret = parse_output_parameters('result.res.data[0].id')
+        e.g. Data.tr.id => Data['tr']['id']
+             res.tr.id => res['tr]['id]
+             res[0].tr.id => res[0]['tr']['id']
+             cookie.SESSION => cookie['SESSION']
+             headers.Content-Type => headers['Content-Type']
+    """
+    param_list = params.split(".")
+
+    # Interception object.
+    param_obj = param_list[0]
+    param_list.pop(0)
+
+    # Template string.
+    template = "['{}']"
+    parse_string = ''
+    # Parse the test case output parameters.
+    for args in param_list:
+        if "[" in args:
+            left_string = ''
+            for num, val in enumerate(args.split("[")):
+                if num == 0:
+                    val = "['{}']".format(val)
+                left_string = left_string + val + "["
+            left_string = (left_string[:-1])
+            parse_string = parse_string + left_string
+        else:
+            parse_string = parse_string + template.format(args)
+    ret_string = param_obj.lower() + parse_string
+    return ret_string
+
+
 def parse_param_variables(data):
     """
     """
@@ -29,24 +68,25 @@ def parse_args_func(func_class, data):
     Return:
         Replacement data.
     """
-    func_regx_compile = re.compile(r"%{(.*?)}%")
+    data_bool = False
+    if not isinstance(data, str):
+        data_bool = True
+        data = str(data)
 
-    take = func_regx_compile.findall(str(data))
+    take = re.findall('%{.*?}%', data)
 
     for val in take:
-        func = '{}.{}'.format(func_class.__name__, val)
+        func = val.split("%{")[1][:-2]
 
-        ret_func = eval_string_parse(func)
-        if isinstance(ret_func, str):
+        func = '{}.{}'.format(func_class.__name__, func)
+        ret = eval_string_parse(func)
 
-            list_string = ['%{' + val + '}%', "'%{" + val + "}%'", '"%{' + val + '}%"']
-            data = replace_list_batch_string(data, list_string, ret_func)
-        else:
+        # print_backgroup_color(ret, color='green')
+        data = data.replace(val, str(ret))
 
-            list_string = ["'%{" + val + "}%'", '"%{' + val + '}%"', '%{' + val + '}%']
-            data = replace_list_batch_string(data, list_string, ret_func)
-
-    return eval_string_parse(data)
+    if data_bool:
+        data = eval_string_parse(data)
+    return data
 
 
 def replace_list_batch_string(string, list_string, new):
@@ -119,6 +159,36 @@ def parse_string_value(str_value):
         return str_value
 
 
+def parse_cookie_string(cookie, cookie_string):
+    """
+    Parse cookies as strings.
+
+    Args:
+        cookie: Response cookie object.
+        cookie_string: 
+            e.g. "cookie['SESSION']"
+            e.g. "cookie"
+    """
+    queue_val = ''
+    if 'cookie' in cookie_string:
+        #split cookie
+        if '[' in cookie_string:
+            # e.g. "cookie['SESSION']" => SESSION
+            cookie_key = cookie_string.split("[")[1][1:-2] 
+
+            try:
+                cookie_val = eval(cookie_string)
+            except (TypeError, ValueError, NameError, SyntaxError):
+                cookie_val = cookie_string
+            queue_val = '{}={}'.format(cookie_key, cookie_val)
+        else:
+            temp_list = []
+            for ky, vak in cookie.items():
+                temp_list.append('{}={}'.format(ky, vak))
+            queue_val = '; '.join(temp_list)
+
+    return queue_val
+
 
 if __name__ == "__main__":
     data = {
@@ -127,5 +197,9 @@ if __name__ == "__main__":
     }
     # ret = parse_args_func(FUNC, data)
     # print(ret)
-    ret = parse_param_variables("aaaa${var}bbbb${okay}")
+    # ret = parse_param_variables("aaaa${var}bbbb${okay}")
+    # print(ret)
+    # e.g. "result.res[0].coupon.coupons[1]" >>> result['res'][0]['coupon']['coupons'][1]
+    # Data.tr.id
+    ret = parse_output_parameters("cookie.SESSION")
     print(ret)

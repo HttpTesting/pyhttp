@@ -275,7 +275,7 @@ def parse_args_func(func_class, data):
         data = data.replace(val, str(ret))
 
     if data_bool:
-        data = eval(data)
+        data = eval_string_parse(data)
     return data
 
 

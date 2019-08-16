@@ -3,14 +3,15 @@
 
 ##########################基础URl设置######################################
 #ENABLE_BASE_URL为True时，启用基础URL；为Fasle不启用使用case中url
-ENABLE_BASE_URL: True
+# True启用； False不启用
+ENABLE_BASE_URL: False
 ####接口基本url地址####
 BASE_URL: http://111.111.111.111:2222
 
 
 ##########################执行设置##########################################
-#Debug模式输出; True不启用； False启用
-ENABLE_DEBUG_MODE: True
+#Debug模式输出; True启用； False不启用
+ENABLE_DEBUG_MODE: False
 
 #输出模式: True控制台与 False报告模式
 ENABLE_EXEC_MODE: False

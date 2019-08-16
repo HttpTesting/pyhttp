@@ -238,7 +238,7 @@ class Run_Test_Case(object):
             reargs = ' --reruns {} '.format(renum)
 
         # debug mode print debug info.
-        if debug_mode:
+        if not debug_mode:
             debug = '--tb=no'
         else:
             debug = ''
