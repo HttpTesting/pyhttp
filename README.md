@@ -37,7 +37,9 @@ httptesting通过YAML编写测试用例，安装httptesting后通过amt命令执
 
 ## 快速开始
 
-### python虚拟环境virtualenv使用
+### 环境准备
+
+#### python虚拟环境virtualenv使用
 
 - 安装虚拟环境: pip install virtualenv
 
@@ -47,21 +49,21 @@ httptesting通过YAML编写测试用例，安装httptesting后通过amt命令执
 
 - 激活虚拟环境: activate.bat 
 
-### HttpTesting安装
+#### HttpTesting安装
+以下三种方式选择其一即可。
+
+##### pip在线安装
+
+- pip install HttpTesting==1.1.69
+
+##### 下载whl文件进行安装
+
+- pip install HttpTesting-1.1.69-py3-none-any.whl 
 
 
-#### pip在线安装
+##### 更新httptesting包
 
-- pip install HttpTesting==1.0.26
-
-#### 下载whl文件进行安装
-
-- pip install HttpTesting-1.0.40-py3-none-any.whl 
-
-
-#### 更新HttpTesting包
-
-已安装HttpTesting包,通过pip命令进行更新
+已安装httptesting包,通过pip命令进行更新
 
 - pip list  查看HttpTesting安装包版本信息
 
@@ -71,7 +73,7 @@ httptesting通过YAML编写测试用例，安装httptesting后通过amt命令执
 
 
 
-### 命令
+### 使用命令运行
 
 以下四个命令作用相同
 
@@ -82,17 +84,19 @@ httptesting通过YAML编写测试用例，安装httptesting后通过amt命令执
 
 |序号|命令参数|描述|
 |:---|:---|:---|  
-|1|amt -conf set 或--config set|此命令用来设置config.yaml基本配置|
-|2|amt -f template.yaml或--file template.yaml|执行YAML用例，支持绝对或相对路径|
-|3|amt -d testcase或--dir testcase|批量执行testcase目录下的YAML用例，支持绝对路径或相对路径|
-|4|amt -sp demo或--startproject demo|生成脚手架demo目录,以及用例模版|
-|5|amt -har httphar.har|根据抓包工具导出的http har文件，生成测试用例YAML|
-|6|amt -c demo.yaml或--convert demo.yaml|转换数据为HttpTesting测试用例|
+|1|am -conf set 或--config set|此命令用来设置config.yaml基本配置|
+|2|am -f template.yaml或--file template.yaml|执行YAML用例，支持绝对或相对路径|
+|3|am -d testcase或--dir testcase|批量执行testcase目录下的YAML用例，支持绝对路径或相对路径|
+|4|am -sp demo或--startproject demo|生成脚手架demo目录,以及用例模版|
+|5|am -har httphar.har|根据抓包工具导出的http har文件，生成测试用例YAML|
+|6|am -c demo.yaml或--convert demo.yaml|转换数据为HttpTesting测试用例|
 
 
 
 
 #### 基本配置
+
+- [通过开关启用功能：并发执行, 失败重新执行, 用例执行次数, Debug模式，输出模式(html与控制台)，URL基本路径]
 
 - URL设置
 
@@ -102,33 +106,54 @@ httptesting通过YAML编写测试用例，安装httptesting后通过amt命令执
 
 - EMAIL邮箱设置
 
+- 用例执行配置
+
+
+
 
 #### 用例执行
 
-- YAML执行: amt -file template.yaml
+- YAML执行: 
 
-- YAML批量执行: amt -dir testcase
+- [整个YAML文件执行，指定CASE名称执行，批定多个CASE名称执行并且按指定顺序执行]
+
+- am -f template.yaml
+
+- am -f template.yaml Case1
+
+- am -f template.yaml Case2 Case1
+
+
+- YAML批量执行: 
+
+- [批量执行testcase目录下所有YAML测试用例文件]
+
+- am -dir testcase
 
 
 
 ####  脚手架生成
 
-- 脚手架功能,是生成一个测试用例模版.
+- am -sp demo 此命令生成一个demo文件夹结构。
+
+- 脚手架功能,是生成一个测试用例结构与Case模版.
 
 
 
 #### HAR
 
-har命令来解析, Charles抓包工具导出的http .har请求文件, 自动生成HttpTesting用例格式.
+- 执行命令: am -har httphar.har  自动生成httptesting用例 har_testcase.yaml。
+
+- har命令来解析, Charles抓包工具导出的http .har请求文件, 自动生成HttpTesting用例格式.
 
 
 
 
 
-## 用例编写
+### 用例编写
 
 
-### 用例模型
+#### 用例模型
 
 >TESTCASE{
 
@@ -223,7 +248,7 @@ har命令来解析, Charles抓包工具导出的http .har请求文件, 自动生
 
 ### 参数说明
 
-- "${H_token}$": 为参数变量,可以头信息里与Data数据里进行使用
+- "${H_cookie}$": 为参数变量,可以头信息里与Data数据里进行使用
 - "%{md5('aaaa')}%": 为函数原型,具体支持函数下方表格可见.
 
 ### 自定义变量
