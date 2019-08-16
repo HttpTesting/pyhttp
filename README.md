@@ -8,16 +8,19 @@
 
 HttpTesting 是HTTP(S)协议接口测试框架，通过YAML来编写测试用例，通过命令行运行代码，不固定目录结构，支持通过命令行生成脚手架。
 
-### 安装包下载: 
-[https://pypi.org/project/httptesting/#files](https://pypi.org/project/httptesting/#files)
 
-### 源码：
-[https://github.com/HttpTesting/pyhttp](https://github.com/HttpTesting/pyhttp)
 
 
 ## 功能描述
 httptesting通过YAML编写测试用例，安装httptesting后通过amt命令执行测试用例，支持指定YAML中CASE名称进行单用例执行，支持指定请求头默认值来共享请求头，支持自定义扩展功能(在case执行根目录下创建extfunc.py文件来自定义代码)。
 支持多进程执行用例，支持用例执行出错重试功能，支持设定执行用例次数；支持设置控制台输出和报告输出；支持参数化功能与用户自定义用户变量。
+
+
+### 安装包下载: 
+[https://pypi.org/project/httptesting/#files](https://pypi.org/project/httptesting/#files)
+
+### 源码：
+[https://github.com/HttpTesting/pyhttp](https://github.com/HttpTesting/pyhttp)
 
 
 
