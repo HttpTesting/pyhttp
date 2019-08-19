@@ -195,7 +195,7 @@ def req_headers_default(data, index):
 
 def parse_data_point(data):
 
-    regx_compile = re.compile("(data\.\w+)")
+    regx_compile = re.compile(r"(data\.\w+)")
 
     data_point = regx_compile.findall(data.__str__())
 
@@ -315,35 +315,38 @@ def param_to_queue(queue, dt, param_dict, res, headers, cookie, result):
         There is no return.
     """
     # 出参写入队列
-    if dt['OutPara']:
-        
-        header = eval_string_parse(dt['Headers'])
+    try:
+        if dt['OutPara']:
+            
+            header = eval_string_parse(dt['Headers'])
 
-        data = eval_string_parse(dt['Data'])
+            data = eval_string_parse(dt['Data'])
 
-        # 组参数
-        for key, value in dt['OutPara'].items():
-            # Parse output string. e.g ${var}$. write queue.
-            output_string = parse_output_parameters(value)
+            # 组参数
+            for key, value in dt['OutPara'].items():
+                # Parse output string. e.g ${var}$. write queue.
+                output_string = parse_output_parameters(value)
 
-            # Parse cookie object as strings.
-            cookie_string = parse_cookie_string(cookie, output_string)
+                # Parse cookie object as strings.
+                cookie_string = parse_cookie_string(cookie, output_string)
 
-            # custom variables format ${var}$.
-            if "${" not in key:
-                key = "${%s}$" % key
+                # custom variables format ${var}$.
+                if "${" not in key:
+                    key = "${%s}$" % key
 
-            if not cookie_string:
-                
-                try:
-                    ret = eval(output_string)
+                if not cookie_string:
+                    
+                    try:
+                        ret = eval(output_string)
 
-                except (TypeError, ValueError, NameError, SyntaxError):
+                    except (TypeError, ValueError, NameError, SyntaxError):
 
-                    ret = output_string
-            else:
-                ret = cookie_string
+                        ret = output_string
+                else:
+                    ret = cookie_string
 
-            param_dict[key] = ret
+                param_dict[key] = ret
 
-        queue.append(param_dict)
+            queue.append(param_dict)
+    except KeyError:
+        pass
