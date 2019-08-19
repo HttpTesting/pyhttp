@@ -13,7 +13,6 @@ from HttpTesting.library.parse import (
 from HttpTesting.library.scripts import (print_backgroup_color, print_font_color)
 
 
-
 def assert_test_case(res, headers, cookie, result, assert_list):
     """
     Assertion function.
@@ -195,20 +194,24 @@ def req_headers_default(data, index):
 
 
 def parse_data_point(data):
-    """
-    Replace DATA data.appid ; data['appid']
-    """
-    
+
     regx_compile = re.compile("(data\.\w+)")
 
     data_point = regx_compile.findall(data.__str__())
 
     for i in data_point:
         tmp = parse_output_parameters(i)
-        
-        data_var_compile = re.sub("({})".format(i), eval(tmp).__str__(), data.__str__())
 
-        data = eval(data_var_compile)
+        var_value = eval(tmp)
+
+        if isinstance(var_value, str) or isinstance(var_value, int):
+            # Replace
+            data = data.__str__().replace(i, eval(tmp).__str__())
+        else:
+            data = data.__str__().replace('"{}"'.format(i), eval(tmp).__str__()).replace("'{}'".format(i), eval(tmp).__str__())            
+
+        data = eval(data)
+
     return data
 
 
@@ -237,6 +240,11 @@ def exec_test_case(data):
             user_custom_variables(queue_list, args_dict, data[0])
             continue
 
+        # Parse to replace DATA in data. DATA.
+        for key, value in data[index].items():
+            # Parse data.appid
+            data[index][key] = parse_data_point(data[index][key])
+
         res = None
         # Request header default value.
         req_headers_default(data, index)
@@ -244,15 +252,11 @@ def exec_test_case(data):
         # Parse parameter variable and function
         parse_parameters_variables(queue_list, data[index])
 
-        # Parse to replace DATA in data. DATA.
-        # data[index]['Data'] = parse_data_point(data[index]['Data'])
-
         # Parse the custom functions in the following fields
         for key, value in data[index].items():
             # Parse function
             data[index][key] = parse_args_func(FUNC, data[index][key])
-            # Parse data.appid
-            data[index][key] = parse_data_point(data[index][key])
+
 
         # Send http request.
         res, headers, cookie, result = send_http_request(req, data[index])
