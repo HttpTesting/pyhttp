@@ -54,32 +54,8 @@ def user_params_variables(data):
         Args:
             data:
             [
-                {
-                    "Desc": "接口用例详细描述",
-                    "PARAM_VAR":{
-                        "sig": [1,2]
-                    },
-                },
-                {   
-                    "Desc": "接口名称1",
-                    "Url": "/send/code",
-                    "Method": "POST",
-                    "Headers":{},
-                    "Data":         
-                        {
-                            "appid": "dp1svA1gkNt8cQMkoIv7HmD1",
-                            "req": {
-                                "cno": "1623770534820512"
-                            },
-                            "sig": "${sig}$",
-                            "ts": 123,
-                            "v": 2.0
-                        },
-                    "OutPara": None,
-                    "Assert": [],
-
-                }
-
+                {"PARAM_VAR":{"sig_var": [1,2]}},
+                {"Desc": "接口名称1", "Url": "/send/code/${sig_var}$}
             ]
 
         Examples:
@@ -134,23 +110,33 @@ def user_custom_variables(queue, args, data):
     args:
         queue: variables queue
         args: User variables
-        data: user variables value
+        data: user variables value. data[0]
 
     return:
         There is no return.
     """
+    var_regx_compile = re.compile(r"\${.*?}\$")
+
     # User-defined variables.
     if 'USER_VAR' in data.keys():
+
+        # Traverse user variables.
         for key, value in data['USER_VAR'].items():
+            temp = ''
             if "${" in str(value):
-                content = re.findall('\$\{.*?}\$', str(value))
+                # Match regular expression.
+                content = var_regx_compile.findall(value.__str__())
+                # # Parse replace variables.
                 for ilist in content:
                     if str(ilist) in args.keys():
                         va = args[str(ilist)]
+
                         if isinstance(value, str):
                             value = str(value).replace(str(ilist), str(va))
                         else:
-                            value = str(value).replace("'{}'".format(ilist), str(va)).replace('"{}"'.format(ilist), str(va))
+                            value = str(value).replace(
+                                "'{}'".format(ilist), va.__str__()
+                                ).replace('"{}"'.format(ilist), str(va))
 
             if '%{' in str(value):
                 temp = parse_args_func(FUNC, value)
@@ -158,16 +144,19 @@ def user_custom_variables(queue, args, data):
                 temp = value
 
             args['${%s}$' % key] = temp
+
         queue.append(args)
 
         var_dict = queue[0]
 
         # Handles custom variables in USER_VAR
         for key, val in var_dict.items():
-            content = re.findall('\$\{.*?}\$', str(val))
-            if content:
-                for klist in content:
-                    var_dict[key] = eval(str(val).replace(str(klist), str(var_dict[klist])))
+            # Match regular expression.
+            content = var_regx_compile.findall(val.__str__())
+
+            # Parse replace variables.
+            for klist in content:
+                var_dict[key] = eval(str(val).replace(klist.__str__(), str(var_dict[klist])))
 
 
 def req_headers_default(data, index):
@@ -177,8 +166,7 @@ def req_headers_default(data, index):
         data: [
             {"Desc": 'xxxx', "REQ_HEADER": {"content-type": 'application/json'}},
             {"Desc": 'xxxx', 'Url': 'ccc', "Assert":[], "Method": "POST", "Data": 'xxx', "OutPara": "xxxx"}
-            {"Desc": 'xxxx', 'Url': 'ccc', "Assert":[], "Method": "POST", "Data": 'xxx', "OutPara": "xxxx"}
-        ]
+            ]
         index:
             data[index]
     Usage:
@@ -206,6 +194,24 @@ def req_headers_default(data, index):
         pass
 
 
+def parse_data_point(data):
+    """
+    Replace DATA data.appid ; data['appid']
+    """
+    
+    regx_compile = re.compile("(data\.\w+)")
+
+    data_point = regx_compile.findall(data.__str__())
+
+    for i in data_point:
+        tmp = parse_output_parameters(i)
+        
+        data_var_compile = re.sub("({})".format(i), eval(tmp).__str__(), data.__str__())
+
+        data = eval(data_var_compile)
+    return data
+
+
 def exec_test_case(data):
     """
     Execute pytest test framework.
@@ -220,8 +226,6 @@ def exec_test_case(data):
     queue_list = []
     # To store variables.
     args_dict = {}
-    # HTTP request instance.
-    # req = HttpWebRequest()
 
     # Through the case.
     for index, _ in enumerate(data):
@@ -240,9 +244,15 @@ def exec_test_case(data):
         # Parse parameter variable and function
         parse_parameters_variables(queue_list, data[index])
 
+        # Parse to replace DATA in data. DATA.
+        # data[index]['Data'] = parse_data_point(data[index]['Data'])
+
         # Parse the custom functions in the following fields
         for key, value in data[index].items():
+            # Parse function
             data[index][key] = parse_args_func(FUNC, data[index][key])
+            # Parse data.appid
+            data[index][key] = parse_data_point(data[index][key])
 
         # Send http request.
         res, headers, cookie, result = send_http_request(req, data[index])
@@ -302,7 +312,9 @@ def param_to_queue(queue, dt, param_dict, res, headers, cookie, result):
     """
     # 出参写入队列
     if dt['OutPara']:
+        
         header = eval_string_parse(dt['Headers'])
+
         data = eval_string_parse(dt['Data'])
 
         # 组参数
@@ -318,12 +330,16 @@ def param_to_queue(queue, dt, param_dict, res, headers, cookie, result):
                 key = "${%s}$" % key
 
             if not cookie_string:
+                
                 try:
                     ret = eval(output_string)
+
                 except (TypeError, ValueError, NameError, SyntaxError):
+
                     ret = output_string
             else:
                 ret = cookie_string
+
             param_dict[key] = ret
 
         queue.append(param_dict)

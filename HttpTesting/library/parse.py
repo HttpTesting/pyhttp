@@ -1,5 +1,6 @@
 import re
 from HttpTesting.library.func import *
+from HttpTesting.library.scripts import print_backgroup_color
 
 
 def parse_output_parameters(params):
@@ -73,13 +74,13 @@ def parse_args_func(func_class, data):
         data_bool = True
         data = str(data)
 
-    take = re.findall('%{.*?}%', data)
+    take = re.findall(r'%{.*?}%', data)
 
     for val in take:
         func = val.split("%{")[1][:-2]
 
         func = '{}.{}'.format(func_class.__name__, func)
-        ret = eval_string_parse(func)
+        ret = eval(func)
 
         # print_backgroup_color(ret, color='green')
         data = data.replace(val, str(ret))
@@ -222,10 +223,9 @@ def parse_parameters_variables(queue, data):
 
     # Parses the parameters in the fields separately.
     for _, field in enumerate(parse_field_list):
-
         # Regular match field.
-        take_list = var_regx_compile.findall(data[field].__str__())
-
+        take_list = list(set(var_regx_compile.findall(data[field].__str__())))
+        
         # Field to a variable.
         for regx_field in take_list:
             # queue value
@@ -236,21 +236,77 @@ def parse_parameters_variables(queue, data):
                 except KeyError:
                     pass
 
-            if isinstance(var_value, str):
+            var_value = parse_string_value(var_value)
+
+            if isinstance(var_value, str) or isinstance(var_value, int):
                 # Replace
                 data[field] = data[field].__str__().replace(regx_field, var_value.__str__())
             else:
-                data[field] = data[field].__str__().replace('"{}"'.format(regx_field), var_value.__str__()).replace("'{}'".format(regx_field), var_value.__str__())                
+                data[field] = data[field].__str__().replace('"{}"'.format(regx_field), var_value.__str__()).replace("'{}'".format(regx_field), var_value.__str__())            
 
-            # Parse the function in the argument.
-            data_string = parse_args_func(FUNC, data[field])
+        # Parse the function in the argument.
+        data_string = parse_args_func(FUNC, data[field])
 
-            # source
-            data[field] = eval_string_parse(data_string)
-
-
+        # source
+        data[field] = eval_string_parse(data_string)
 
 
+
+
+def user_custom_variables(queue, args, data):
+    """
+    Handles custom variables in USER_VAR
+
+    args:
+        queue: variables queue
+        args: User variables
+        data: user variables value. data[0]
+
+    return:
+        There is no return.
+    """
+    var_regx_compile = re.compile(r"\${.*?}\$")
+
+    # User-defined variables.
+    if 'USER_VAR' in data.keys():
+
+        # Traverse user variables.
+        for key, value in data['USER_VAR'].items():
+            temp = ''
+            if "${" in str(value):
+                # Match regular expression.
+                content = var_regx_compile.findall(value.__str__())
+                # # Parse replace variables.
+                for ilist in content:
+                    if str(ilist) in args.keys():
+                        va = args[str(ilist)]
+
+                        if isinstance(value, str):
+                            value = str(value).replace(str(ilist), str(va))
+                        else:
+                            value = str(value).replace(
+                                "'{}'".format(ilist), va.__str__()
+                                ).replace('"{}"'.format(ilist), str(va))
+
+            if '%{' in str(value):
+                temp = parse_args_func(FUNC, value)
+            else:
+                temp = value
+
+            args['${%s}$' % key] = temp
+
+        queue.append(args)
+
+        var_dict = queue[0]
+
+        # Handles custom variables in USER_VAR
+        for key, val in var_dict.items():
+            # Match regular expression.
+            content = var_regx_compile.findall(val.__str__())
+
+            # Parse replace variables.
+            for klist in content:
+                var_dict[key] = eval(str(val).replace(klist.__str__(), str(var_dict[klist])))
 
 if __name__ == "__main__":
     data = {
@@ -259,9 +315,21 @@ if __name__ == "__main__":
     }
     # ret = parse_args_func(FUNC, data)
     # print(ret)
+
     # ret = parse_param_variables("aaaa${var}bbbb${okay}")
     # print(ret)
     # e.g. "result.res[0].coupon.coupons[1]" >>> result['res'][0]['coupon']['coupons'][1]
     # Data.tr.id
-    ret = parse_output_parameters("cookie.SESSION")
-    print(ret)
+    # ret = parse_output_parameters("cookie.SESSION")
+    # print(ret)
+
+    # queue =   [{'${req}$': {'cno': 1802326704347962}, '${appid}$': 'dp3Go73mm5jUiuQaWDe4W', '${v}$': 2.0, '${ts}$': 1564967996, '${appkey}$': '3ea8bfbf0574b89ae6b9e4717a34f53f', '${sig_dict}$': "{'data': {'cno': 1802326704347962}, 'appid': 'dp3Go73mm5jUiuQaWDe4W', 'ts': '1564967996', 'v': '2.0', 'appkey': '3ea8bfbf0574b89ae6b9e4717a34f53f'}"}]
+    # data =  {'Desc': '给指定用户发送验证码1', 'Url': '/user/sendcode', 'Method': 'POST', 'Data':{'req': '${req}$', 'appid': '${appid}$', 'v': '${v}$', 'ts': '${ts}$', 'sig': "%{sign('${sig_dict}$')}%"}, 'OutPara': None, 'Assert': [{'eq': ['result.errcode', 1006]}], 'Headers': {'content-type': 'multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW', 'cache-control': 'no-cache'}}
+    # parse_parameters_variables(queue, data)
+
+    # data = {'Desc': '给指定用户发送验证码(发送1->发送2)', 'REQ_HEADER': {'content-type': 'multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW', 'cache-control': 'no-cache'}, 'USER_VAR': {'req': {'cno': 1802326704347962}, 'appid': 'dp3Go73mm5jUiuQaWDe4W', 'v': 2.0, 'ts': 1564967996, 'appkey': '3ea8bfbf0574b89ae6b9e4717a34f53f', 'sig_dict': {'data': '${req}$', 'appid': '${appid}$', 'ts': '${ts}$', 'v': '${v}$', 'appkey': '${appkey}$'}}}
+    # user_custom_variables([], {}, data)
+
+    # FUNC.sign({'data': {'cno': 1802326704347962}, 'appid': 'dp3Go73mm5jUiuQaWDe4W', 'ts': '1564967996', 'v': '2.0', 'appkey': '3ea8bfbf0574b89ae6b9e4717a34f53f'})
+
+

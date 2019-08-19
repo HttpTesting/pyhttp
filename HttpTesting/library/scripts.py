@@ -17,7 +17,7 @@ from requests.exceptions import (
     HTTPError
     )
 from HttpTesting.library.case_queue import case_exec_queue
-from HttpTesting.library.func import *
+
 
 # Datetime string.
 def get_datetime_str():
@@ -246,65 +246,6 @@ def check_http_status(host, port, **kwargs):
     except Exception:
         return False
 
-
-def parse_args_func(func_class, data):
-    """
-    Parse the function variables in the data.
-
-    Args:
-        func_class: FUNC  function object.
-        data: Request data.
-
-    Return:
-        Replacement data.
-    """
-    data_bool = False
-    if not isinstance(data, str):
-        data_bool = True
-        data = str(data)
-
-    take = re.findall('\%\{.*?}\%', data)
-
-    for val in take:
-        func = val.split("%{")[1][:-2]
-
-        func = '{}.{}'.format(func_class.__name__, func)
-        ret = eval_string_parse(func)
-
-        # print_backgroup_color(ret, color='green')
-        data = data.replace(val, str(ret))
-
-    if data_bool:
-        data = eval_string_parse(data)
-    return data
-
-
-def eval_string_parse(string):
-    """
-    Parse the string to native.
-
-    Args:
-        string: A string to be parsed.
-    Example:
-        >>> eval_string_parse("123")
-        123 <class 'int'>
-
-        >>> eval_string_parse("12.3")
-        12.3 <class 'float'>
-
-        >>> eval_string_parse("{'name': 'yhleng', 'age': 27}")
-        {'name': 'yhleng', 'age': 27}  <class 'dict'>
-
-        >>> eval_string_parse("[1,2,3,4,5]")
-        [1,2,3,4,5] <class 'list'>
-    Return:
-        String prototype.
-    """
-    try:
-        ret = eval(string)
-    except (TypeError, ValueError, NameError, SyntaxError):
-        ret = string
-    return ret
 
 
 def write_file(filepath, mode, txt):
