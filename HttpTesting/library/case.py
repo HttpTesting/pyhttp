@@ -130,7 +130,9 @@ def user_custom_variables(queue, args, data):
                     if str(ilist) in args.keys():
                         va = args[str(ilist)]
 
-                        if isinstance(value, str):
+                        value_var = eval_string_parse(va)
+                        
+                        if isinstance(value_var, str):
                             value = str(value).replace(str(ilist), str(va))
                         else:
                             value = str(value).replace(
