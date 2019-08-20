@@ -1,8 +1,8 @@
 import re
-from HttpTesting.library.http import req
-from HttpTesting.library.assert_case import Ac
-from HttpTesting.library.func import FUNC
-from HttpTesting.library.parse import (
+from httptesting.library.http import req
+from httptesting.library.assert_case import Ac
+from httptesting.library.func import FUNC
+from httptesting.library.parse import (
     parse_args_func, 
     parse_output_parameters, 
     eval_string_parse, 
@@ -10,7 +10,7 @@ from HttpTesting.library.parse import (
     parse_cookie_string,
     parse_parameters_variables
     )
-from HttpTesting.library.scripts import (print_backgroup_color, print_font_color)
+from httptesting.library.scripts import (print_backgroup_color, print_font_color)
 
 
 def assert_test_case(res, headers, cookie, result, assert_list):

@@ -6,18 +6,18 @@ curPath = os.path.abspath(os.path.dirname(__file__))
 rootPath = os.path.split(curPath)[0]
 sys.path.insert(0, rootPath)
 # ########################################################
-
+import os
 import shutil
 import time
-from HttpTesting.globalVar import gl
-from HttpTesting.library import scripts
-from HttpTesting.library.scripts import (get_yaml_field,
+from httptesting.globalVar import gl
+from httptesting.library import scripts
+from httptesting.library.scripts import (get_yaml_field,
                                          write_file
                                          )
-from HttpTesting.library.emailstmp import EmailClass
-from HttpTesting.library.falsework import create_falsework
-from HttpTesting.library.har import ConvertHarToYAML
-from HttpTesting import __version__
+from httptesting.library.emailstmp import EmailClass
+from httptesting.library.falsework import create_falsework
+from httptesting.library.har import ConvertHarToYAML
+from httptesting import __version__
 import argparse
 
 ########################################################################
@@ -42,7 +42,7 @@ def run_min():
     os.chdir(cur_dir)
 
     parse = argparse.ArgumentParser(
-        description='Httptesting HTTP(s) interface testing framework.',
+        description='httptesting HTTP(s) interface testing framework.',
         prog='httptesting'
         )
     parse.add_argument(
@@ -246,7 +246,7 @@ class Run_Test_Case(object):
         """
         Load the pytest framework,
         which must be written here or DDT will be loaded first.
-        from HttpTesting.case import test_load_case
+        from httptesting.case import test_load_case
         """
         case_path = gl.loadcasePath
         # Output mode console or report.

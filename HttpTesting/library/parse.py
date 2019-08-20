@@ -1,6 +1,6 @@
 import re
-from HttpTesting.library.func import *
-from HttpTesting.library.scripts import print_backgroup_color
+from httptesting.library.func import *
+from httptesting.library.scripts import print_backgroup_color
 
 
 def parse_output_parameters(params):
@@ -62,7 +62,7 @@ def parse_args_func(func_class, data):
 
     Example:
         import re
-        from HttpTesting.library.func import *
+        from httptesting.library.func import *
         >>> parse_args_func(FUNC, 'md5:%{md5("123")}; timestamp:%{timestamp()}')
         md5:202cb962ac59075b964b07152d234b70; timestamp:1565840163
 
@@ -280,8 +280,8 @@ def user_custom_variables(queue, args, data):
                 for ilist in content:
                     if str(ilist) in args.keys():
                         va = args[str(ilist)]
-
-                        if isinstance(value, str):
+                        value_var = eval_string_parse(va)
+                        if isinstance(value_var, str):
                             value = str(value).replace(str(ilist), str(va))
                         else:
                             value = str(value).replace(

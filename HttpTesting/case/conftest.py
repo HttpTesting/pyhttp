@@ -1,7 +1,7 @@
 import pytest
 from py._xmlgen import html
 from datetime import datetime
-from HttpTesting.library.scripts import get_ip_addr
+from httptesting.library.scripts import get_ip_addr
 
 
 """

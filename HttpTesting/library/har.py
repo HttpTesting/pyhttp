@@ -131,7 +131,7 @@ class ConvertHarToYAML:
     @classmethod
     def convert_har_to_ht(cls, harfile):
         """
-        Convert har files to HttpTesting the test cases.
+        Convert har files to httptesting the test cases.
         param:
             harfile: HAR file full path.
         return:

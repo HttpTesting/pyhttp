@@ -9,14 +9,14 @@ import yaml
 from functools import wraps
 import requests
 from colorama import (Fore, Back, Style)
-from HttpTesting.globalVar import gl
+from httptesting.globalVar import gl
 from requests.exceptions import (
     ConnectTimeout,
     ConnectionError,
     Timeout,
     HTTPError
     )
-from HttpTesting.library.case_queue import case_exec_queue
+from httptesting.library.case_queue import case_exec_queue
 
 
 # Datetime string.
@@ -102,9 +102,9 @@ def load_case_data(flag='TEST_CASE'):
         default:
             TEST_CASE
     :import
-        from HttpTesting.library.scripts import load_case_data
+        from httptesting.library.scripts import load_case_data
         or
-        form HttpTesting.library import scripts
+        form httptesting.library import scripts
     :invoke
         load_case_data()
         or

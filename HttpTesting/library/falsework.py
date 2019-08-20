@@ -1,6 +1,6 @@
 import os
 import shutil
-from HttpTesting.globalVar import gl
+from httptesting.globalVar import gl
 
 
 def create_falsework(path):
@@ -14,7 +14,7 @@ def create_falsework(path):
             amt --dirs= ./testcase  #执行该目录下所有case
         :param path: 脚手架根目录
         :invoke
-            from HttpTesting.library.falsework import create_falsework
+            from httptesting.library.falsework import create_falsework
             create_falsework(path)
         :return :
     """

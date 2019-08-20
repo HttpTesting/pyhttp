@@ -1,7 +1,7 @@
 import hashlib
 from collections import OrderedDict
 from urllib.parse import urlencode, quote
-from HttpTesting.library.scripts import print_backgroup_color
+from httptesting.library.scripts import print_backgroup_color
 
 class Extend:
 

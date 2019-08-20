@@ -8,7 +8,7 @@ from random import randint
 User-defined extension function import
 """
 try:
-    from HttpTesting.case.extfunc import Extend
+    from httptesting.case.extfunc import Extend
 except ImportError:
     Extend = object
 
@@ -18,7 +18,7 @@ class FUNC(Extend):
     Framework function library.
 
     Usage:
-        from HttpTesting.library.func import FUNC
+        from httptesting.library.func import FUNC
 
         %{FUNC.md5(txt)}%
         %{FUNC.timestamp()}%
