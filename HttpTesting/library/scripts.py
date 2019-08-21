@@ -267,6 +267,42 @@ def write_file(filepath, mode, txt):
         fp.write(txt)
 
 
+def read_file(filepath, mode):
+    """
+    The write file.
+
+    Args:
+        filepath: File absolute path.
+        mode: Read and Write.
+        txt: text content.
+
+    Usage:
+        read_file('/xxxx/temp.txt', 'r')
+
+    Return:
+        There is no.
+    """
+    with io.open(filepath, mode, encoding='utf-8') as fp:
+        content = fp.read()
+    return content
+
+
+def remove_file(file):
+    """
+    The remove file.
+
+    Args:
+        file: file absoule path.
+    
+    Exaplam:
+        file = "xxxx.txt"
+        remove_file(file)
+    Return:
+        There is no return.
+    """
+    if os.path.exists(file):
+        os.remove(file)
+
 def get_ip_addr():
     """
     Returns the actual ip of the local machine.

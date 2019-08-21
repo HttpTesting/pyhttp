@@ -252,7 +252,7 @@ def exec_test_case(data):
         req_headers_default(data, index)
 
         # Parse parameter variable and function
-        parse_parameters_variables(queue_list, data[index])
+        data[index] = parse_parameters_variables(queue_list, data[index])
 
         # Parse the custom functions in the following fields
         for key, value in data[index].items():

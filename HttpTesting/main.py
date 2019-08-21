@@ -12,7 +12,9 @@ import time
 from httptesting.globalVar import gl
 from httptesting.library import scripts
 from httptesting.library.scripts import (get_yaml_field,
-                                         write_file
+                                         write_file,
+                                         read_file,
+                                         remove_file
                                          )
 from httptesting.library.emailstmp import EmailClass
 from httptesting.library.falsework import create_falsework
@@ -194,9 +196,28 @@ class Run_Test_Case(object):
         report_url = config['REPORT_URL']
         # 钉钉标题
         content = config['DING_TITLE']
+        # 从报告中取得测试结果数据 e.g. 3 tests; 2.23 seconds; 3 passed; 0 failed; 0 errors
+        file_result = os.path.join(gl.loadcasePath, 'result.txt')
+        #
+        result_content = read_file(file_result, 'r')
+        # Remove file
+        remove_file(file_result)
+        
+        res_list = result_content.split(";")
+    
         # 发送钉钉消息
-        msg = """{}已完成:\n测试报告地址:{}/{}"""
-        msg = msg.format(content, report_url, low_path)
+        msg = """{}执行【已完成】:\n共{}个用例, 执行耗时{}秒, 通过{}, 失败{}, 错误{}, 通过率{}\n测试报告: {}/{}"""
+        msg = msg.format(
+            content,
+            res_list[0],
+            res_list[1],
+            res_list[2],
+            res_list[3],
+            res_list[4],
+            res_list[5],
+            report_url,
+            low_path
+            )
 
         return msg
 

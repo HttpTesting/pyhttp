@@ -225,13 +225,16 @@ def parse_parameters_variables(queue, data):
     for _, field in enumerate(parse_field_list):
         # Regular match field.
         take_list = list(set(var_regx_compile.findall(data[field].__str__())))
-        
+
         # Field to a variable.
         for regx_field in take_list:
+            # print_backgroup_color(regx_field, color='green')
             # queue value
             for var_dict in queue:
+                # print_backgroup_color(var_dict, color='red')
                 try:
                     var_value = var_dict[regx_field]
+                    # print_backgroup_color(var_value, color='green')
                     break
                 except KeyError:
                     pass
@@ -240,17 +243,17 @@ def parse_parameters_variables(queue, data):
 
             if isinstance(var_value, str) or isinstance(var_value, int):
                 # Replace
-                data[field] = data[field].__str__().replace(regx_field, var_value.__str__())
+                data = data.__str__().replace(regx_field, var_value.__str__())
             else:
-                data[field] = data[field].__str__().replace('"{}"'.format(regx_field), var_value.__str__()).replace("'{}'".format(regx_field), var_value.__str__())            
+                data = data.__str__().replace('"{}"'.format(regx_field), var_value.__str__()).replace("'{}'".format(regx_field), var_value.__str__())  
 
         # Parse the function in the argument.
-        data_string = parse_args_func(FUNC, data[field])
+        data_string = parse_args_func(FUNC, data)
 
         # source
-        data[field] = eval_string_parse(data_string)
+        data = eval_string_parse(data_string)
 
-
+    return data
 
 
 def user_custom_variables(queue, args, data):
@@ -323,8 +326,8 @@ if __name__ == "__main__":
     # ret = parse_output_parameters("cookie.SESSION")
     # print(ret)
 
-    # queue =   [{'${req}$': {'cno': 1802326704347962}, '${appid}$': 'dp3Go73mm5jUiuQaWDe4W', '${v}$': 2.0, '${ts}$': 1564967996, '${appkey}$': '3ea8bfbf0574b89ae6b9e4717a34f53f', '${sig_dict}$': "{'data': {'cno': 1802326704347962}, 'appid': 'dp3Go73mm5jUiuQaWDe4W', 'ts': '1564967996', 'v': '2.0', 'appkey': '3ea8bfbf0574b89ae6b9e4717a34f53f'}"}]
-    # data =  {'Desc': '给指定用户发送验证码1', 'Url': '/user/sendcode', 'Method': 'POST', 'Data':{'req': '${req}$', 'appid': '${appid}$', 'v': '${v}$', 'ts': '${ts}$', 'sig': "%{sign('${sig_dict}$')}%"}, 'OutPara': None, 'Assert': [{'eq': ['result.errcode', 1006]}], 'Headers': {'content-type': 'multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW', 'cache-control': 'no-cache'}}
+    # queue = [{'${version}$': 1.0, '${data_var}$': "{'req': {'sid': '1380598237', 'wxcode': '164073966187485312752286'}, 'appid': 'dp0Rm4wNl6A7q6w1QzcZQstr', 'sig': '9c8c96b38d759abe6633c124a5d37225', 'v': 1.0, 'ts': 1564643536}"}]
+    # data = {'Desc': '扫码校验券', 'Url': '/pos/checkcoupon', 'Method': 'POST', 'Headers': {'content-type': 'multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW', 'cache-control': 'no-cache'}, 'Data': '${data_var}$', 'OutPara': {'token': 'result.errcode'}, 'Assert': [{'eq': ['result.errcode', '30004']}]}
     # parse_parameters_variables(queue, data)
 
     # data = {'Desc': '给指定用户发送验证码(发送1->发送2)', 'REQ_HEADER': {'content-type': 'multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW', 'cache-control': 'no-cache'}, 'USER_VAR': {'req': {'cno': 1802326704347962}, 'appid': 'dp3Go73mm5jUiuQaWDe4W', 'v': 2.0, 'ts': 1564967996, 'appkey': '3ea8bfbf0574b89ae6b9e4717a34f53f', 'sig_dict': {'data': '${req}$', 'appid': '${appid}$', 'ts': '${ts}$', 'v': '${v}$', 'appkey': '${appkey}$'}}}
