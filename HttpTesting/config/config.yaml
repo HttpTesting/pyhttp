@@ -61,6 +61,8 @@ EMAIL_ENABLE: False
 EMAIL:
     #邮件服务器
     Smtp_Server: smtp.exmail.qq.com
+    # 端口
+    Port: 465
     #发送Email邮箱
     Smtp_Sender: lengyaohui.bj@acewill.cn
     #密码，以环境变量配置为先;最好配置到环境变量
@@ -68,7 +70,9 @@ EMAIL:
     #邮箱标题
     Msg_Title: 接口自动化测试结果
     #收件人[]多个人用列表存储
-    Receivers: ['lengyaohui@163.com'] 
+    Receivers: 
+        - lengyaohui@163.com
+        
     From: 自动化测试系统
     To: 微生活测试组
 ##############################################################################

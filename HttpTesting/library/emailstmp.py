@@ -20,7 +20,7 @@ class EmailClass(object):
         self.sender_server = self.config['EMAIL']['Smtp_Server']  # 从配置文件获取，发送服务器
         self.From = self.config['EMAIL']['From']
         self.To = self.config['EMAIL']['To']
-
+        self.Port = self.config['EMAIL']['Port']
     '''
     配置邮件内容
     '''
@@ -66,12 +66,11 @@ class EmailClass(object):
     def send_email(self, message):
         try:
             try:  # 如果25端口被封,走465端口
-                smtpObj = smtplib.SMTP()
-                smtpObj.connect(self.sender_server, 25)
+                smtpObj = smtplib.SMTP(self.sender_server, self.Port)
             except smtplib.SMTPConnectError:  # ssl 465 port
-                smtpObj = smtplib.SMTP_SSL(self.sender_server, 465)
-                smtpObj.connect(self.sender_server)
+                smtpObj = smtplib.SMTP_SSL(self.sender_server, self.Port)
 
+            smtpObj.connect(self.sender_server)
             smtpObj.login(self.sender, self.config['EMAIL']['Password'])
             smtpObj.sendmail(self.sender, self.receivers, message.as_string())
             smtpObj.quit()
