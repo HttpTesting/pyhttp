@@ -243,15 +243,15 @@ def parse_parameters_variables(queue, data):
 
             if isinstance(var_value, str) or isinstance(var_value, int):
                 # Replace
-                data = data.__str__().replace(regx_field, var_value.__str__())
+                data[field] = data[field].__str__().replace(regx_field, var_value.__str__())
             else:
-                data = data.__str__().replace('"{}"'.format(regx_field), var_value.__str__()).replace("'{}'".format(regx_field), var_value.__str__())  
+                data[field] = data[field].__str__().replace('"{}"'.format(regx_field), var_value.__str__()).replace("'{}'".format(regx_field), var_value.__str__()).replace(regx_field, var_value.__str__()) 
 
         # Parse the function in the argument.
-        data_string = parse_args_func(FUNC, data)
+        data_string = parse_args_func(FUNC, data[field])
 
         # source
-        data = eval_string_parse(data_string)
+        data[field] = eval_string_parse(data_string)
 
     return data
 
@@ -326,8 +326,8 @@ if __name__ == "__main__":
     # ret = parse_output_parameters("cookie.SESSION")
     # print(ret)
 
-    # queue = [{'${version}$': 1.0, '${data_var}$': "{'req': {'sid': '1380598237', 'wxcode': '164073966187485312752286'}, 'appid': 'dp0Rm4wNl6A7q6w1QzcZQstr', 'sig': '9c8c96b38d759abe6633c124a5d37225', 'v': 1.0, 'ts': 1564643536}"}]
-    # data = {'Desc': '扫码校验券', 'Url': '/pos/checkcoupon', 'Method': 'POST', 'Headers': {'content-type': 'multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW', 'cache-control': 'no-cache'}, 'Data': '${data_var}$', 'OutPara': {'token': 'result.errcode'}, 'Assert': [{'eq': ['result.errcode', '30004']}]}
+    # queue = [{'${appkey}$': '3ea8bfbf0574b89ae6b9e4717a34f53f'}]
+    # data = {'Desc': '查询用户参与的集赞活动', 'Url': '/activity/getuserthumbuplog', 'Method': 'POST', 'Headers': {'content-type': 'multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW', 'cache-control': 'no-cache'}, 'Data': {'req': {'cno': '1802326514043775', 'activity_id': 3032065}, 'appid': 'dp3Go73mm5jUiuQaWDe4W', 'v': 2.0, 'ts': 1564967996, 'sig': "%{sign({'data': {'cno': '1802326514043775', 'activity_id': 3032065}, 'appid':'dp3Go73mm5jUiuQaWDe4W', 'ts':'1564967996', 'v': 2.0,'appkey':'${appkey}$'})}%"}, 'OutPara': None, 'Assert': [{'eq': ['result.errcode', 11001]}]}
     # parse_parameters_variables(queue, data)
 
     # data = {'Desc': '给指定用户发送验证码(发送1->发送2)', 'REQ_HEADER': {'content-type': 'multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW', 'cache-control': 'no-cache'}, 'USER_VAR': {'req': {'cno': 1802326704347962}, 'appid': 'dp3Go73mm5jUiuQaWDe4W', 'v': 2.0, 'ts': 1564967996, 'appkey': '3ea8bfbf0574b89ae6b9e4717a34f53f', 'sig_dict': {'data': '${req}$', 'appid': '${appid}$', 'ts': '${ts}$', 'v': '${v}$', 'appkey': '${appkey}$'}}}
