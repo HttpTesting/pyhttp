@@ -2,7 +2,7 @@ import os
 import pytest
 from httptesting.library.scripts import load_case_data
 from httptesting.library.case import exec_test_case
-from httptesting.globalVar import gl
+from httptesting.library import gl
 
 # ###################################################################################
 # 单个文件Debug时启用

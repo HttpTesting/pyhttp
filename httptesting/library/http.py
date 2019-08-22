@@ -7,7 +7,7 @@ from httptesting.library.scripts import (
     )
 import requests
 from requests.exceptions import (HTTPError, ConnectionError, ConnectTimeout)
-from httptesting.globalVar import gl
+from httptesting.library import gl
 from httptesting.library.Multipart import MultipartFormData
 #########################################################################
 # requests.packages.urllib3.disable_warnings(InsecureRequestWarning)

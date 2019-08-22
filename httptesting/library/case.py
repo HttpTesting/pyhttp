@@ -3,9 +3,9 @@ from httptesting.library.http import req
 from httptesting.library.assert_case import Ac
 from httptesting.library.func import FUNC
 from httptesting.library.parse import (
-    parse_args_func, 
-    parse_output_parameters, 
-    eval_string_parse, 
+    parse_args_func,
+    parse_output_parameters,
+    eval_string_parse,
     parse_string_value,
     parse_cookie_string,
     parse_parameters_variables

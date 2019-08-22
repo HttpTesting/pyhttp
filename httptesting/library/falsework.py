@@ -1,6 +1,6 @@
 import os
 import shutil
-from httptesting.globalVar import gl
+from httptesting.library import gl
 
 
 def create_falsework(path):

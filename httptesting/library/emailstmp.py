@@ -7,12 +7,12 @@ from email.mime.base import MIMEBase
 from email.header import Header
 
 from httptesting.library import scripts
-from httptesting.globalVar import gl
+from httptesting.library import gl
 
 
 class EmailClass(object):
     def __init__(self):
-        self.curDateTime = str(time.strftime('%Y-%m-%d %H:%M:%S',time.localtime()))  # 当前日期时间
+        self.curDateTime = str(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()))  # 当前日期时间
         self.config = scripts.get_yaml_field(gl.configFile)  # 配置文件路径
         self.sender = self.config['EMAIL']['Smtp_Sender']  # 从配置文件获取，发件人
         self.receivers = self.config['EMAIL']['Receivers']   # 从配置文件获取，接收人
@@ -51,7 +51,7 @@ class EmailClass(object):
     增加附件
     '''
     def add_attach(self, apath, filename='Report.html'):
-        attach = MIMEBase('application','octet-stream')
+        attach = MIMEBase('application', 'octet-stream')
         with open(apath, 'rb') as fp:
 
             attach.set_payload(fp.read())
@@ -65,10 +65,7 @@ class EmailClass(object):
     '''
     def send_email(self, message):
         try:
-            try:  # 如果25端口被封,走465端口
-                smtpObj = smtplib.SMTP(self.sender_server, self.Port)
-            except smtplib.SMTPConnectError:  # ssl 465 port
-                smtpObj = smtplib.SMTP_SSL(self.sender_server, self.Port)
+            smtpObj = smtplib.SMTP_SSL(self.sender_server, self.Port)
 
             smtpObj.connect(self.sender_server)
             smtpObj.login(self.sender, self.config['EMAIL']['Password'])

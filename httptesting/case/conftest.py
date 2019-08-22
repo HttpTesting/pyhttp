@@ -4,7 +4,7 @@ from datetime import datetime
 import re
 import os
 from httptesting.library.scripts import (get_ip_addr, write_file)
-from httptesting.globalVar import gl
+from httptesting.library import gl
 
 # Pattern result.
 result_regx_compile = re.compile("\>(.*?)\<\/span>")

@@ -9,7 +9,7 @@ import yaml
 from functools import wraps
 import requests
 from colorama import (Fore, Back, Style)
-from httptesting.globalVar import gl
+from httptesting.library import gl
 from requests.exceptions import (
     ConnectTimeout,
     ConnectionError,

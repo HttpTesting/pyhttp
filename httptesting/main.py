@@ -9,7 +9,7 @@ sys.path.insert(0, rootPath)
 import os
 import shutil
 import time
-from httptesting.globalVar import gl
+from httptesting.library import gl
 from httptesting.library import scripts
 from httptesting.library.scripts import (get_yaml_field,
                                          write_file,
