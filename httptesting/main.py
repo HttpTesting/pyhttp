@@ -202,9 +202,9 @@ class Run_Test_Case(object):
         result_content = read_file(file_result, 'r')
         # Remove file
         remove_file(file_result)
-        
+
         res_list = result_content.split(";")
-    
+
         # 发送钉钉消息
         msg = """{}执行【已完成】:\n共{}个用例, 执行耗时{}秒, 通过{}, 失败{}, 错误{}, 通过率{}\n测试报告: {}/{}"""
         msg = msg.format(

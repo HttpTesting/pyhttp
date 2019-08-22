@@ -1,10 +1,10 @@
 [tool.poetry]
 name = "HttpTesting"
-version = "1.1.86"
+version = "1.1.88"
 description = "Httptesting HTTP(s) interface testing framework."
 license = "Apache-2.0"
 readme = "README.md"
-authors = ["lengyaohui <lengyaohui@163.com>"]
+authors = ["天枢 <lengyaohui@163.com>"]
 
 homepage = "https://github.com/HttpTesting/pyhttp"
 repository = "https://github.com/HttpTesting/pyhttp"
@@ -15,7 +15,10 @@ classifiers  =  [
     "Environment :: Console",
     "Topic :: Software Development :: Documentation",
     "Topic :: Software Development :: Libraries :: Python Modules",
-] 
+    "Operating System :: Microsoft :: Windows",
+    "Development Status :: 3 - Alpha",
+    "Framework :: Pytest",
+]
 
 include = ["LICENSE", "httptesting/templates/*", "httptesting/config/*", "httptesting/case/*"]
 
