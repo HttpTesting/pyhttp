@@ -217,6 +217,39 @@ def parse_data_point(data):
     return data
 
 
+def sorted_data_fuction(dtlist, orderby):
+    """
+    Sorted case data.
+
+    Example:
+        dtlist =>
+        [
+            {"asc": 19, "name": 'yhleng', 'phone': 12398876},
+            {"asc": 3, "name": 'yhleng', 'phone': 12398876},
+            {"asc": 30, "name": 'yhleng', 'phone': 12398876},
+            {"asc": 3, "name": 'yhleng', 'phone': 12398876}
+        ]
+        orderby => desc
+        ret = sorted_data_fuction(dtlist) =>
+        [
+            {"asc": 3, "name": 'yhleng', 'phone': 12398876},
+            {"asc": 3, "name": 'yhleng', 'phone': 12398876},
+            {"asc": 19, "name": 'yhleng', 'phone': 12398876},
+            {"asc": 30, "name": 'yhleng', 'phone': 12398876},
+        ]        
+    """
+    for _num, val in enumerate(dtlist):
+        for nk in range(0, len(dtlist)):
+            if orderby.lower() == 'desc':
+                if dtlist[_num]['asc'] <= dtlist[nk]['asc']:
+                    dtlist[_num], dtlist[nk] = dtlist[nk], dtlist[_num]
+            else:
+                if dtlist[_num]['asc'] >= dtlist[nk]['asc']:
+                    dtlist[_num], dtlist[nk] = dtlist[nk], dtlist[_num]
+
+    return dtlist
+
+
 def exec_test_case(data):
     """
     Execute pytest test framework.
@@ -231,6 +264,7 @@ def exec_test_case(data):
     queue_list = []
     # To store variables.
     args_dict = {}
+
 
     # Through the case.
     for index, _ in enumerate(data):
@@ -258,7 +292,6 @@ def exec_test_case(data):
         for key, value in data[index].items():
             # Parse function
             data[index][key] = parse_args_func(FUNC, data[index][key])
-
 
         # Send http request.
         res, headers, cookie, result = send_http_request(req, data[index])

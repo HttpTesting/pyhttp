@@ -514,6 +514,41 @@ Assert字段默认为[].
 - 如果在用例中设置了REQ_HEADER字段与请求中也单独设置了请求头，那么第一顺序为请求中的为主。
 - 上边的例子为场景用例，由两个请求组成，请求1，使用的是请求头默认值，请求2，使用自身请求头。
 
+### Case执行顺序
+	TEST_CASE:
+		Case1:
+		-   
+		    Desc: 给用户发送验证码业务场景(发送1->发送2)
+			Order: 10
+			USER_VAR:
+				cno_list:
+				- '1674921314241197'
+				- '1581199496593872'
+				- '1623770534820512'
+				- '1674921701066628'
+				- '1581199096195979'
+				- '1623770606653991'
+
+			REQ_HEADER:
+				content-type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+				cache-control: no-cache            
+
+		-   Desc: 给指定用户发送验证码1
+			Url: /user/sendcode
+			Method: POST
+			Data:
+				req:
+					cno: '%{rnd_list("${cno_list}$")}%'
+				appid: dp1svA1gkNt8cQMkoIv7HmD1
+				sig: "123"
+				v: 2.0
+				ts: 123
+			OutPara: null
+			Assert:
+			-   eq: [result.errcode, 0]
+
+- 以上示例Order字段为执行Case权重，全局根所此字段来排执行顺序。默认为0，字段可省略。
+
 ### 功能对比
 |序号|功能|V1.0|V1.1|配置参数|
 |--|--|--|--|--|
@@ -528,6 +563,7 @@ Assert字段默认为[].
 |9|用例参数化|√|√|在用例中用PARAM_VAR字段定义参数化变量,作用于当前Case|
 |10|请求头默认值|√|√|设置用例请求头默认值,整个case共享请求头。|
 |11|指定case执行|-|√|单个yaml文件指定case执行|
+|12|Case执行顺序|-|√|通过Order字段设置Case执行优先级|
 
 ## 代码打包与上传PyPi
 

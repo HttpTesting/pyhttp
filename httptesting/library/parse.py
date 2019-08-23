@@ -312,6 +312,7 @@ def user_custom_variables(queue, args, data):
                 var_dict[key] = eval(str(val).replace(klist.__str__(), str(var_dict[klist])))
 
 if __name__ == "__main__":
+    import json
     data = {
         "md5": '%{md5("123")}',
         "timestamp": "${var}"
@@ -326,13 +327,12 @@ if __name__ == "__main__":
     # ret = parse_output_parameters("cookie.SESSION")
     # print(ret)
 
-    # queue = [{'${appkey}$': '3ea8bfbf0574b89ae6b9e4717a34f53f'}]
-    # data = {'Desc': '查询用户参与的集赞活动', 'Url': '/activity/getuserthumbuplog', 'Method': 'POST', 'Headers': {'content-type': 'multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW', 'cache-control': 'no-cache'}, 'Data': {'req': {'cno': '1802326514043775', 'activity_id': 3032065}, 'appid': 'dp3Go73mm5jUiuQaWDe4W', 'v': 2.0, 'ts': 1564967996, 'sig': "%{sign({'data': {'cno': '1802326514043775', 'activity_id': 3032065}, 'appid':'dp3Go73mm5jUiuQaWDe4W', 'ts':'1564967996', 'v': 2.0,'appkey':'${appkey}$'})}%"}, 'OutPara': None, 'Assert': [{'eq': ['result.errcode', 11001]}]}
-    # parse_parameters_variables(queue, data)
-
+    queue = [{'${appkey}$': '3ea8bfbf0574b89ae6b9e4717a34f53f'}, {'${appid}$': 'dp3Go73mm5jUiuQaWDe4W'}, {'${desc}$': {"name":[1,2,3]}}, {'${url}$': '/hello'}]
+    data = {'Desc': '${desc}$', 'Url': '/${appid}$/getuserthumbuplog${url}$', 'Method': 'POST', 'Headers': {'content-type': 'multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW', 'cache-control': 'no-cache'}, 'Data': {'req': {'cno': '1802326514043775', 'activity_id': 3032065}, 'appid': '${appid}$', 'v': 2.0, 'ts': 1564967996, 'sig': "%{sign({'data': {'cno': '1802326514043775', 'activity_id': 3032065}, 'appid':'dp3Go73mm5jUiuQaWDe4W', 'ts':'1564967996', 'v': 2.0,'appkey':'${appkey}$'})}%"}, 'OutPara': None, 'Assert': [{'eq': ['result.errcode', '${appid}$']}]}
+    data = parse_parameters_variables(queue, data)
+    res = json.dumps(data, sort_keys=True, indent=4, ensure_ascii=False)
+    print(res)
     # data = {'Desc': '给指定用户发送验证码(发送1->发送2)', 'REQ_HEADER': {'content-type': 'multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW', 'cache-control': 'no-cache'}, 'USER_VAR': {'req': {'cno': 1802326704347962}, 'appid': 'dp3Go73mm5jUiuQaWDe4W', 'v': 2.0, 'ts': 1564967996, 'appkey': '3ea8bfbf0574b89ae6b9e4717a34f53f', 'sig_dict': {'data': '${req}$', 'appid': '${appid}$', 'ts': '${ts}$', 'v': '${v}$', 'appkey': '${appkey}$'}}}
     # user_custom_variables([], {}, data)
 
     # FUNC.sign({'data': {'cno': 1802326704347962}, 'appid': 'dp3Go73mm5jUiuQaWDe4W', 'ts': '1564967996', 'v': '2.0', 'appkey': '3ea8bfbf0574b89ae6b9e4717a34f53f'})
-
-

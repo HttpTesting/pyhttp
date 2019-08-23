@@ -93,6 +93,43 @@ def get_run_flag(skey):
     return ret_flag
 
 
+def sorted_data_fuction(dtlist, orderby='desc'):
+    """
+    Sorted case data.
+
+    Example:
+        dtlist =>
+        [
+            [{"asc": 19, "name": 'yhleng', 'phone': 12398876}],
+            [{"asc": 3, "name": 'yhleng', 'phone': 12398876}],
+            [{"asc": 30, "name": 'yhleng', 'phone': 12398876}],
+            [{"asc": 3, "name": 'yhleng', 'phone': 12398876}]
+        ]
+        orderby => desc
+        ret = sorted_data_fuction(dtlist) =>
+        [
+            [{"asc": 3, "name": 'yhleng', 'phone': 12398876}],
+            [{"asc": 3, "name": 'yhleng', 'phone': 12398876}],
+            [{"asc": 19, "name": 'yhleng', 'phone': 12398876}],
+            [{"asc": 30, "name": 'yhleng', 'phone': 12398876}],
+        ]        
+    """
+    for _num, val in enumerate(dtlist):
+        # add Order default 0
+        if ('Order' or 'order') not in dtlist[_num][0].keys():
+            dtlist[_num][0]['Order'] = 0
+
+        for nk in range(0, len(dtlist)):
+            if orderby.lower() == 'desc':
+                if dtlist[_num][0]['Order'] <= dtlist[nk][0]['Order']:
+                    dtlist[_num], dtlist[nk] = dtlist[nk], dtlist[_num]
+            else:
+                if dtlist[_num][0]['Order'] >= dtlist[nk][0]['Order']:
+                    dtlist[_num], dtlist[nk] = dtlist[nk], dtlist[_num]
+
+    return dtlist
+
+
 def load_case_data(flag='TEST_CASE'):
     """
     :Desc:
@@ -151,6 +188,8 @@ def load_case_data(flag='TEST_CASE'):
                         data_list.append(case_dict[key])
         else:
             raise Exception("The CASE execution queue is empty.")
+    # case order by desc
+    data_list = sorted_data_fuction(data_list, orderby='desc')
     return data_list
 
 

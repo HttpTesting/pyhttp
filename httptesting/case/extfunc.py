@@ -88,8 +88,7 @@ class Extend:
         :param kwargs: 参与签名的参数
         :return: sig签名md5字符串
         """
-        print_backgroup_color(data_dict, color='green')
-        kwargs = eval(data_dict)
+        kwargs = data_dict
         # 处理发送数据为空{}
         if kwargs['data']:
             URL_TMP = '{}&appid={}&appkey={}&v={}&ts={}'
