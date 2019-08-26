@@ -6,6 +6,7 @@ import re
 import socket
 import collections
 import yaml
+from yaml.parser import ParserError
 from functools import wraps
 import requests
 from colorama import (Fore, Back, Style)
@@ -59,22 +60,14 @@ def write_ymal(path,data):
         yaml.dump(data, fp)
 
 
-# Read YAML file.
-def get_yaml_field(path):
-    """
-    Gets the YAML configuration file content.
-    param:
-        path: YAML file path.
-    usage:
-        ret_dict = get_yaml_field(path)
-    return:
-        ret_dict is all of YAML's content.
-    """
-    with open(path, 'rb') as fp:
-        cont = fp.read()
+    try:
+        with open(path, 'rb') as fp:
+            cont = fp.read()
 
-    ret = yaml.load(cont, Loader=yaml.FullLoader)
-    return ret
+        ret = yaml.load(cont, Loader=yaml.FullLoader)
+        return ret
+    except ParserError as ex:
+        raise Exception('YAML格式出错,错误信息: {}'.format(ex))
 
 
 # Get the flag in the configuration file.
@@ -93,33 +86,34 @@ def get_run_flag(skey):
     return ret_flag
 
 
-def sorted_data_fuction(dtlist, orderby='desc'):
+def sorted_data_fuction(dtlist, orderby):
     """
     Sorted case data.
 
     Example:
         dtlist =>
         [
-            [{"asc": 19, "name": 'yhleng', 'phone': 12398876}],
-            [{"asc": 3, "name": 'yhleng', 'phone': 12398876}],
-            [{"asc": 30, "name": 'yhleng', 'phone': 12398876}],
-            [{"asc": 3, "name": 'yhleng', 'phone': 12398876}]
+            {"asc": 19, "name": 'yhleng', 'phone': 12398876},
+            {"asc": 3, "name": 'yhleng', 'phone': 12398876},
+            {"asc": 30, "name": 'yhleng', 'phone': 12398876},
+            {"asc": 3, "name": 'yhleng', 'phone': 12398876}
         ]
         orderby => desc
         ret = sorted_data_fuction(dtlist) =>
         [
-            [{"asc": 3, "name": 'yhleng', 'phone': 12398876}],
-            [{"asc": 3, "name": 'yhleng', 'phone': 12398876}],
-            [{"asc": 19, "name": 'yhleng', 'phone': 12398876}],
-            [{"asc": 30, "name": 'yhleng', 'phone': 12398876}],
-        ]        
+            {"asc": 3, "name": 'yhleng', 'phone': 12398876},
+            {"asc": 3, "name": 'yhleng', 'phone': 12398876},
+            {"asc": 19, "name": 'yhleng', 'phone': 12398876},
+            {"asc": 30, "name": 'yhleng', 'phone': 12398876},
+        ]  
     """
     for _num, val in enumerate(dtlist):
-        # add Order default 0
-        if ('Order' or 'order') not in dtlist[_num][0].keys():
-            dtlist[_num][0]['Order'] = 0
 
         for nk in range(0, len(dtlist)):
+            # add Order default 0
+            if ('Order' or 'order') not in dtlist[nk][0].keys():
+                dtlist[nk][0]['Order'] = 0
+
             if orderby.lower() == 'desc':
                 if dtlist[_num][0]['Order'] <= dtlist[nk][0]['Order']:
                     dtlist[_num], dtlist[nk] = dtlist[nk], dtlist[_num]

@@ -217,39 +217,6 @@ def parse_data_point(data):
     return data
 
 
-def sorted_data_fuction(dtlist, orderby):
-    """
-    Sorted case data.
-
-    Example:
-        dtlist =>
-        [
-            {"asc": 19, "name": 'yhleng', 'phone': 12398876},
-            {"asc": 3, "name": 'yhleng', 'phone': 12398876},
-            {"asc": 30, "name": 'yhleng', 'phone': 12398876},
-            {"asc": 3, "name": 'yhleng', 'phone': 12398876}
-        ]
-        orderby => desc
-        ret = sorted_data_fuction(dtlist) =>
-        [
-            {"asc": 3, "name": 'yhleng', 'phone': 12398876},
-            {"asc": 3, "name": 'yhleng', 'phone': 12398876},
-            {"asc": 19, "name": 'yhleng', 'phone': 12398876},
-            {"asc": 30, "name": 'yhleng', 'phone': 12398876},
-        ]        
-    """
-    for _num, val in enumerate(dtlist):
-        for nk in range(0, len(dtlist)):
-            if orderby.lower() == 'desc':
-                if dtlist[_num]['asc'] <= dtlist[nk]['asc']:
-                    dtlist[_num], dtlist[nk] = dtlist[nk], dtlist[_num]
-            else:
-                if dtlist[_num]['asc'] >= dtlist[nk]['asc']:
-                    dtlist[_num], dtlist[nk] = dtlist[nk], dtlist[_num]
-
-    return dtlist
-
-
 def exec_test_case(data):
     """
     Execute pytest test framework.
