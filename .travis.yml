@@ -6,8 +6,8 @@ python:
 matrix:
   include:
     - python: 3.7
-      dist: xenial  # Required for Python 3.7
-      sudo: true    # Required for Python 3.7
+      dist: xenial  # 3.7 version infomation
+      sudo: true
 install:
   - pip install poetry
   - poetry install -vvv
