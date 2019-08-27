@@ -2,7 +2,6 @@ import time
 import os
 import io
 import random
-import re
 import socket
 import collections
 import yaml
@@ -42,6 +41,27 @@ def get_timestamp_int():
         integer timestamp.
     """
     return int(time.time())
+
+
+# Read YAML file.
+def get_yaml_field(path):
+    """
+    Gets the YAML configuration file content.
+    param:
+        path: YAML file path.
+    usage:
+        ret_dict = get_yaml_field(path)
+    return:
+        ret_dict is all of YAML's content.
+    """
+    try:
+        with open(path, 'rb') as fp:
+            cont = fp.read()
+
+        ret = yaml.load(cont, Loader=yaml.FullLoader)
+        return ret
+    except ParserError as ex:
+        raise Exception('YAML格式出错,错误信息: {}'.format(ex))
 
 
 # Write YAML file content.

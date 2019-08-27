@@ -80,6 +80,7 @@ class FUNC(Extend):
         """
         Millisecond time stamp.  20 bit
         """
+        time.sleep(0.3)
         ret = datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')
         return ret
 
