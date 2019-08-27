@@ -42,16 +42,6 @@ def parse_output_parameters(params):
     return ret_string
 
 
-def parse_param_variables(data):
-    """
-    """
-    var_regx_compile = re.compile(r"\${(.*?)}")
-
-    take_list = var_regx_compile.findall(str(data))
-
-    return take_list
-
-
 def parse_args_func(func_class, data):
     """
     Parse the function variables in the data.
@@ -69,24 +59,29 @@ def parse_args_func(func_class, data):
     Return:
         Replacement data.
     """
-    data_bool = False
-    if not isinstance(data, str):
-        data_bool = True
-        data = str(data)
+    string = data.__str__()
+    while True:
 
-    take = re.findall(r'%{.*?}%', data)
+        if "%{" in string:
 
-    for val in take:
-        func = val.split("%{")[1][:-2]
+            left = string.rfind("%{")
 
-        func = '{}.{}'.format(func_class.__name__, func)
-        ret = eval(func)
+            right = string.find("}%", left)
 
-        # print_backgroup_color(ret, color='green')
-        data = data.replace(val, str(ret))
+            func_str = string[left:right+2]
 
-    if data_bool:
-        data = eval_string_parse(data)
+            func = func_str.split("%{")[1][:-2]
+
+            func = '{}.{}'.format(func_class.__name__, func)
+
+            ret = eval(func)
+
+            string = string.replace(func_str, str(ret))
+
+        else:
+            break
+
+        data = eval_string_parse(string)
     return data
 
 
@@ -141,7 +136,7 @@ def eval_string_parse(string):
 
 
 def parse_string_value(str_value):
-    """ 
+    """
     Parse string, restore type.
 
     Example:
@@ -172,7 +167,7 @@ def parse_cookie_string(cookie, cookie_string):
     """
     queue_val = ''
     if 'cookie' in cookie_string:
-        #split cookie
+        # split cookie
         if '[' in cookie_string:
             # e.g. "cookie['SESSION']" => SESSION
             cookie_key = cookie_string.split("[")[1][1:-2] 
