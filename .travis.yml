@@ -1,0 +1,16 @@
+sudo: false
+language: python
+python:
+  - 3.5
+  - 3.6
+matrix:
+  include:
+    - python: 3.7
+      dist: xenial  # Required for Python 3.7
+      sudo: true    # Required for Python 3.7
+install:
+  - pip install poetry
+  - poetry install -vvv
+script:
+  - python -m httptesting.main run_min -v
+  - python -m httptesting.main run_min -h
