@@ -56,7 +56,7 @@ class ConvertHarToYAML:
         except (KeyError, TypeError) as ex:
             raise ex
         return headers
-  
+
     @classmethod
     def parse_post_data(cls, postData):
         """
@@ -146,7 +146,7 @@ class ConvertHarToYAML:
         for n, val in enumerate(ret):
             case = 'case{}'.format(n)
             temp_dict['TEST_CASE'][case] = []
-            temp_dict['TEST_CASE'][case].append({'Desc': '请添加接口描述'})
+            temp_dict['TEST_CASE'][case].append({'Desc': '请添加接口测试描述'})
 
             if val['queryString']:
                 data = val['queryString']
@@ -160,12 +160,11 @@ class ConvertHarToYAML:
                 url = val['url'].split('?')[0]
 
             temp_dict['TEST_CASE'][case].append(collections.OrderedDict({
-                'Desc': '接口描述',
+                'Desc': '示例:接口名称/user/lock',
                 'Url': url,
                 'Method': val['method'],
                 'Headers': cls.parse_headers_dict(val['headers']),
                 'Data': cls.parse_post_data(data),
-                'InPara': "",
                 'OutPara': "",
                 'Assert': []
             }))

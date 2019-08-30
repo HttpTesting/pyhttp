@@ -238,11 +238,9 @@ def exec_test_case(data):
         if index == 0:
             # User parameterized execution
             user_params_variables(data)
-
             # Handles custom variables in USER_VAR
             user_custom_variables(queue_list, args_dict, data[0])
             continue
-
         # Parse to replace DATA in data. DATA.
         for key, value in data[index].items():
             # Parse data.appid
@@ -318,12 +316,9 @@ def param_to_queue(queue, dt, param_dict, res, headers, cookie, result):
     """
     # 出参写入队列
     try:
-        if dt['OutPara']:
-            
+        if dt['OutPara']:   
             header = eval_string_parse(dt['Headers'])
-
             data = eval_string_parse(dt['Data'])
-
             # 组参数
             for key, value in dt['OutPara'].items():
                 # Parse output string. e.g ${var}$. write queue.
@@ -336,8 +331,7 @@ def param_to_queue(queue, dt, param_dict, res, headers, cookie, result):
                 if "${" not in key:
                     key = "${%s}$" % key
 
-                if not cookie_string:
-                    
+                if not cookie_string:    
                     try:
                         ret = eval(output_string)
 
@@ -346,9 +340,7 @@ def param_to_queue(queue, dt, param_dict, res, headers, cookie, result):
                         ret = output_string
                 else:
                     ret = cookie_string
-
                 param_dict[key] = ret
-
             queue.append(param_dict)
-    except KeyError:
-        pass
+    except KeyError as ex:
+        raise Exception(ex)

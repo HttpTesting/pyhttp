@@ -58,10 +58,10 @@ def pytest_configure(config):
     config._metadata['测试地址'] = get_ip_addr()
     # Remove fields from the list of environment variables.
     envirList = [
-        'Plugins', 'Packages', 'WORKSPACE', 
+        'Plugins', 'Packages', 'WORKSPACE',
         'JAVA_HOME', 'BUILD_ID', 'BUILD_NUMBER',
         'EXECUTOR_NUMBER', 'GIT_BRANCH', 'GIT_URL',
-        'NODE_NAME','BUILD_URL'
+        'NODE_NAME', 'BUILD_URL'
     ]
     for key in envirList:
         if key in config._metadata.keys():

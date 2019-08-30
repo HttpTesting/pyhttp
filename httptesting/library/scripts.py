@@ -79,7 +79,6 @@ def write_ymal(path,data):
     with open(path, 'wb') as fp:
         yaml.dump(data, fp)
 
-
     try:
         with open(path, 'rb') as fp:
             cont = fp.read()
@@ -135,10 +134,10 @@ def sorted_data_fuction(dtlist, orderby):
                 dtlist[nk][0]['Order'] = 0
 
             if orderby.lower() == 'desc':
-                if dtlist[_num][0]['Order'] <= dtlist[nk][0]['Order']:
+                if dtlist[_num][0]['Order'] < dtlist[nk][0]['Order']:
                     dtlist[_num], dtlist[nk] = dtlist[nk], dtlist[_num]
             else:
-                if dtlist[_num][0]['Order'] >= dtlist[nk][0]['Order']:
+                if dtlist[_num][0]['Order'] > dtlist[nk][0]['Order']:
                     dtlist[_num], dtlist[nk] = dtlist[nk], dtlist[_num]
 
     return dtlist

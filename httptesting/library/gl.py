@@ -29,7 +29,7 @@ def _init():  # 初始化
     _global_dict = {}
 
 
-def set_value(key,value):
+def set_value(key, value):
     """ 定义一个全局变量 """
     _global_dict[key] = value
 
@@ -62,7 +62,7 @@ templatesReportPath = os.path.join(templatesPath, 'report')
 reportFile = os.path.join(reportPath, "Report.html")
 exeConfigFile = os.path.join(configPath, "exeConfig.yaml")
 testCasePath = os.path.join(PATH(os.path.dirname(globalPath)), 'template')
-loadcasePath = os.path.join(os.path.dirname(globalPath),'case')
+loadcasePath = os.path.join(os.path.dirname(globalPath), 'case')
 ##########################################################################
 
 if __name__ == "__main__":
