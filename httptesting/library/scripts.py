@@ -5,7 +5,7 @@ import random
 import socket
 import collections
 import yaml
-from ruamel import yaml as yam
+# from ruamel import yaml as yam
 from yaml.parser import ParserError
 from functools import wraps
 import requests
