@@ -232,7 +232,6 @@ def exec_test_case(data):
     # To store variables.
     args_dict = {}
 
-
     # Through the case.
     for index, _ in enumerate(data):
         if index == 0:
@@ -290,7 +289,7 @@ def send_http_request(req, data):
             method=method
             )
     else:
-        raise "Error request method: {}".format(data['Method'])    
+        raise "Error request method: {}".format(data['Method'])
 
     return (res, headers, cookie, result)
 

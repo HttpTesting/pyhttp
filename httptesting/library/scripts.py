@@ -5,6 +5,7 @@ import random
 import socket
 import collections
 import yaml
+from ruamel import yaml as yam
 from yaml.parser import ParserError
 from functools import wraps
 import requests
@@ -554,6 +555,73 @@ def generate_case_tmpl(fileyaml):
     # Write case to YAML file.
     write_case_to_yaml(fileyaml, tmpl)
     print("Conversion to complete.")
+
+
+
+
+def parse_output_parameters(params):
+    """
+    Parse the test case output parameters.
+
+    Args:
+        params: res[0].tr.id
+    Example:
+        ret = parse_output_parameters('result.res.data[0].id')
+        e.g. Data.tr.id => Data['tr']['id']
+             res.tr.id => res['tr]['id]
+             res[0].tr.id => res[0]['tr']['id']
+             cookie.SESSION => cookie['SESSION']
+             headers.Content-Type => headers['Content-Type']
+    """
+    param_list = params.split(".")
+
+    # Interception object.
+    param_obj = param_list[0]
+    param_list.pop(0)
+
+    # Template string.
+    template = "['{}']"
+    parse_string = ''
+    # Parse the test case output parameters.
+    for args in param_list:
+        if "[" in args:
+            left_string = ''
+            for num, val in enumerate(args.split("[")):
+                if num == 0:
+                    val = "['{}']".format(val)
+                left_string = left_string + val + "["
+            left_string = (left_string[:-1])
+            parse_string = parse_string + left_string
+        else:
+            parse_string = parse_string + template.format(args)
+    ret_string = param_obj + parse_string
+    return ret_string
+
+def update_yam_content(conf_file, conf_field, text):
+    """
+    Update YAML content.
+
+    Args:
+        conf_field:
+            e.g.
+            EMAIL.Smtp_Server => content['EMAIL']['Smtp_Server]
+        text:
+            YAML content.
+    Example:
+        from ruamel import yaml as yam
+        import io
+
+        update_yam_content("EMAIL.Smtp_Server", "smtp.mail.net")
+    Return:
+        There is no return.
+    """
+    parse_conf = parse_output_parameters('content.{}'.format(conf_field))
+    with io.open(conf_file, 'r', encoding='utf-8') as fp:
+        content = yam.load(fp, Loader=yam.RoundTripLoader)
+        exec('{} = text'.format(parse_conf))
+
+    with io.open(conf_file, 'w', encoding='utf-8') as fw:
+        yam.dump(content, stream=fw, Dumper=yam.RoundTripDumper, allow_unicode=True)
 
 
 if __name__ == "__main__":

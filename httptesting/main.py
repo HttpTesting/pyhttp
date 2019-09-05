@@ -14,7 +14,8 @@ from httptesting.library import scripts
 from httptesting.library.scripts import (get_yaml_field,
                                          write_file,
                                          read_file,
-                                         remove_file
+                                         remove_file,
+                                         update_yam_content
                                          )
 from httptesting.library.emailstmp import EmailClass
 from httptesting.library.falsework import create_falsework
@@ -76,6 +77,7 @@ def run_min():
     parse.add_argument(
         "-conf",
         "--config",
+        nargs='*',
         default='',
         help='Basic setting of framework.'
         )
@@ -111,11 +113,14 @@ def run_min():
         ConvertHarToYAML.write_case_to_yaml('', temp_dict)
 
     # Setting global var.
-    if config == 'set':
+    if config.__len__() == 1 and config[0] == 'set':
         try:
             os.system(gl.configFile)
         except (KeyboardInterrupt, SystemExit):
             print("已终止执行.")
+    else:
+        cont = config[1].split('=')
+        update_yam_content(gl.configFile, cont[0], cont[1])
 
     if start_project:
         create_falsework(os.path.join(os.getcwd(), start_project))
