@@ -300,7 +300,6 @@ def check_http_status(host, port, **kwargs):
         return False
 
 
-
 def write_file(filepath, mode, txt):
     """
     The write file.
@@ -497,14 +496,8 @@ def write_case_to_yaml(yamFile, data):
         There is no.
     """
     with io.open(yamFile, 'w', encoding='utf-8') as fp:
-        ordered_dump(
-            data,
-            fp,
-            Dumper=yaml.SafeDumper,
-            allow_unicode=True,
-            default_flow_style=False,
-            indent=4
-        )
+        ordered_dump(data, fp, Dumper=yaml.SafeDumper,
+            allow_unicode=True, default_flow_style=False, indent=4)
 
 
 def convert_yaml(yamlfile):
@@ -541,21 +534,20 @@ def generate_case_tmpl(fileyaml):
         key = True
 
     if key:
-
-        d = collections.OrderedDict()
-        d['Desc'] = '接口描述'
-        d['Url'] = "https:/xxxxxx.xxxx/xxxx/xx"
-        d['Method'] = "POST"
-        d['Headers'] = {"content-type": "application/json;charset=UTF-8"}
-        d['Data'] = data
-        d['OutPara'] = ""
-        d['Assert'] = []
+        content_dict = collections.OrderedDict()
+        content_dict['Desc'] = '接口中文名称/api/demo'
+        content_dict['Url'] = "https:/test.it/api/demo"
+        content_dict['Method'] = "POST"
+        content_dict['Headers'] = {"content-type": "application/json;charset=UTF-8"}
+        content_dict['Data'] = data
+        content_dict['OutPara'] = ""
+        content_dict['Assert'] = []
         # case template.
         tmpl = {
             "TEST_CASE": {
                 "Case1": [
-                    {'Desc': '接口场景描述,报告描述'},
-                    d
+                    {'Desc': '接口用例详细中文描述'},
+                    content_dict
                 ]
             }
         }
@@ -564,8 +556,6 @@ def generate_case_tmpl(fileyaml):
     # Write case to YAML file.
     write_case_to_yaml(fileyaml, tmpl)
     print("Conversion to complete.")
-
-
 
 
 def parse_output_parameters(params):
@@ -629,7 +619,11 @@ def update_yam_content(conf_file, conf_field, text):
     parse_conf = parse_output_parameters('content.{}'.format(conf_field))
     with io.open(conf_file, 'r', encoding='utf-8') as fp:
         content = yam.load(fp, Loader=yam.RoundTripLoader)
-        exec('{} = text'.format(parse_conf))
+        try:
+            exec(parse_conf)
+            exec('{} = text'.format(parse_conf))
+        except KeyError as ex:
+            print('[KeyError]:{}'.format(ex))
 
     with io.open(conf_file, 'w', encoding='utf-8') as fw:
         yam.dump(content, stream=fw, Dumper=yam.RoundTripDumper, allow_unicode=True)

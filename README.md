@@ -588,6 +588,6 @@ Assert字段默认为[].
 
 - poetry build
 
-- poetry config repositories.testpypi https://pypi.org/project/HttpTesting
+- poetry config repositories.testpypi https://pypi.org/project/httptesting
 
 - poetry pushlish  输入pypi用户名和密码

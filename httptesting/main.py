@@ -44,9 +44,14 @@ def _parse_config(config):
             conf = config[1].split("=")
             update_yam_content(gl.configFile, conf[0], conf[1])
 
-        if config[0] == 'get' and config.__len__() == 2 and '=' not in config[1]:
+        elif config[0] == 'get' and config.__len__() == 2 and '=' not in config[1]:
             content = get_yaml_field(gl.configFile)
-            print(content[config[1]])
+            try:
+                print(content[config[1]])
+            except KeyError as ex:
+                print('[KeyError]: {}'.format(ex))
+        else:
+            print('Unknown command: {}'.format(config[0]))
 
 def _convert_case_to_yaml(vert):
     """
@@ -207,7 +212,7 @@ def run_min():
     temp_list.append(_get_dirs_case_yaml(case_dir))
     if True in temp_list:
         # Began to call.
-        Run_Test_Case.invoke()
+        RunTestCase.invoke()
 
 #########################################################################
 # Not in command mode --dir defaults to the testcase directory.
@@ -216,7 +221,7 @@ def run_min():
 #########################################################################
 
 
-class Run_Test_Case(object):
+class RunTestCase(object):
 
     @classmethod
     def create_report_file(cls):
@@ -265,18 +270,9 @@ class Run_Test_Case(object):
 
         # 发送钉钉消息
         msg = """{}执行【已完成】:\n共{}个用例, 执行耗时{}秒, 通过{}, 失败{}, 错误{}, 通过率{}\n测试报告: {}/{}"""
-        msg = msg.format(
-            content,
-            res_list[0],
-            res_list[1],
-            res_list[2],
-            res_list[3],
-            res_list[4],
-            res_list[5],
-            report_url,
-            low_path
-            )
-
+        msg = msg.format(content, res_list[0], res_list[1],
+                         res_list[2], res_list[3], res_list[4],
+                         res_list[5], report_url, low_path)
         return msg
 
     @staticmethod
@@ -299,7 +295,7 @@ class Run_Test_Case(object):
         debug_mode = config['ENABLE_DEBUG_MODE']
 
         # custom function
-        Run_Test_Case.copy_custom_function()
+        RunTestCase.copy_custom_function()
 
         # Enable repeat case.
         peatargs = ''
@@ -331,21 +327,13 @@ class Run_Test_Case(object):
         # Output mode console or report.
         if exec_mode:
             cmd = 'cd {} && py.test -q -s {} {} {} {}'.format(
-                case_path,
-                reargs,
-                'test_load_case.py',
-                peatargs,
-                debug
+                case_path, reargs, 'test_load_case.py',
+                peatargs, debug
             ) 
         else:
             cmd = 'cd {} && py.test {} {} {} {} --html={} {} --self-contained-html'.format(
-                case_path,
-                pyargs,
-                reargs,
-                'test_load_case.py',
-                peatargs,
-                filePath,
-                debug
+                case_path, pyargs, reargs, 'test_load_case.py', 
+                peatargs, filePath, debug
             )
         try:
             os.system(cmd)
@@ -368,7 +356,7 @@ class Run_Test_Case(object):
 
         # Test report file name.
         time_str = time.strftime('%Y%m%d_%H%M%S', time.localtime())
-        filePath = Run_Test_Case.create_report_file()
+        filePath = RunTestCase.create_report_file()
 
         # Start test the send pin message.
         if dd_enable:
@@ -379,12 +367,12 @@ class Run_Test_Case(object):
             )
 
         # Execute the test and send the test report.
-        Run_Test_Case.run(filePath)
+        RunTestCase.run(filePath)
         if dd_enable:
             # Template message.
             dir_list = filePath.split('\\')
             low_path = dir_list[len(dir_list) - 2]
-            msg = Run_Test_Case.tmpl_msg(low_path, Run_Test_Case.file_name)
+            msg = RunTestCase.tmpl_msg(low_path, RunTestCase.file_name)
             print(msg)
             scripts.send_msg_dding(msg, dd_token, dd_url)
 
