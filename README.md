@@ -441,7 +441,10 @@ Assert字段默认为[].
 
 ##  框架基本配置
 - 1、通过命令打开框架config.yaml
-- 2、amt -config set
+- 2、amt -conf set  ; amt -conf get
+- amt -conf set => all
+- am -conf set BASE_URL=http://api.xxx.net
+- am -conf get BASE_URL  => http://api.xxx.net
 - 3、修改基本配置，并保存
 
 

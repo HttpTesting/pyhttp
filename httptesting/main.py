@@ -44,6 +44,9 @@ def _parse_config(config):
             conf = config[1].split("=")
             update_yam_content(gl.configFile, conf[0], conf[1])
 
+        if config[0] == 'get' and config.__len__() == 2 and '=' not in config[1]:
+            content = get_yaml_field(gl.configFile)
+            print(content[config[1]])
 
 def _convert_case_to_yaml(vert):
     """
