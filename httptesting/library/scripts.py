@@ -5,7 +5,6 @@ import random
 import socket
 import collections
 import yaml
-from ruamel import yaml as yam
 from collections import OrderedDict
 from yaml.parser import ParserError
 from functools import wraps
@@ -607,6 +606,7 @@ def parse_output_parameters(params):
     ret_string = param_obj + parse_string
     return ret_string
 
+
 def update_yam_content(conf_file, conf_field, text):
     """
     Update YAML content.
@@ -625,6 +625,7 @@ def update_yam_content(conf_file, conf_field, text):
     Return:
         There is no return.
     """
+    from ruamel import yaml as yam
     parse_conf = parse_output_parameters('content.{}'.format(conf_field))
     with io.open(conf_file, 'r', encoding='utf-8') as fp:
         content = yam.load(fp, Loader=yam.RoundTripLoader)
