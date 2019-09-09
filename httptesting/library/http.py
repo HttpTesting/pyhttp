@@ -182,7 +182,7 @@ class HttpWebRequest(object):
             cookie = res.cookies.get_dict()
 
             if res.status_code == 200:
-                if 'json' in headers['Content-Type']:
+                if 'json' in header_dict['content-type']:
                     result = res.json()
                 else:
                     result = res.text

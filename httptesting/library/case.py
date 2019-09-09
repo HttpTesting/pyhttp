@@ -196,7 +196,6 @@ def req_headers_default(data, index):
 
 
 def parse_data_point(data):
-
     regx_compile = re.compile(r"(data\.\w+)")
 
     data_point = regx_compile.findall(data.__str__())
@@ -243,8 +242,12 @@ def exec_test_case(data):
         # Parse to replace DATA in data. DATA.
         for key, value in data[index].items():
             # Parse data.appid
-            data[index][key] = parse_data_point(data[index][key])
-
+            dt = data[index][key]
+            if key.upper() == 'ASSERT':
+                if '.data.' not in str(dt):
+                    data[index][key] = parse_data_point(dt)
+            else:
+                data[index][key] = parse_data_point(dt)
         res = None
         # Request header default value.
         req_headers_default(data, index)
