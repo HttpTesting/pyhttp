@@ -36,13 +36,17 @@ def assert_test_case(res, headers, cookie, result, assert_list):
             for ite, val in enumerate(value):
 
                 if '.' in str(val):
-
                     value[ite] = eval(parse_output_parameters(val))
 
             # Distinguish between two parameters and one parameter by key.
+            if value[0] == 'result':
+                value[0] = result.__str__().replace("'", '"')
+
             if value.__len__() == 1:
-                assert eval(ac.format(value[0]))
+                assert eval(ac.format(eval_string_parse(value[0])))
             else:
+                if value[1] == 'result':
+                    value[1] = result.__str__().replace("'", '"')
                 assert eval(ac.format(value[0], value[1]))
 
 
