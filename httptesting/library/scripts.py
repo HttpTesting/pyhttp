@@ -5,6 +5,8 @@ import random
 import socket
 import collections
 import yaml
+from ruamel import yaml as yam
+from collections import OrderedDict
 from yaml.parser import ParserError
 from functools import wraps
 import requests
@@ -441,7 +443,6 @@ def print_backgroup_color(msg, color='WHITE'):
     color = getattr(Back, color.upper())
     print(color, str(msg).strip(), Style.RESET_ALL)
 
-
 def ordered_dump(data, stream=None, Dumper=yaml.Dumper, **kwds):
     """
     Convert the unordered dictionary to ordered and write yaml.
@@ -455,13 +456,23 @@ def ordered_dump(data, stream=None, Dumper=yaml.Dumper, **kwds):
     """
     class OrderedDumper(Dumper):
         pass
-
     def _dict_representer(dumper, data):
         return dumper.represent_mapping(
             yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
             data.items())
-    OrderedDumper.add_representer(collections.OrderedDict, _dict_representer)
-    return yaml.dump(data, stream, OrderedDumper, **kwds)
+    OrderedDumper.add_representer(OrderedDict, _dict_representer)
+    return yaml.dump(data, stream=stream, Dumper=OrderedDumper, allow_unicode=True, **kwds)
+
+def ordered_load(stream, Loader=yaml.Loader, object_pairs_hook=OrderedDict):
+    class OrderedLoader(Loader):
+        pass
+    def construct_mapping(loader, node):
+        loader.flatten_mapping(node)
+        return object_pairs_hook(loader.construct_pairs(node))
+    OrderedLoader.add_constructor(
+        yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
+        construct_mapping)
+    return yaml.load(stream, OrderedLoader)
 
 
 def ordered_yaml_load(yaml_path, Loader=yaml.Loader, object_pairs_hook=collections.OrderedDict):
@@ -614,7 +625,6 @@ def update_yam_content(conf_file, conf_field, text):
     Return:
         There is no return.
     """
-
     parse_conf = parse_output_parameters('content.{}'.format(conf_field))
     with io.open(conf_file, 'r', encoding='utf-8') as fp:
         content = yam.load(fp, Loader=yam.RoundTripLoader)
@@ -622,6 +632,35 @@ def update_yam_content(conf_file, conf_field, text):
 
     with io.open(conf_file, 'w', encoding='utf-8') as fw:
         yam.dump(content, stream=fw, Dumper=yam.RoundTripDumper, allow_unicode=True)
+
+
+def update_yam_content_2(conf_field, text):
+    """
+    Update YAML content.
+
+    Args:
+        conf_field:
+            e.g.
+            EMAIL.Smtp_Server => content['EMAIL']['Smtp_Server]
+        text:
+            YAML content.
+    Example:
+        from ruamel import yaml
+        import io
+
+        update_yam_content("EMAIL.Smtp_Server", "smtp.mail.net")
+    Return:
+        There is no return.
+    """
+    parse_conf = parse_output_parameters('content.{}'.format(conf_field))
+    with io.open('config.yaml', 'r', encoding='utf-8') as fp:
+        # usage example:
+        content = ordered_load(fp, yaml.SafeLoader)
+        exec('{} = text'.format(parse_conf))
+        print(content)
+    with io.open('config.yaml', 'w', encoding='utf-8') as fw:
+        # usage:
+        ordered_dump(content, stream=fw, Dumper=yaml.SafeDumper)
 
 
 if __name__ == "__main__":

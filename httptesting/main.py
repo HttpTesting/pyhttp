@@ -14,7 +14,8 @@ from httptesting.library import scripts
 from httptesting.library.scripts import (get_yaml_field,
                                          write_file,
                                          read_file,
-                                         remove_file
+                                         remove_file,
+                                         update_yam_content
                                          )
 from httptesting.library.emailstmp import EmailClass
 from httptesting.library.falsework import create_falsework
@@ -26,6 +27,90 @@ import argparse
 """
 Command line mode.
 """
+
+
+def _parse_config(config):
+    """
+    Parse config parameters.
+    """
+    if config:
+        # Setting global var.
+        if config[0] == 'set' and config.__len__() == 1:
+            try:
+                os.system(gl.configFile)
+            except (KeyboardInterrupt, SystemExit):
+                print("已终止执行.")
+        elif config[0] == 'set' and config.__len__() == 2 and '=' in config[1]:
+            conf = config[1].split("=")
+            update_yam_content(gl.configFile, conf[0], conf[1])
+
+
+def _convert_case_to_yaml(vert):
+    """
+    Convert case to YAML.
+    """
+    if vert:
+        yamlfile = os.path.join(os.getcwd(), str(vert).strip())
+        scripts.generate_case_tmpl(yamlfile)
+
+
+def _convert_httphar_to_yaml(har):
+    """
+    Convert http.har to YAML.
+    """
+    if har:
+        temp_dict = ConvertHarToYAML.convert_har_to_ht(har)
+        ConvertHarToYAML.write_case_to_yaml('', temp_dict)
+
+
+def _false_work(start_project):
+    """
+    False work.
+    """
+    if start_project:
+        create_falsework(os.path.join(os.getcwd(), start_project))
+
+
+def _get_file_yaml(case_file):
+    """
+    Get file case YAML.
+    """
+    temp_list = []
+    # Get the yaml file name and write to the queue.
+    if case_file:
+        # Specify the execution CASE.
+        fargs = '&#'.join(case_file)
+        temp_list.append(os.path.join(os.getcwd(), fargs))
+
+        write_file(
+            os.path.join(gl.loadcasePath, 'temp.txt'),
+            'w',
+            ';'.join(temp_list)
+        )
+        return True
+    return False
+
+
+def _get_dirs_case_yaml(case_dir):
+    """
+    Get dirs case YAML.
+    """
+    temp_list = []
+    if case_dir:
+        for root, dirs, files in os.walk(case_dir):
+            for f in files:
+                if 'yaml' in f:
+                    d = os.path.join(os.getcwd(), case_dir)
+                    temp_list.append(os.path.join(d, f))
+
+        # Write file absolute path to file.
+        write_file(
+            os.path.join(gl.loadcasePath, 'temp.txt'),
+            'w',
+            ';'.join(temp_list)
+        )
+        return True
+    return False
 
 
 def run_min():
@@ -76,6 +161,7 @@ def run_min():
     parse.add_argument(
         "-conf",
         "--config",
+        nargs="+",
         default='',
         help='Basic setting of framework.'
         )
@@ -101,54 +187,22 @@ def run_min():
     vert = args.convert
 
     # Conver YAML.
-    if vert:
-        yamlfile = os.path.join(cur_dir, str(vert).strip())
-        scripts.generate_case_tmpl(yamlfile)
+    _convert_case_to_yaml(vert)
 
     # Convert har files to YAML.
-    if har:
-        temp_dict = ConvertHarToYAML.convert_har_to_ht(har)
-        ConvertHarToYAML.write_case_to_yaml('', temp_dict)
+    _convert_httphar_to_yaml(har)
 
     # Setting global var.
-    if config == 'set':
-        try:
-            os.system(gl.configFile)
-        except (KeyboardInterrupt, SystemExit):
-            print("已终止执行.")
+    _parse_config(config)
 
+    # False work.
+    _false_work(start_project)
 
-    if start_project:
-        create_falsework(os.path.join(os.getcwd(), start_project))
-
-    temp_list = []
     # Get the yaml file name and write to the queue.
-    if case_file:
-        # Specify the execution CASE.
-        fargs = '&#'.join(case_file)
-        temp_list.append(os.path.join(cur_dir, fargs))
-
-        write_file(
-            os.path.join(gl.loadcasePath, 'temp.txt'),
-            'w',
-            ';'.join(temp_list)
-        )
-        # Began to call.
-        Run_Test_Case.invoke()
-
-    if case_dir:
-        for root, dirs, files in os.walk(case_dir):
-            for f in files:
-                if 'yaml' in f:
-                    d = os.path.join(cur_dir, case_dir)
-                    temp_list.append(os.path.join(d, f))
-
-        # Write file absolute path to file.
-        write_file(
-            os.path.join(gl.loadcasePath, 'temp.txt'),
-            'w',
-            ';'.join(temp_list)
-        )
+    temp_list = []
+    temp_list.append(_get_file_yaml(case_file))
+    temp_list.append(_get_dirs_case_yaml(case_dir))
+    if True in temp_list:
         # Began to call.
         Run_Test_Case.invoke()
 
