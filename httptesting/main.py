@@ -11,6 +11,7 @@ import shutil
 import time
 from httptesting.library import gl
 from httptesting.library import scripts
+from httptesting.library.parse import parse_string_value
 from httptesting.library.scripts import (get_yaml_field,
                                          write_file,
                                          read_file,
@@ -42,8 +43,8 @@ def _parse_config(config):
                 print("已终止执行.")
         elif config[0] == 'set' and config.__len__() == 2 and '=' in config[1]:
             conf = config[1].split("=")
-            update_yam_content(gl.configFile, conf[0], conf[1])
-
+            update_yam_content(gl.configFile, conf[0], parse_string_value(conf[1]))
+            
         elif config[0] == 'get' and config.__len__() == 2 and '=' not in config[1]:
             content = get_yaml_field(gl.configFile)
             try:
