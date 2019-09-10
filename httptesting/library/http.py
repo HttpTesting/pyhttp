@@ -30,7 +30,7 @@ class HttpWebRequest(object):
     """
     def __init__(self):
         self.config = get_yaml_field(gl.configFile)
-        self.baseUrl = self.config['BASE_URL']
+        self.base_url = self.config['BASE_URL']
         self.OUT_TMPL = """{0} {1}请求:{2}\n请求:\n{3}\n响应:"""
 
     def header_lower(self, hdict):
@@ -47,6 +47,90 @@ class HttpWebRequest(object):
         for key, val in hdict.items():
             tmp[str(key).lower()] = str(val).lower()
         return tmp
+
+
+    def _wisdom_url_mode(self, kwargs):
+        """
+        Wisdom to choose url.
+
+        Return: 
+            http://xxxx.xxx/xxx/xxxx
+        """
+        # Whether to adopt , url = base_url + url
+        if self.config['ENABLE_WISDOM_MODE']:
+            if 'http://' in str(kwargs['gurl']) or 'https://' in str(kwargs['gurl']):
+                url = str(kwargs['gurl']).strip()
+            else:
+               url = '{}{}'.format(self.base_url, str(kwargs['gurl']).strip())
+
+        elif self.config['ENABLE_BASE_URL']:
+            url = '{}{}'.format(self.base_url, str(kwargs['gurl']).strip())
+        else:
+            url = str(kwargs['gurl']).strip()
+
+        return url
+
+
+    def _print_mode_tmpl(self, kwargs, params):
+        """
+        Print mode and template.
+        """
+        url = self._wisdom_url_mode(kwargs)
+        # console print color
+        if self.config['ENABLE_EXEC_MODE']:
+            print_font_color('{}:'.format(kwargs['desc']), color='green')
+        else:
+            print(kwargs['desc'])
+        # Report output template.   
+        tmpl = self.OUT_TMPL.format(
+            get_datetime_str(),
+            kwargs['method'],
+            url,
+            params
+        )
+        print(tmpl)
+
+
+    def _request_header_type(self, header_dict, url, data, kwargs):
+        """
+        Select request content-type
+        """
+        # Convert the data to form-data.
+        if 'form-data' in header_dict['content-type']:
+            data = MultipartFormData.to_form_data(data, headers=kwargs['headers'])
+            res = requests.request(
+                kwargs['method'],
+                url,
+                data=data.encode(),
+                headers=kwargs['headers'],
+                verify=False
+                )
+        elif 'application/json' in header_dict['content-type']:
+            res = requests.request(
+                kwargs['method'],
+                url,
+                json=data,
+                headers=kwargs['headers'],
+                verify=False
+                )
+        elif 'application/x-www-form-urlencoded' in header_dict['content-type']:
+            res = requests.request(
+                kwargs['method'],
+                url,
+                data=data,
+                headers=kwargs['headers'],
+                verify=False
+                ) 
+        else:
+            res = requests.request(
+                kwargs['method'],
+                url,
+                params=data,
+                headers=kwargs['headers'],
+                verify=False
+                )
+        return res
+
 
     def get(self, **kwargs):
         """
@@ -68,26 +152,12 @@ class HttpWebRequest(object):
             params = kwargs['params']
 
         # Whether to adopt , url = base_url + url
-        if self.config['ENABLE_BASE_URL']:
-            url = '{}{}'.format(self.baseUrl, str(kwargs['gurl']).strip())
-        else:
-            url = str(kwargs['gurl']).strip()
+        url = self._wisdom_url_mode(kwargs)
 
         # format output.
         params = json.dumps(params, sort_keys=True, indent=4)
         # console print color
-        if self.config['ENABLE_EXEC_MODE']:
-            print_font_color('{}:'.format(kwargs['desc']), color='green')
-        else:
-            print(kwargs['desc'])
-        # Report output template.   
-        tmpl = self.OUT_TMPL.format(
-            get_datetime_str(),
-            kwargs['method'],
-            url,
-            params
-        )
-        print(tmpl)
+        self._print_mode_tmpl(kwargs, params)
 
         try:
             res = requests.request(kwargs['method'], url, params=params, headers=kwargs['headers'], verify=False)
@@ -116,10 +186,8 @@ class HttpWebRequest(object):
         """post请求"""
 
         # Whether to adopt , url = base_url + url
-        if self.config['ENABLE_BASE_URL']:
-            url = '{}{}'.format(self.baseUrl, str(kwargs['gurl']).strip())
-        else:
-            url = str(kwargs['gurl']).strip()
+        url = self._wisdom_url_mode(kwargs)
+
         try:
             data = eval(kwargs['data'])
         except (TypeError, ValueError):
@@ -128,55 +196,12 @@ class HttpWebRequest(object):
         # format output
         tmpl_data = json.dumps(data, sort_keys=True, indent=4, ensure_ascii=False)
         # console print color
-        if self.config['ENABLE_EXEC_MODE']:
-            print_font_color('{}:'.format(kwargs['desc']), color='green')
-        else:
-            print(kwargs['desc'])
-        # Report output template.
-        tmpl = self.OUT_TMPL.format(
-            get_datetime_str(),
-            kwargs['method'],
-            url,
-            tmpl_data
-        )
-        print(tmpl)
+        self._print_mode_tmpl(kwargs, tmpl_data)
 
         header_dict = self.header_lower(kwargs['headers'])
         try:
             # Convert the data to form-data.
-            if 'form-data' in header_dict['content-type']:
-                data = MultipartFormData.to_form_data(data, headers=kwargs['headers'])
-                res = requests.request(
-                    kwargs['method'],
-                    url,
-                    data=data.encode(),
-                    headers=kwargs['headers'],
-                    verify=False
-                    )
-            elif 'application/json' in header_dict['content-type']:
-                res = requests.request(
-                    kwargs['method'],
-                    url,
-                    json=data,
-                    headers=kwargs['headers'],
-                    verify=False
-                    )
-            elif 'application/x-www-form-urlencoded' in header_dict['content-type']:
-                res = requests.request(
-                    kwargs['method'],
-                    url,
-                    data=data,
-                    headers=kwargs['headers'],
-                    verify=False
-                    ) 
-            else:
-                res = requests.request(
-                    kwargs['method'],
-                    url,
-                    params=data,
-                    headers=kwargs['headers'],
-                    verify=False
-                    )
+            res = self._request_header_type(header_dict, url, data, kwargs)
 
             headers = res.headers
             cookie = res.cookies.get_dict()

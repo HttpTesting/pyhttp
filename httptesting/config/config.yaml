@@ -2,22 +2,27 @@
 
 
 ##########################基础URl设置######################################
-#ENABLE_BASE_URL为True时，启用基础URL；为Fasle不启用使用case中url
+# ENABLE_BASE_URL为True时，启用基础URL；为Fasle不启用使用case中url
+# ENABLE_WISDOM_MODE智慧模式，True启用，False不启用；当启用此模式时，
+# ENABLE_BASE_URL设置不生交
+##########################################################################
+# 智慧模式，True启用，False不启用
+ENABLE_WISDOM_MODE: True
 # True启用； False不启用
-ENABLE_BASE_URL: False
+ENABLE_BASE_URL: True
 ####接口基本url地址####
-BASE_URL: http://111.111.111.111:2222
+BASE_URL: http://api.beta.acewill.net
 
 
 ##########################执行设置##########################################
 #Debug模式输出; True启用； False不启用
-ENABLE_DEBUG_MODE: False
+ENABLE_DEBUG_MODE: True
 
 #输出模式: True控制台与 False报告模式
-ENABLE_EXEC_MODE: False
+ENABLE_EXEC_MODE: True
 
 #是否启用并发执行,提高速度
-ENABLE_EXECUTION: False  
+ENABLE_EXECUTION: True
 #进程数
 EXECUTION_NUM: 4      
 #---------------------------------------------------
@@ -30,7 +35,6 @@ RERUN_NUM: 2
 ENABLE_REPEAT: False  
 REPEAT_NUM: 2
 ###########################################################################
-
 
 ##########################钉钉设置###########################################
 #####注意事项###ENABLE_EXEC_MODE: True开启时，控制台不支持钉钉模式。
@@ -47,9 +51,6 @@ DING_TITLE: 接口自动化测试
 #report外网发布地址
 REPORT_URL: http://60.60.217.8:5004
 #############################################################################
-
-
-
 
 ###########################邮箱设置###########################################
 #发送测试报告,邮件配置
