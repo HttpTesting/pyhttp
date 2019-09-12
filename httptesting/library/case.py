@@ -13,7 +13,7 @@ from httptesting.library.parse import (
 from httptesting.library.scripts import (print_backgroup_color, print_font_color)
 
 
-def assert_test_case(res, headers, cookie, result, assert_list):
+def assert_test_case(res, headers, cookie, result, assert_list, data):
     """
     Assertion function.
     Args:
@@ -36,6 +36,7 @@ def assert_test_case(res, headers, cookie, result, assert_list):
             for ite, val in enumerate(value):
 
                 if '.' in str(val):
+
                     value[ite] = eval(parse_output_parameters(val))
 
             # Distinguish between two parameters and one parameter by key.
@@ -220,6 +221,26 @@ def parse_data_point(dt, data):
     return dt
 
 
+def parse_data_to_uservar(args_dict, queue_list, dt, data):
+    """
+    Parse outparam data point to user variable.
+    """
+    # # 推送outparam  data.到用户自定义变量
+    regx_compile = re.compile(r"(data\.\w+[.\w]+[^,'\"])")
+
+    if 'OutPara' in dt.keys():
+        conditions = dt["OutPara"]
+        regx_data_point = regx_compile.findall(conditions.__str__())
+        if conditions and regx_data_point:
+            for key, val in conditions.items():
+                for point in regx_data_point:
+                    key_str = r'${%s}$' % key
+                    a = parse_output_parameters(point)
+                    print_backgroup_color(point, color='green')
+                    args_dict[key_str] = eval(a)
+            queue_list.append(args_dict)
+
+
 def exec_test_case(data):
     """
     Execute pytest test framework.
@@ -243,6 +264,10 @@ def exec_test_case(data):
             # Handles custom variables in USER_VAR
             user_custom_variables(queue_list, args_dict, data[0])
             continue
+
+        # Push outparam  "data.sig" to user custom variable.     
+        parse_data_to_uservar(args_dict, queue_list, data[index], data[index]['Data'])
+
         # Parse to replace DATA in data. DATA.
         for key, value in data[index].items():
             # Parse data.appid
@@ -251,6 +276,7 @@ def exec_test_case(data):
                     data[index][key] = parse_data_point(value, data[index]['Data'])
             else:
                 data[index][key] = parse_data_point(value, data[index]['Data'])
+
         res = None
         # Request header default value.
         req_headers_default(data, index)
@@ -266,7 +292,7 @@ def exec_test_case(data):
         # Send http request.
         res, headers, cookie, result = send_http_request(req, data[index])
         # Assertions parsing
-        assert_test_case(res, headers, cookie, result, data[index]['Assert'])
+        assert_test_case(res, headers, cookie, result, data[index]['Assert'], data[index]['Data'])
 
         # Output parameters are written to the queue
         param_to_queue(queue_list, data[index], args_dict, res, headers, cookie, result)
