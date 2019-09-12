@@ -28,7 +28,7 @@ class Ac:
     ai = "'{}' in '{}'"
     ani = "not '{}' in '{}'"
     ais = "isinstance({},{})"
-    anis = "not isinstance({},{})"   
+    anis = "not isinstance({},{})"
     ln = "{}==None"
     lnn = "{}!=None"
     bt = "{}"

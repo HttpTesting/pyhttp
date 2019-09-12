@@ -199,10 +199,10 @@ def req_headers_default(data, index):
         pass
 
 
-def parse_data_point(data):
+def parse_data_point(dt, data):
     regx_compile = re.compile(r"(data\.\w+)")
 
-    data_point = regx_compile.findall(data.__str__())
+    data_point = regx_compile.findall(dt.__str__())
 
     for i in data_point:
         tmp = parse_output_parameters(i)
@@ -211,13 +211,13 @@ def parse_data_point(data):
 
         if isinstance(var_value, str) or isinstance(var_value, int):
             # Replace
-            data = data.__str__().replace(i, eval(tmp).__str__())
+            dt = dt.__str__().replace(i, eval(tmp).__str__())
         else:
-            data = data.__str__().replace('"{}"'.format(i), eval(tmp).__str__()).replace("'{}'".format(i), eval(tmp).__str__())            
+            dt = dt.__str__().replace('"{}"'.format(i), eval(tmp).__str__()).replace("'{}'".format(i), eval(tmp).__str__())            
 
-        data = eval(data)
+        dt = eval(dt)
 
-    return data
+    return dt
 
 
 def exec_test_case(data):
@@ -246,12 +246,11 @@ def exec_test_case(data):
         # Parse to replace DATA in data. DATA.
         for key, value in data[index].items():
             # Parse data.appid
-            dt = data[index][key]
             if key.upper() == 'ASSERT':
-                if '.data.' not in str(dt):
-                    data[index][key] = parse_data_point(dt)
+                if '.data.' not in str(value):
+                    data[index][key] = parse_data_point(value, data[index]['Data'])
             else:
-                data[index][key] = parse_data_point(dt)
+                data[index][key] = parse_data_point(value, data[index]['Data'])
         res = None
         # Request header default value.
         req_headers_default(data, index)

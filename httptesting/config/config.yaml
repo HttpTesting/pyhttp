@@ -15,42 +15,57 @@ BASE_URL: http://api.beta.acewill.net
 
 
 ##########################执行设置##########################################
-#Debug模式输出; True启用； False不启用
+# ENABLE_DEBUG_MODE: debug模式True启用False不启用
+# ENABLE_EXEC_MODE: 报告输出模式，控制台或报告模式True为控制台，False报告模式
+#
+# ENABLE_EXECUTION: 并发模式(多进程执行用例),True启用，False不启用
+# EXECUTION_NUM：并发数，ENABLE_EXECUTION为True时起作用。
+#
+# ENABLE_RERUN: 用例失败重试功能，True启用，False不启用
+# RERUN_NUM: 用例失败重试次数，ENABLE_RERUN为True时起作用
+#
+# ENABLE_REPEAT: 用例重复执行次数，True时启用，False不启用
+# RERUN_NUM: 用例重复执行次数，ENABLE_REPEAT为True时起作用
+############################################################################
+# debug模式
 ENABLE_DEBUG_MODE: True
-
-#输出模式: True控制台与 False报告模式
+# 控制台或报告模式
 ENABLE_EXEC_MODE: True
 
 #是否启用并发执行,提高速度
 ENABLE_EXECUTION: True
 #进程数
-EXECUTION_NUM: 4      
-#---------------------------------------------------
+EXECUTION_NUM: 4
+
 #启用失败重试功能
 ENABLE_RERUN: False  
 #失败重试次数
-RERUN_NUM: 2  
-#---------------------------------------------------
+RERUN_NUM: 2
+
 #用例重复执行开关；True启用；False不启用。
 ENABLE_REPEAT: False  
 REPEAT_NUM: 2
-###########################################################################
+
 
 ##########################钉钉设置###########################################
-#####注意事项###ENABLE_EXEC_MODE: True开启时，控制台不支持钉钉模式。
+# ENABLE_DDING:为True时启用钉钉消息，控制台模式不启用。
+# DING_URL: 钉机器人url地址
+# DD_TOKEN: 钉机器人token地址
+# DING_TITLE: 机器人标题
+############################################################################
 ENABLE_DDING: False
 DING_URL: https://oapi.dingtalk.com/robot/send?access_token=
 #钉钉机器人token
 DD_TOKEN: 925339305f06c44fe52116e6e8d762797f43894e738990747cdebe24118c2411
 #钉钉标题
 DING_TITLE: 接口自动化测试
-#############################################################################
+
 
 
 ##########################测试报告设置########################################
 #report外网发布地址
 REPORT_URL: http://60.60.217.8:5004
-#############################################################################
+
 
 ###########################邮箱设置###########################################
 #发送测试报告,邮件配置

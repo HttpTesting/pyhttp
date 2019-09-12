@@ -73,7 +73,7 @@ class FUNC(Extend):
             String uuid1  example: ad7678fe-a775-11e9-907f-88b111064583
         """
 
-        return str(uuid.uuid1()).replace('-','')
+        return str(uuid.uuid1()).replace('-', '')
 
     @staticmethod
     def mstimestamp():

@@ -15,7 +15,7 @@ class MultipartFormData(object):
         :return: str
         :rtype: str
         """
-        #从headers中提取boundary信息
+        # 从headers中提取boundary信息
         if "content-type" in headers:
             fd_val = str(headers["content-type"])
             if "boundary" in fd_val:

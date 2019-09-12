@@ -455,6 +455,8 @@ Assert字段默认为[].
 - 指定单个Case执行 amt -f xxxx.yaml Case1
 - 指定多个Case执行 amt -f xxxx.yaml Case1 Case2 Case3
 
+### 智能URL
+当用例中指定全路径时，自去取该路径，当不是绝对路径时，取BASE_URL进行智能拼接。
 
 ### 请求头默认值
 	TEST_CASE:
