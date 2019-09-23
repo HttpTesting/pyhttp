@@ -14,5 +14,4 @@ install:
 script:
   - python -m httptesting.main run_min -v
   - python -m httptesting.main run_min -h
-after_success:
-  pytest
+  pytest /tests
