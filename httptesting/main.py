@@ -44,7 +44,7 @@ def _parse_config(config):
         elif config[0] == 'set' and config.__len__() == 2 and '=' in config[1]:
             conf = config[1].split("=")
             update_yam_content(gl.configFile, conf[0], parse_string_value(conf[1]))
-            
+
         elif config[0] == 'get' and config.__len__() == 2 and '=' not in config[1]:
             content = get_yaml_field(gl.configFile)
             try:
@@ -53,6 +53,7 @@ def _parse_config(config):
                 print('[KeyError]: {}'.format(ex))
         else:
             print('Unknown command: {}'.format(config[0]))
+
 
 def _convert_case_to_yaml(vert):
     """

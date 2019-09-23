@@ -211,8 +211,13 @@ def parse_parameters_variables(queue, data):
 
     # Parses the parameters in the fields separately.
     for _, field in enumerate(parse_field_list):
+        # if the case filed does not exist.
+        try:
+            find_data = var_regx_compile.findall(data[field].__str__())
+        except KeyError:
+            continue
         # Regular match field.
-        take_list = list(set(var_regx_compile.findall(data[field].__str__())))
+        take_list = list(set(find_data))
 
         # Field to a variable.
         for regx_field in take_list:
@@ -231,9 +236,11 @@ def parse_parameters_variables(queue, data):
 
             if isinstance(var_value, str) or isinstance(var_value, int):
                 # Replace
-                data[field] = data[field].__str__().replace(regx_field, var_value.__str__())
+                data[field] = data[field].__str__().replace(
+                    regx_field, var_value.__str__()
+                    )
             else:
-                data[field] = data[field].__str__().replace('"{}"'.format(regx_field), var_value.__str__()).replace("'{}'".format(regx_field), var_value.__str__()).replace(regx_field, var_value.__str__()) 
+                data[field] = data[field].__str__().replace('"{}"'.format(regx_field), var_value.__str__()).replace("'{}'".format(regx_field), var_value.__str__()).replace(regx_field, var_value.__str__())
 
         # Parse the function in the argument.
         data_string = parse_args_func(FUNC, data[field])

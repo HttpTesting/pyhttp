@@ -1,0 +1,16 @@
+[
+  "tests/test_parse.py::test_parse_out_param[data[0].res.result.id-data[0]['res']['result']['id']]",
+  "tests/test_parse.py::test_parse_out_param[result.data.name-result['data']['name']]",
+  "tests/test_parse.py::test_parse_out_param[result.data[0].args-result['data'][0]['args']]",
+  "tests/test_parse.py::test_parse_out_param[Data.data.data[0]-data['data']['data'][0]]",
+  "tests/test_parse.py::test_parse_out_param[data[0].res[1].id[0]-data[0]['res'][1]['id'][0]]",
+  "tests/test_parse.py::test_parse_function_args[%{timestamp()}%-10]",
+  "tests/test_parse.py::test_parse_function_args[%{md5(\"123\")}%-32]",
+  "tests/test_parse.py::test_parse_eval_string[123-int]",
+  "tests/test_parse.py::test_parse_eval_string[12.3-float]",
+  "tests/test_parse.py::test_parse_eval_string[{'name': 'yhleng', 'age': 27}-dict]",
+  "tests/test_parse.py::test_parse_eval_string[[1,2,3,4,5]-list]",
+  "tests/test_parse.py::test_parse_cookie_info[param0-cookie['session']-session=12345]",
+  "tests/test_parse.py::test_parse_cookie_info[param1-cookie-session=12345; token=7y6t5r4e9i]",
+  "tests/test_parse.py::test_parse_parameters_var[queue0-data0]"
+]

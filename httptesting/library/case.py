@@ -63,7 +63,7 @@ def user_params_variables(data):
             ]
 
         Examples:
-            user_params_variables(data) 
+            user_params_variables(data)
 
             e.g. "PARAM_VAR":{
                     "sig_var": [1,2]
