@@ -459,7 +459,7 @@ def ordered_dump(data, stream=None, Dumper=yaml.Dumper, **kwds):
             yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
             data.items())
     OrderedDumper.add_representer(OrderedDict, _dict_representer)
-    return yaml.dump(data, stream=stream, Dumper=OrderedDumper, allow_unicode=True, **kwds)
+    return yaml.dump(data, stream=stream, Dumper=OrderedDumper, allow_unicode=True)
 
 def ordered_load(stream, Loader=yaml.Loader, object_pairs_hook=OrderedDict):
     class OrderedLoader(Loader):
@@ -483,7 +483,7 @@ def ordered_yaml_load(yaml_path, Loader=yaml.Loader, object_pairs_hook=collectio
     OrderedLoader.add_constructor(
         yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
         construct_mapping)
-    with open(yaml_path, 'r', encoding='utf-8') as fp:
+    with io.open(yaml_path, 'r', encoding='utf-8') as fp:
         return yaml.load(fp.read(), OrderedLoader)
 
 
@@ -659,5 +659,5 @@ def update_yam_content_2(conf_field, text):
 
 
 if __name__ == "__main__":
-    env = get_ip_or_name()
-    print(env)
+    generate_case_tmpl(r"D:\test_project\couldfi\activity.yaml")
+
