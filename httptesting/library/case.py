@@ -49,8 +49,8 @@ def assert_test_case(res, headers, cookie, result, assert_list, data):
                     if value[1] == 'result':
                         value[1] = result.__str__().replace("'", '"')
                     assert eval(ac.format(value[0], value[1]))
-            except (IndexError, KeyError) as ex:
-                raise Exception("预期结果的字典Key或列表索引超限.{}".format(ex))
+            except (IndexError, KeyError, TypeError) as ex:
+                raise Exception("预期结果的字典Key或列表索引超限或预期结果类型错误.{}".format(ex))
 
 def user_params_variables(data):
     """
