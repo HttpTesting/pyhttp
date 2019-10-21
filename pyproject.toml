@@ -33,7 +33,7 @@ pytest-xdist = "1.29.0"
 requests = "2.22.0"
 requests-toolbelt = "0.9.1"
 colorama = "0.4.1"
-ruamel = "0.16.5"
+#ruamel = "0.16.5"
 #ruamel.yaml = "0.16.5"
 [tool.poetry.dev-dependencies]
 
