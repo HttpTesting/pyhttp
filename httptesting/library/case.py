@@ -44,11 +44,15 @@ def assert_test_case(res, headers, cookie, result, assert_list, data):
                 value[0] = result.__str__().replace("'", '"')
             try:
                 if value.__len__() == 1:
-                    assert eval(ac.format(eval_string_parse(value[0])))
+                    ass_res = ac.format(eval_string_parse(value[0]))
+                    assert eval(ass_res), ass_res
                 else:
                     if value[1] == 'result':
                         value[1] = result.__str__().replace("'", '"')
-                    assert eval(ac.format(value[0], value[1]))
+
+                    ass_res = ac.format(value[0], value[1])
+                    assert eval(ass_res), ass_res
+
             except (IndexError, KeyError, TypeError) as ex:
                 raise Exception("预期结果的字典Key或列表索引超限或预期结果类型错误.{}".format(ex))
 
@@ -303,6 +307,7 @@ def send_http_request(req, data):
     """
     Handling HTTP is fun.
     """
+    # print_backgroup_color(data, color='red')
     # Handling HTTP is fun.
     method = str(data['Method']).upper()
     if ('GET' in method) or (r'DELETE' in method):
