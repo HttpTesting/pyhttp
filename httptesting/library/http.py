@@ -3,7 +3,8 @@ from httptesting.library.scripts import (
     get_datetime_str,
     retry,
     get_yaml_field,
-    print_font_color
+    print_font_color,
+    print_backgroup_color
     )
 import requests
 from requests.exceptions import (HTTPError, ConnectionError, ConnectTimeout)
@@ -131,6 +132,16 @@ class HttpWebRequest(object):
                 )
         return res
 
+    def _header_content_type_lcase(self, header_dict):
+        """
+        The Replace key-value in dict 
+        """
+        if 'Content-Type' in header_dict.keys():
+            header_dict['content-type'] = header_dict['Content-Type']
+            header_dict.pop('Content-Type')
+            return header_dict
+
+            
 
     def get(self, **kwargs):
         """
@@ -155,18 +166,18 @@ class HttpWebRequest(object):
         url = self._wisdom_url_mode(kwargs)
 
         # format output.
-        params = json.dumps(params, sort_keys=True, indent=4)
+        params_dumps = json.dumps(params, sort_keys=True, indent=4)
         # console print color
-        self._print_mode_tmpl(kwargs, params)
+        self._print_mode_tmpl(kwargs, params_dumps)
 
         try:
             res = requests.request(kwargs['method'], url, params=params, headers=kwargs['headers'], verify=False)
             headers = res.headers
             cookie = res.cookies.get_dict()
             if res.status_code == 200:
-                if 'json' in headers['Content-Type']:
+                try:
                     result = res.json()
-                else:
+                except:
                     result = res.text
             else:
                 result =  {"errcode": 9001, "errmsg": str(res)}
@@ -207,11 +218,9 @@ class HttpWebRequest(object):
             cookie = res.cookies.get_dict()
 
             if res.status_code == 200:
-                if 'json' in headers['content-type']:
+                try:
                     result = res.json()
-                elif 'json' in header_dict['content-type']:
-                    result = res.json()
-                else:
+                except:
                     result = res.text
             else:
                 result = {"errcode": 9001, "errmsg": str(res)}
