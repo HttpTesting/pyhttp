@@ -11,7 +11,7 @@ ENABLE_WISDOM_MODE: True
 # True启用； False不启用
 ENABLE_BASE_URL: True
 ####接口基本url地址####
-BASE_URL: http://api.beta.acewill.net
+BASE_URL: http://api.beta.xxxx.net
 
 
 ##########################执行设置##########################################
@@ -28,7 +28,7 @@ BASE_URL: http://api.beta.acewill.net
 # RERUN_NUM: 用例重复执行次数，ENABLE_REPEAT为True时起作用
 ############################################################################
 # debug模式
-ENABLE_DEBUG_MODE: True
+ENABLE_DEBUG_MODE: False
 # 控制台或报告模式
 ENABLE_EXEC_MODE: True
 

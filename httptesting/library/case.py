@@ -241,7 +241,6 @@ def parse_data_to_uservar(args_dict, queue_list, dt, data):
                 for point in regx_data_point:
                     key_str = r'${%s}$' % key
                     a = parse_output_parameters(point)
-                    print_backgroup_color(point, color='green')
                     args_dict[key_str] = eval(a)
             queue_list.append(args_dict)
 

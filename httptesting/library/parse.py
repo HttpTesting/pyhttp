@@ -179,6 +179,15 @@ def parse_cookie_string(cookie, cookie_string):
     return queue_val
 
 
+def _replace_special_string(string, old_list, new_list):
+    """
+    Replace special string
+    """
+    for i in range(0, len(old_list)):
+        string = string.__str__().replace(old_list[i], new_list[i])
+    return string
+
+
 def parse_parameters_variables(queue, data):
     """
     Parse variables.
@@ -231,8 +240,12 @@ def parse_parameters_variables(queue, data):
                     break
                 except KeyError:
                     pass
-
+            # Replace special string
+            old = ['+', '-', '*', '/', '>', '<', '=']
+            new = ['&a', '&b', '&c', '&d', '&e', '&f', '&g']
+            var_value = _replace_special_string(var_value, old, new)
             var_value = parse_string_value(var_value)
+            var_value = _replace_special_string(var_value, new, old)
 
             if isinstance(var_value, str) or isinstance(var_value, int):
                 # Replace
