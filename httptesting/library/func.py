@@ -121,6 +121,7 @@ class FUNC(Extend):
         Return:
             [] Returns a list of values.
         """
+        lt = eval(lt)
         len_list = len(lt) - 1
         rint = randint(0, len_list)
         return lt[rint]
