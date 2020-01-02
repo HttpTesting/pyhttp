@@ -5,6 +5,7 @@ import random
 import socket
 import collections
 import yaml
+import csv
 from collections import OrderedDict
 from yaml.parser import ParserError
 from functools import wraps
@@ -164,7 +165,7 @@ def load_case_data(flag='TEST_CASE'):
     :return: [] DDT data list
     """
     data_list = []
-
+    temp_list = []
     for _ in range(0, case_exec_queue.qsize()):
         if not case_exec_queue.empty():
             case_name = case_exec_queue.get()
@@ -202,8 +203,20 @@ def load_case_data(flag='TEST_CASE'):
                         data_list.append(case_dict[key])
         else:
             raise Exception("The CASE execution queue is empty.")
+
+        # csv参数化数据
+        for i_list in data_list:
+            if 'CSV_VAR' in str(i_list[0].keys()).upper():
+                # 字段应该加错误处理...
+                csv_list = csv_readline_to_list(i_list[0]['CSV_VAR']['file_path'])
+                parse_data_list = csv_data_ext(i_list, csv_list)
+                temp_list.extend(parse_data_list)
+            else:
+                # 无需参数化
+                temp_list.append(i_list)
+
     # case order by desc
-    data_list = sorted_data_fuction(data_list, orderby='desc')
+    data_list = sorted_data_fuction(temp_list, orderby='desc')
     return data_list
 
 
@@ -658,6 +671,68 @@ def update_yam_content_2(conf_field, text):
         ordered_dump(content, stream=fw, Dumper=yaml.SafeDumper)
 
 
-if __name__ == "__main__":
-    generate_case_tmpl(r"D:\test_project\couldfi\activity.yaml")
+def csv_readline_to_list(csv_file):
+    """
+    Read the CSV content by line.
 
+    Example:
+        csv content:
+            |name|age|
+            | a  |21 |
+            | b  |22 |
+            | c  |23 |
+            | d  |24 |
+            | e  |25 |
+        ret = csv_readline_to_list("d/demo.csv")
+    Return: 
+        [['name', 'age'], ['a', '21'], ['b', '22'], ['c', '34'], ['d', '24'], ['e', '25']] 
+    """
+    with open(csv_file,'r',encoding="utf-8") as csv_fp:
+        reader = csv.reader(csv_fp)
+        rows = [row for row in reader]
+
+    return rows
+
+def csv_data_ext(d_dict, csv_list):
+    """
+    Args:
+        d_dict:
+            {'Desc': '当日储值统计/charge/today', 'USER_VAR': {'appkey': '0100ff174e808de80db21152ca7dde31'}, 'CSV_VAR': {'file_
+            path': 'd:/xxx.csv'}, 'Order': 20}, 
+            {
+            'Desc': '当日储值统计', 
+            'Url': '/charge/today',
+            'Method': 'POST', 
+            'Headers': {'content-type': 'multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW', 'cache-control': 'no-cache'}, 
+            'Data': {'req': {'begin_time': '${name}$', 'end_time': '${age}$', 'shop_id': 1512995661}, 'appid': '${name}$', 'sig': "%{sign({'data': 'data.req', 'appid':'data.appid', 'ts':'data.ts', 'v': 'data.v','appkey':'${appkey}$'})}%", 'v': 2.0, 'ts': 1564967996}, 'OutPara': None, 'Assert': [{'eq': ['result.errcode', 0]}, {'bt': ['result.res.shop_offline']}]}
+        csv_list: 
+            [['name', 'age'], ['a', '21'], ['b', '22'], ['c', '23'], ['d', '24']]
+    Return:
+        [
+            'Data': {'req': {'begin_time': 'a', 'end_time': '21', 'shop_id': 1512995661}, 'appid': '${name}$', 'sig': "%{sign({'data': 'data.req', 'appid':'data.appid', 'ts':'data.ts', 'v': 'data.v','appkey':'${appkey}$'})}%", 'v': 2.0, 'ts': 1564967996},
+            'Data': {'req': {'begin_time': 'b', 'end_time': '22', 'shop_id': 1512995661}, 'appid': '${name}$', 'sig': "%{sign({'data': 'data.req', 'appid':'data.appid', 'ts':'data.ts', 'v': 'data.v','appkey':'${appkey}$'})}%", 'v': 2.0, 'ts': 1564967996},
+            'Data': {'req': {'begin_time': 'c', 'end_time': '23', 'shop_id': 1512995661}, 'appid': '${name}$', 'sig': "%{sign({'data': 'data.req', 'appid':'data.appid', 'ts':'data.ts', 'v': 'data.v','appkey':'${appkey}$'})}%", 'v': 2.0, 'ts': 1564967996},
+            'Data': {'req': {'begin_time': 'd', 'end_time': '24', 'shop_id': 1512995661}, 'appid': '${name}$', 'sig': "%{sign({'data': 'data.req', 'appid':'data.appid', 'ts':'data.ts', 'v': 'data.v','appkey':'${appkey}$'})}%", 'v': 2.0, 'ts': 1564967996},
+        ]
+    """
+    ext_data = []
+
+    # csv columns name
+    columns_list = csv_list[0]
+    for j in range(1, len(csv_list)):
+        data_repr = repr(d_dict)
+        for i, col_name in enumerate(columns_list):
+
+            var_name = '${%s}$' % col_name
+            if var_name in data_repr:
+                data_repr = data_repr.replace(var_name, csv_list[j][i])
+        ext_data.append(list(eval(data_repr)))
+
+    if not ext_data:
+        ext_data = d_dict
+    return ext_data
+
+
+if __name__ == "__main__":
+    ret = csv_readline_to_list("d:/deal.csv")
+    print_backgroup_color(ret, color='red')

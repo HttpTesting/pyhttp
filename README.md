@@ -555,6 +555,42 @@ Assert字段默认为[].
 - 以上示例Order字段为执行Case权重，全局根所此字段来排执行顺序。默认为0，字段可省略。
 - Order越大，越靠后执行。
 
+### CSV文件参数化
+
+	TEST_CASE:
+		Case1: #用例1
+			-
+				Desc: 当日储值统计/charge/today
+				USER_VAR:
+					appkey: '0100ff174e808de80db21152ca7dde31'
+				CSV_VAR: 
+					file_path: 'd:/deal.csv'
+				Order: 20
+			-
+				Desc: 当日储值统计
+				Url: /charge/today
+				Method: POST
+				Headers:
+					content-type: "multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW"
+					cache-control: "no-cache"
+				Data: 
+					req: 
+						begin_time: "${name}$"
+						end_time: "${age}$"
+						shop_id: 1512995661
+					appid: 'aaaaa'
+					sig: "%{sign({'data': 'data.req', 'appid':'data.appid', 'ts':'data.ts', 'v': 'data.v','appkey':'${appkey}$'})}%"
+					v: 2.0
+					ts: 1564967996
+				OutPara: 
+				Assert:
+					- eq: [result.errcode, 1006]
+
+- 在用例结果头部增加CSV_VAR字典对象，并指定file_path key值，为xxxx.csv文件路径
+- 如果用例头部存在CSV_VAR说明启用CSV参数化。
+- 参数化使用时CSV列名，即为引用字段名，引用方法"${字段名}$.
+- 参数化需注意，CSV每一行为一个CASE。
+
 ### 功能对比
 |序号|功能|V1.0|V1.1|配置参数|
 |--|--|--|--|--|
@@ -570,7 +606,7 @@ Assert字段默认为[].
 |10|请求头默认值|√|√|设置用例请求头默认值,整个case共享请求头。|
 |11|指定case执行|-|√|单个yaml文件指定case执行|
 |12|Case执行顺序|-|√|通过Order字段设置Case执行优先级|
-
+|13|Csv参数化|-|√|通过外部csv文件进行参数化|
 ## 代码打包与上传PyPi
 
   
