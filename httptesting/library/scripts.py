@@ -204,16 +204,19 @@ def load_case_data(flag='TEST_CASE'):
         else:
             raise Exception("The CASE execution queue is empty.")
 
-        # csv参数化数据
-        for i_list in data_list:
-            if 'CSV_VAR' in str(i_list[0].keys()).upper():
-                # 字段应该加错误处理...
-                csv_list = csv_readline_to_list(i_list[0]['CSV_VAR']['file_path'])
-                parse_data_list = csv_data_ext(i_list, csv_list)
-                temp_list.extend(parse_data_list)
-            else:
-                # 无需参数化
-                temp_list.append(i_list)
+        try:
+            # csv参数化数据
+            for i_list in data_list:
+                if 'CSV_VAR' in str(i_list[0].keys()).upper():
+                    # 字段应该加错误处理...
+                    csv_list = csv_readline_to_list(i_list[0]['CSV_VAR']['file_path'])
+                    parse_data_list = csv_data_ext(i_list, csv_list)
+                    temp_list.extend(parse_data_list)
+                else:
+                    # 无需参数化
+                    temp_list.append(i_list)
+        except KeyError as ex:
+            raise Exception(ex)
 
     # case order by desc
     data_list = sorted_data_fuction(temp_list, orderby='desc')
@@ -687,11 +690,14 @@ def csv_readline_to_list(csv_file):
     Return: 
         [['name', 'age'], ['a', '21'], ['b', '22'], ['c', '34'], ['d', '24'], ['e', '25']] 
     """
-    with open(csv_file,'r',encoding="utf-8") as csv_fp:
-        reader = csv.reader(csv_fp)
-        rows = [row for row in reader]
-
+    try:
+        with open(csv_file,'r', encoding="utf-8") as csv_fp:
+            reader = csv.reader(csv_fp)
+            rows = [row for row in reader]
+    except IOError as ex:
+        raise Exception(ex)
     return rows
+
 
 def csv_data_ext(d_dict, csv_list):
     """
@@ -725,6 +731,22 @@ def csv_data_ext(d_dict, csv_list):
 
             var_name = '${%s}$' % col_name
             if var_name in data_repr:
+                # csv中list or dict转换
+                try:
+                    col_val = csv_list[j][i].strip()
+                    if col_val != '':
+                        tmp_eval = eval(csv_list[j][i])
+                        if isinstance(tmp_eval, list) or isinstance(tmp_eval, dict):
+                            data_repr = data_repr.replace('"{}"'.format(var_name), var_name).replace(
+                                "'{}'".format(var_name), var_name
+                            )
+                        else:
+                            # list or dict to string
+                            if col_val[:1] == "'" or col_val[:1] == '"':
+                                csv_list[j][i] = col_val[1:len(col_val)-1]
+                except NameError:
+                    pass
+
                 data_repr = data_repr.replace(var_name, csv_list[j][i])
         ext_data.append(list(eval(data_repr)))
 
