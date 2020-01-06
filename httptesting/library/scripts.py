@@ -691,11 +691,17 @@ def csv_readline_to_list(csv_file):
         [['name', 'age'], ['a', '21'], ['b', '22'], ['c', '34'], ['d', '24'], ['e', '25']] 
     """
     try:
-        with open(csv_file,'r', encoding="utf-8") as csv_fp:
+        with open(csv_file, 'r', encoding="utf-8") as csv_fp:
             reader = csv.reader(csv_fp)
             rows = [row for row in reader]
+    except UnicodeDecodeError:
+        with open(csv_file, 'r', encoding="gbk") as csv_fp:
+            reader = csv.reader(csv_fp)
+            rows = [row for row in reader]
+
     except IOError as ex:
         raise Exception(ex)
+
     return rows
 
 
@@ -703,14 +709,7 @@ def csv_data_ext(d_dict, csv_list):
     """
     Args:
         d_dict:
-            {'Desc': '当日储值统计/charge/today', 'USER_VAR': {'appkey': '0100ff174e808de80db21152ca7dde31'}, 'CSV_VAR': {'file_
-            path': 'd:/xxx.csv'}, 'Order': 20}, 
-            {
-            'Desc': '当日储值统计', 
-            'Url': '/charge/today',
-            'Method': 'POST', 
-            'Headers': {'content-type': 'multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW', 'cache-control': 'no-cache'}, 
-            'Data': {'req': {'begin_time': '${name}$', 'end_time': '${age}$', 'shop_id': 1512995661}, 'appid': '${name}$', 'sig': "%{sign({'data': 'data.req', 'appid':'data.appid', 'ts':'data.ts', 'v': 'data.v','appkey':'${appkey}$'})}%", 'v': 2.0, 'ts': 1564967996}, 'OutPara': None, 'Assert': [{'eq': ['result.errcode', 0]}, {'bt': ['result.res.shop_offline']}]}
+            'Data': {'req': {'begin_time': '${name}$', 'end_time': '${age}$', 'shop_id': 1512995661}, 'appid': '${name}$', 'sig': "%{sign({'data': 'data.req', 'appid':'data.appid', 'ts':'data.ts', 'v': 'data.v','appkey':'${appkey}$'})}%", 'v': 2.0, 'ts': 1564967996}
         csv_list: 
             [['name', 'age'], ['a', '21'], ['b', '22'], ['c', '23'], ['d', '24']]
     Return:
@@ -732,20 +731,11 @@ def csv_data_ext(d_dict, csv_list):
             var_name = '${%s}$' % col_name
             if var_name in data_repr:
                 # csv中list or dict转换
-                try:
-                    col_val = csv_list[j][i].strip()
-                    if col_val != '':
-                        tmp_eval = eval(csv_list[j][i])
-                        if isinstance(tmp_eval, list) or isinstance(tmp_eval, dict):
-                            data_repr = data_repr.replace('"{}"'.format(var_name), var_name).replace(
-                                "'{}'".format(var_name), var_name
-                            )
-                        else:
-                            # list or dict to string
-                            if col_val[:1] == "'" or col_val[:1] == '"':
-                                csv_list[j][i] = col_val[1:len(col_val)-1]
-                except NameError:
-                    pass
+                data_repr, csv_list[j][i] = _csv_lst_convert(
+                    data_repr,
+                    csv_list[j][i],
+                    var_name
+                    )
 
                 data_repr = data_repr.replace(var_name, csv_list[j][i])
         ext_data.append(list(eval(data_repr)))
@@ -754,6 +744,29 @@ def csv_data_ext(d_dict, csv_list):
         ext_data = d_dict
     return ext_data
 
+
+def _csv_lst_convert(data_repr, csv_lst, var_name):
+    """
+    """
+    # csv中list or dict转换
+    try:
+        col_val = csv_lst.strip()
+        if col_val != '':
+            tmp_eval = eval(csv_lst)
+            if isinstance(tmp_eval, list) or isinstance(tmp_eval, dict):
+                data_repr = data_repr.replace(
+                    '"{}"'.format(var_name), var_name
+                    ).replace(
+                    "'{}'".format(var_name), var_name
+                )
+            else:
+                # list or dict to string
+                if col_val[:1] == "'" or col_val[:1] == '"':
+                    csv_lst = col_val[1:len(col_val)-1]
+    except NameError:
+        pass
+
+    return data_repr, csv_lst
 
 if __name__ == "__main__":
     ret = csv_readline_to_list("d:/deal.csv")
