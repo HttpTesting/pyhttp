@@ -38,5 +38,12 @@ class TestCaseExecution(object):
     def testcase(self, data):
         self.testcase.__func__.__doc__ = data[0]['Desc']
 
+        # Skip
+        d_keys = data[0].keys()
+        if 'Skip' in d_keys:
+            # bool True or False
+            if data[0]['Skip']:
+                pytest.skip('Use case configuration skips.')
+
         # Execution the YAML test case.
         exec_test_case(data)
