@@ -166,6 +166,7 @@ def load_case_data(flag='TEST_CASE'):
     """
     data_list = []
     temp_list = []
+    case_path = None
     for _ in range(0, case_exec_queue.qsize()):
         if not case_exec_queue.empty():
             case_name = case_exec_queue.get()
@@ -178,6 +179,9 @@ def load_case_data(flag='TEST_CASE'):
                 path_parse = case_name.split('&#')
                 case_name = path_parse[0]
                 path_parse.pop(0)
+
+            # case path
+            case_path = os.path.dirname(case_name)
 
             # Read the case
             read_yaml = get_yaml_field(case_name)
@@ -203,24 +207,51 @@ def load_case_data(flag='TEST_CASE'):
                         data_list.append(case_dict[key])
         else:
             raise Exception("The CASE execution queue is empty.")
-
-        try:
-            # csv参数化数据
-            for i_list in data_list:
-                if 'CSV_VAR' in str(i_list[0].keys()).upper():
-                    # 字段应该加错误处理...
-                    csv_list = csv_readline_to_list(i_list[0]['CSV_VAR']['file_path'])
-                    parse_data_list = csv_data_ext(i_list, csv_list)
-                    temp_list.extend(parse_data_list)
-                else:
-                    # 无需参数化
-                    temp_list.append(i_list)
-        except KeyError as ex:
-            raise Exception(ex)
+        # csv parameter
+        temp_list = _csv_parameter_func(case_path, data_list, temp_list)
 
     # case order by desc
     data_list = sorted_data_fuction(temp_list, orderby='desc')
     return data_list
+
+
+def _csv_parameter_func(case_path, data_list, temp_list):
+    """
+    CSV Paraetems data.
+
+    Args:
+        case_path: d:\\xxxx.yaml
+        data_list: Read yaml
+        temp_list: Temporarily store parameterized data.
+
+    Example:
+        temp_list = _csv_parameter_func(case_path, data_list, temp_list)
+
+    Return:
+        temp_list
+    """
+    try:
+        # csv参数化数据
+        for i_list in data_list:
+            if 'CSV_VAR' in str(i_list[0].keys()).upper():
+                # 字段应该加错误处理...
+                csv_path = str(i_list[0]['CSV_VAR']['file_path'])
+
+                # 处理相对路径
+                if not os.path.isabs(csv_path):
+                    csv_path = os.path.join(case_path, csv_path)
+
+                # 读取csv并加以处理
+                csv_list = csv_readline_to_list(csv_path)
+                parse_data_list = csv_data_ext(i_list, csv_list)
+                temp_list.extend(parse_data_list)
+            else:
+                # 无需参数化
+                temp_list.append(i_list)
+    except KeyError as ex:
+        raise Exception(ex)
+
+    return temp_list
 
 
 def retry(**kw):
@@ -361,7 +392,7 @@ def remove_file(file):
 
     Args:
         file: file absoule path.
-    
+
     Exaplam:
         file = "xxxx.txt"
         remove_file(file)
@@ -457,6 +488,7 @@ def print_backgroup_color(msg, color='WHITE'):
     color = getattr(Back, color.upper())
     print(color, str(msg).strip(), Style.RESET_ALL)
 
+
 def ordered_dump(data, stream=None, Dumper=yaml.Dumper, **kwds):
     """
     Convert the unordered dictionary to ordered and write yaml.
@@ -470,6 +502,7 @@ def ordered_dump(data, stream=None, Dumper=yaml.Dumper, **kwds):
     """
     class OrderedDumper(Dumper):
         pass
+
     def _dict_representer(dumper, data):
         return dumper.represent_mapping(
             yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
@@ -477,9 +510,11 @@ def ordered_dump(data, stream=None, Dumper=yaml.Dumper, **kwds):
     OrderedDumper.add_representer(OrderedDict, _dict_representer)
     return yaml.dump(data, stream=stream, Dumper=OrderedDumper, allow_unicode=True)
 
+
 def ordered_load(stream, Loader=yaml.Loader, object_pairs_hook=OrderedDict):
     class OrderedLoader(Loader):
         pass
+
     def construct_mapping(loader, node):
         loader.flatten_mapping(node)
         return object_pairs_hook(loader.construct_pairs(node))
@@ -687,7 +722,7 @@ def csv_readline_to_list(csv_file):
             | d  |24 |
             | e  |25 |
         ret = csv_readline_to_list("d/demo.csv")
-    Return: 
+    Return:
         [['name', 'age'], ['a', '21'], ['b', '22'], ['c', '34'], ['d', '24'], ['e', '25']] 
     """
     try:
@@ -710,7 +745,7 @@ def csv_data_ext(d_dict, csv_list):
     Args:
         d_dict:
             'Data': {'req': {'begin_time': '${name}$', 'end_time': '${age}$', 'shop_id': 1512995661}, 'appid': '${name}$', 'sig': "%{sign({'data': 'data.req', 'appid':'data.appid', 'ts':'data.ts', 'v': 'data.v','appkey':'${appkey}$'})}%", 'v': 2.0, 'ts': 1564967996}
-        csv_list: 
+        csv_list:
             [['name', 'age'], ['a', '21'], ['b', '22'], ['c', '23'], ['d', '24']]
     Return:
         [
@@ -747,6 +782,7 @@ def csv_data_ext(d_dict, csv_list):
 
 def _csv_lst_convert(data_repr, csv_lst, var_name):
     """
+    csv convert  list or dict
     """
     # csv中list or dict转换
     try:
@@ -767,7 +803,3 @@ def _csv_lst_convert(data_repr, csv_lst, var_name):
         pass
 
     return data_repr, csv_lst
-
-if __name__ == "__main__":
-    ret = csv_readline_to_list("d:/deal.csv")
-    print_backgroup_color(ret, color='red')

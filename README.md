@@ -591,6 +591,43 @@ Assert字段默认为[].
 - 参数化使用时CSV列名，即为引用字段名，引用方法"${字段名}$.
 - 参数化需注意，CSV每一行为一个CASE。
 
+
+### Case跳过
+
+	TEST_CASE:
+		Case1: #用例1
+			-
+				Desc: 会员标记编辑->获取
+				USER_VAR:
+					appkey: '4b6ef4ee839dfb0922c28e97143d371e'
+				Skip: True
+			-
+				Desc: 第三方收银会员标记-编辑接口
+				Url: /userremark/edit
+				Method: POST
+				Headers:
+					content-type: "multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW"
+					cache-control: "no-cache"
+				Data: 
+					req: 
+						uid: "384345911306964992"
+						token: "adc97617d8c42cd1c99211cab81a2a80"
+						remark: "123456"
+					appid: "dp3wY4YtycajNEz23zZpb5Jl"
+					sig: "%{sign({'data': 'data.req', 'appid':'data.appid', 'ts':'data.ts', 'v': 'data.v','appkey':'${appkey}$'})}%"
+					v: 2.0
+					ts: 1564967996
+				OutPara: 
+					token: data.req.token
+					remark: data.req.remark
+					uid: data.req.uid
+				Assert:
+					- eq: [result.errcode, 0]
+					- eq: [result.res, ""]
+
+- 在用例头部分，增加Skip: True标记该case跳过
+- Skip: False或Skip字段不存在则不会跳过用例执行
+
 ### 功能对比
 |序号|功能|V1.0|V1.1|配置参数|
 |--|--|--|--|--|
@@ -607,6 +644,9 @@ Assert字段默认为[].
 |11|指定case执行|-|√|单个yaml文件指定case执行|
 |12|Case执行顺序|-|√|通过Order字段设置Case执行优先级|
 |13|Csv参数化|-|√|通过外部csv文件进行参数化|
+|14|case跳过|-|√|通过在case中增加标记Skip: True|
+
+
 ## 代码打包与上传PyPi
 
   
@@ -626,6 +666,6 @@ Assert字段默认为[].
 
 - poetry build
 
-- poetry config repositories.testpypi https://pypi.org/project/httptesting
+- poetry config repositories.testpypi https://pypi.org/project/pyhttp
 
 - poetry pushlish  输入pypi用户名和密码
