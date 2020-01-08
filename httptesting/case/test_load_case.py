@@ -42,7 +42,7 @@ class TestCaseExecution(object):
         d_keys = data[0].keys()
         if 'Skip' in d_keys:
             # bool True or False
-            if data[0]['Skip']:
+            if 'TRUE' in str(data[0]['Skip']).upper():
                 pytest.skip('Use case configuration skips.')
 
         # Execution the YAML test case.
