@@ -56,61 +56,6 @@ def assert_test_case(res, headers, cookie, result, assert_list, data):
             except (IndexError, KeyError, TypeError) as ex:
                 raise Exception("预期结果的字典Key或列表索引超限或预期结果类型错误.{}".format(ex))
 
-def user_params_variables(data):
-    """
-        User parameterized execution.
-
-        Args:
-            data:
-            [
-                {"PARAM_VAR":{"sig_var": [1,2]}},
-                {"Desc": "接口名称1", "Url": "/send/code/${sig_var}$}
-            ]
-
-        Examples:
-            user_params_variables(data)
-
-            e.g. "PARAM_VAR":{
-                    "sig_var": [1,2]
-                    }
-
-            e.g. "sig": "${sig_var}$"
-                 "sig": 1
-                 "sig": 2
-        Return:
-            There is no return.
-    """
-    if 'PARAM_VAR' in data[0].keys():
-        params_dict = data[0]['PARAM_VAR']
-        if params_dict:
-            for key, value in params_dict.items():
-                # 取到参数${key}$，到其它case中遍历，并扩充case
-                for _num, val_dict in enumerate(data):
-                    if _num == 0:
-                        continue
-                    content = val_dict
-                    init_desc = val_dict['Desc']
-                    # 如果${key}$变量在Data中，说明要进行参数化。
-                    var_name = "${%s}$" % str(key)
-                    if var_name in str(content):
-                        # 遍历参数化，增加case
-                        params_len = len(params_dict[str(key)])
-                        for _iter, val in enumerate(params_dict[str(key)]):
-                            # 更改Desc描述，给加个序号
-                            content['Desc'] = '{}_{}'.format(content['Desc'], _iter + 1)
-
-                            # 最后一个参数化后，将原来${sig}$替换掉
-                            if isinstance(val, str):
-                                tmp_val = str(content).replace(str(var_name), str(val))
-                            else:
-                                tmp_val = str(content).replace("'{}'".format(var_name), str(val)).replace('"{}"'.format(var_name), str(val))
-                            if val != params_len:
-                                data.append(eval(tmp_val))
-                            else:
-                                data[_num] = eval(tmp_val)
-                            # 恢复最初描述
-                            content['Desc'] = init_desc
-
 
 def user_custom_variables(queue, args, data):
     """
@@ -263,13 +208,11 @@ def exec_test_case(data):
     # Through the case.
     for index, _ in enumerate(data):
         if index == 0:
-            # User parameterized execution
-            user_params_variables(data)
             # Handles custom variables in USER_VAR
             user_custom_variables(queue_list, args_dict, data[0])
             continue
 
-        # Push outparam  "data.sig" to user custom variable.     
+        # Push outparam  "data.sig" to user custom variable.
         parse_data_to_uservar(args_dict, queue_list, data[index], data[index]['Data'])
 
         # Parse to replace DATA in data. DATA.

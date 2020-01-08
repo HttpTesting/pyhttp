@@ -563,6 +563,9 @@ Assert字段默认为[].
 				Desc: 当日储值统计/charge/today
 				USER_VAR:
 					appkey: '0100ff174e808de80db21152ca7dde31'
+				PARAM_VAR：
+					sig: ["1", "2"]
+					rem: ["4", "5"]
 				CSV_VAR: 
 					file_path: 'd:/deal.csv'
 				Order: 20
@@ -590,7 +593,7 @@ Assert字段默认为[].
 - 如果用例头部存在CSV_VAR说明启用CSV参数化。
 - 参数化使用时CSV列名，即为引用字段名，引用方法"${字段名}$.
 - 参数化需注意，CSV每一行为一个CASE。
-
+- PARAM_VAR也为参数化功能，当与CSV_VAR同时存在时，以CSV为准
 
 ### Case跳过
 

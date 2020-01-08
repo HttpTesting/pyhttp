@@ -207,15 +207,88 @@ def load_case_data(flag='TEST_CASE'):
                         data_list.append(case_dict[key])
         else:
             raise Exception("The CASE execution queue is empty.")
-        # csv parameter
-        temp_list = _csv_parameter_func(case_path, data_list, temp_list)
+
+        # csv or parameter var.
+        temp_list, csv_exec_flag = _csv_parameter_func(case_path, data_list)
+        if not csv_exec_flag:
+            temp_list = _parameter_variable(data_list)
 
     # case order by desc
     data_list = sorted_data_fuction(temp_list, orderby='desc')
     return data_list
 
 
-def _csv_parameter_func(case_path, data_list, temp_list):
+def _check_parameter_variable(param):
+    """
+    Check Parameter Variable data.
+
+    Args: 
+        param: parameter variable dict data.
+    
+    Example:
+        bool = _check_parameter_variable(param)
+    
+    Return: True or False
+    """
+    param_type_lst = list(map(lambda x: isinstance(x, list), list(param.values())))  
+    if False in param_type_lst:
+        raise Exception("list参数类型必须为list。")
+
+    param_len_lst = list(map(len, list(param.values())))
+    param_len_eq = len(set(param_len_lst))
+
+    _msg = "list参数长度必须相等。"
+    if param_len_eq != 1:
+        raise Exception(_msg)
+
+
+
+def _parameter_variable(data_list):
+    """
+    Parameterization of use case header variables.
+
+    Args:
+        data_list: Read yaml
+
+    Example:
+        temp_list = _parameter_variable(data_list)
+
+    Return: temp_list [] is Processed data.
+    """
+    try:
+        temp_list = []
+        # 用例头部变量参数化
+        for i_list in data_list:
+            if 'PARAM_VAR' in str(i_list[0].keys()).upper():
+                # 字段应该加错误处理...
+                param_var_dct = i_list[0]['PARAM_VAR']
+                # 参数检查
+                _check_parameter_variable(param_var_dct)
+
+                # 整理数据列相对应
+                all_lst = []
+                keys_lst = list(param_var_dct.keys())
+                all_lst.append(keys_lst)
+
+                zip_lst = []
+                for key, val in param_var_dct.items():
+                    zip_lst.append(val)
+
+                all_lst.extend(map(list, list(zip(*zip_lst))))
+
+                parse_data_list = csv_data_ext(i_list, all_lst)
+
+                temp_list.extend(parse_data_list)
+            else:
+                temp_list.append(i_list)
+
+    except KeyError as ex:
+        raise Exception(ex)
+
+    return temp_list
+
+
+def _csv_parameter_func(case_path, data_list):
     """
     CSV Paraetems data.
 
@@ -230,10 +303,17 @@ def _csv_parameter_func(case_path, data_list, temp_list):
     Return:
         temp_list
     """
+
+    csv_exec_flag = False
+    temp_list = []
     try:
         # csv参数化数据
         for i_list in data_list:
             if 'CSV_VAR' in str(i_list[0].keys()).upper():
+                # CSV_VAR and PARAM_VAR 当同时存在时以CSV_VAR为准
+                if 'PARAM_VAR' in str(i_list[0].keys()).upper(): 
+                    i_list[0].pop('PARAM_VAR')
+
                 # 字段应该加错误处理...
                 csv_path = str(i_list[0]['CSV_VAR']['file_path'])
 
@@ -243,15 +323,18 @@ def _csv_parameter_func(case_path, data_list, temp_list):
 
                 # 读取csv并加以处理
                 csv_list = csv_readline_to_list(csv_path)
+
                 parse_data_list = csv_data_ext(i_list, csv_list)
                 temp_list.extend(parse_data_list)
+
+                csv_exec_flag = True
             else:
                 # 无需参数化
                 temp_list.append(i_list)
     except KeyError as ex:
         raise Exception(ex)
 
-    return temp_list
+    return temp_list, csv_exec_flag
 
 
 def retry(**kw):
@@ -759,6 +842,7 @@ def csv_data_ext(d_dict, csv_list):
 
     # csv columns name
     columns_list = csv_list[0]
+    # 扩充数据
     for j in range(1, len(csv_list)):
         data_repr = repr(d_dict)
         for i, col_name in enumerate(columns_list):
