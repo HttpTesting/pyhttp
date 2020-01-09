@@ -638,6 +638,60 @@ Assert字段默认为[].
 - 在用例头部分，增加Skip: True标记该case跳过
 - Skip: False或Skip字段不存在则不会跳过用例执行
 
+
+### 场景中单接口跳过
+	TEST_CASE:
+		Case1: 
+			-
+				Desc: 当日储值统计/charge/today
+				USER_VAR:
+					appkey: '0100ff174e808de80db21152ca7dde31'
+				# CSV_VAR: 
+				#     file_path: 'd:/deal.csv'
+				Order: 20
+			-
+				Desc: 当日储值统计1
+				Url: /charge/today
+				Method: POST
+				Headers:
+					content-type: "multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW"
+					cache-control: "no-cache"
+				Data: 
+					req: 
+						begin_time: "aaaa"
+						end_time: "bbbb"
+						shop_id: 1512995661
+					appid: 'aaaaa'
+					sig: "%{sign({'data': 'data.req', 'appid':'data.appid', 'ts':'data.ts', 'v': 'data.v','appkey':'${appkey}$'})}%"
+					v: 2.0
+					ts: 1564967996
+				OutPara: 
+				Assert:
+					- eq: [result.errcode, 1006]
+			-
+				Desc: 当日储值统计2
+				Skip: True
+				Url: /charge/today2
+				Method: POST
+				Headers:
+					content-type: "multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW"
+					cache-control: "no-cache"
+				Data: 
+					req: 
+						begin_time: "aaaa"
+						end_time: "dddd"
+						shop_id: 1512995661
+					appid: 'aaaaa'
+					sig: "%{sign({'data': 'data.req', 'appid':'data.appid', 'ts':'data.ts', 'v': 'data.v','appkey':'${appkey}$'})}%"
+					v: 2.0
+					ts: 1564967996
+				OutPara: 
+				Assert:
+					- eq: [result.errcode, 1006]
+
+- 从以上用例中可以看出，第二个接口中多了一个Skip: True字段，这样执行时，就会跳过该接口，只执行第一个接口。
+
+
 ### 功能对比
 |序号|功能|V1.0|V1.1|配置参数|
 |--|--|--|--|--|
@@ -655,7 +709,7 @@ Assert字段默认为[].
 |12|Case执行顺序|-|√|通过Order字段设置Case执行优先级|
 |13|Csv参数化|-|√|通过外部csv文件进行参数化|
 |14|case跳过|-|√|通过在case中增加标记Skip: True|
-
+|15|场景中单接口跳过|-|√|通过在case中增加标记Skip: True|
 
 ## 代码打包与上传PyPi
 

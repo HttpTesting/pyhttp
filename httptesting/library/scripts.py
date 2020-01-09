@@ -213,8 +213,38 @@ def load_case_data(flag='TEST_CASE'):
         if not csv_exec_flag:
             temp_list = _parameter_variable(data_list)
 
+        # Scenario case Skip.
+        data_list = _skip_scenario_interface(data_list)
+
     # case order by desc
     data_list = sorted_data_fuction(temp_list, orderby='desc')
+    return data_list
+
+
+def _skip_scenario_interface(data_list):
+    """
+    场景中单个接口Skip.
+
+    Args:
+        data_list: case数据list.
+
+    Example:
+        data_list = _skip_scenario_interface(data_list)
+
+    Return:
+        data_list
+    """
+    # 场景接口大于2个(用例头+1接口)，才支持Skip
+    interface_count = len(data_list[0])
+
+    if interface_count > 2:
+        # 遍历用例体，用例头与每个接口一个字典对象。
+        for n, val_dct in enumerate(data_list[0]):
+            # 引索0为用例头，其它为接口字典对象。
+            if n != 0 and 'Skip' in val_dct.keys():
+                # Skip字段bool，True时跳过
+                if 'TRUE' in str(val_dct['Skip']).upper():
+                    data_list[0].pop(n)
     return data_list
 
 
@@ -222,12 +252,12 @@ def _check_parameter_variable(param):
     """
     Check Parameter Variable data.
 
-    Args: 
+    Args:
         param: parameter variable dict data.
-    
+
     Example:
         bool = _check_parameter_variable(param)
-    
+
     Return: True or False
     """
     param_type_lst = list(map(lambda x: isinstance(x, list), list(param.values())))  
@@ -240,7 +270,6 @@ def _check_parameter_variable(param):
     _msg = "list参数长度必须相等。"
     if param_len_eq != 1:
         raise Exception(_msg)
-
 
 
 def _parameter_variable(data_list):
