@@ -224,27 +224,25 @@ def load_case_data(flag='TEST_CASE'):
 def _skip_scenario_interface(data_list):
     """
     场景中单个接口Skip.
-
     Args:
         data_list: case数据list.
-
     Example:
         data_list = _skip_scenario_interface(data_list)
-
     Return:
         data_list
     """
-    # 场景接口大于2个(用例头+1接口)，才支持Skip
-    interface_count = len(data_list[0])
+    for i in range(len(data_list)):
+        # 场景接口大于2个(用例头+1接口)，才支持Skip
+        interface_count = len(data_list[i])
 
-    if interface_count > 2:
-        # 遍历用例体，用例头与每个接口一个字典对象。
-        for n, val_dct in enumerate(data_list[0]):
-            # 引索0为用例头，其它为接口字典对象。
-            if n != 0 and 'Skip' in val_dct.keys():
-                # Skip字段bool，True时跳过
-                if 'TRUE' in str(val_dct['Skip']).upper():
-                    data_list[0].pop(n)
+        if interface_count > 2:
+            # 遍历用例体，用例头与每个接口一个字典对象。
+            for n in range(len(data_list[i])-1, 0, -1):
+                # 引索0为用例头，其它为接口字典对象。
+                if n != 0 and 'Skip' in data_list[i][n].keys():
+                    # Skip字段bool，True时跳过
+                    if 'TRUE' in str(data_list[i][n]['Skip']).upper():
+                        data_list[i].pop(n)
     return data_list
 
 
