@@ -214,7 +214,7 @@ def load_case_data(flag='TEST_CASE'):
             temp_list = _parameter_variable(data_list)
 
         # Scenario case Skip.
-        data_list = _skip_scenario_interface(data_list)
+        temp_list = _skip_scenario_interface(temp_list)
 
     # case order by desc
     data_list = sorted_data_fuction(temp_list, orderby='desc')
