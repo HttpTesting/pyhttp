@@ -238,11 +238,13 @@ def _skip_scenario_interface(data_list):
         if interface_count > 2:
             # 遍历用例体，用例头与每个接口一个字典对象。
             for n in range(len(data_list[i])-1, 0, -1):
-                # 引索0为用例头，其它为接口字典对象。
-                if n != 0 and 'Skip' in data_list[i][n].keys():
-                    # Skip字段bool，True时跳过
-                    if 'TRUE' in str(data_list[i][n]['Skip']).upper():
+                try:
+                    # 引索0为用例头，其它为接口字典对象。
+                    if n != 0 and 'TRUE' in str(data_list[i][n]['Skip']).upper():
+                        # Skip字段bool，True时跳过
                         data_list[i].pop(n)
+                except KeyError:
+                    pass
     return data_list
 
 

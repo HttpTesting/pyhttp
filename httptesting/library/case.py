@@ -236,6 +236,13 @@ def exec_test_case(data):
             # Parse function
             data[index][key] = parse_args_func(FUNC, data[index][key])
 
+        # Skip interface
+        try:
+            if 'TRUE' in str(data[index]['Skip']).upper():
+                continue
+        except KeyError:
+            pass
+
         # Send http request.
         res, headers, cookie, result = send_http_request(req, data[index])
         # Assertions parsing
