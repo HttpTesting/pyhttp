@@ -237,11 +237,8 @@ def exec_test_case(data):
             data[index][key] = parse_args_func(FUNC, data[index][key])
 
         # Skip interface
-        try:
-            if 'TRUE' in str(data[index]['Skip']).upper():
-                continue
-        except KeyError:
-            pass
+        if 'TRUE' in data[index].get("Skip", "NotExistSkip").__str__():
+            continue
 
         # Send http request.
         res, headers, cookie, result = send_http_request(req, data[index])
