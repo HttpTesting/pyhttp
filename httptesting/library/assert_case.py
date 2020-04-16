@@ -21,13 +21,13 @@ class Ac:
         ins: Assert isinstance(a, b).
         nins: Assert not isinstances(a, b).
     """
-    eq = "'{}'=='{}'"
+    eq = "'{}'=='{}'"   
     nq = "'{}'!='{}'"
-    neq = "'{}'!='{}'"
     al = "{} is {}"
+    ai = "'{}' in repr(\"{}\")"
     at = "{} is not {}"
-    inc = "'{}' in repr({})"
-    ninc = "'{}' not in repr({})"
+    inc = "'{}' in repr(\"{}\")"
+    ninc = "'{}' not in repr(\"{}\")"
     ais = "isinstance({},{})"
     anis = "not isinstance({},{})"
     ln = "{}==None"
