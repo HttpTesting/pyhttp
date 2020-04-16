@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "HttpTesting"
-version = "1.2.20"
+version = "1.2.22"
 description = "Httptesting HTTP(s) interface testing framework."
 license = "Apache-2.0"
 readme = "README.md"

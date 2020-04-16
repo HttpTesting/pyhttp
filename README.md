@@ -326,8 +326,8 @@ Assert字段默认为[].
 |2|nq: [a, b]|判断 a与b不相等,否则fail|
 |3|al: [a, b]|判断 a is b 相当于id(a) == id(b),否则fail|
 |4|at: [a, b]|判断 a is not b 相当于id(a) != id(b)|
-|5|ai: [a, b]|判断 a in b ,否则fail|
-|6|ani: [a, b]|判断 a in not b,否则fail|
+|5|inc: [a, b]|判断 a in b ,否则fail|
+|6|ninc: [a, b]|判断 a in not b,否则fail|
 |7|ais: [a, b]|判断 isinstance(a, b) True|
 |8|anis: [a, b]|判断 isinstance(a, b) False|
 |9|ln: [a]|判断 a is None,否则fail|
