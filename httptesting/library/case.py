@@ -9,7 +9,7 @@ from httptesting.library.parse import (
     parse_string_value,
     parse_cookie_string,
     parse_parameters_variables
-    )
+)
 from httptesting.library.scripts import (print_backgroup_color, print_font_color)
 
 
@@ -35,22 +35,22 @@ def assert_test_case(res, headers, cookie, result, assert_list, data):
 
             for ite, val in enumerate(value):
 
-                if '.' in str(val):
-
+                if '.' in repr(val):
                     value[ite] = eval(parse_output_parameters(val))
 
             # Distinguish between two parameters and one parameter by key.
             if value[0] == 'result':
-                value[0] = result.__str__().replace("'", '"')
+                value[0] = repr(result).replace("'", '"')
             try:
-                if value.__len__() == 1:
+                if len(value) == 1:
                     ass_res = ac.format(eval_string_parse(value[0]))
                     assert eval(ass_res), ass_res
                 else:
                     if value[1] == 'result':
-                        value[1] = result.__str__().replace("'", '"')
+                        value[1] = repr(result).replace("'", '"')
 
                     ass_res = ac.format(value[0], value[1])
+                    # print_backgroup_color(ass_res, color='red')
                     assert eval(ass_res), ass_res
 
             except (IndexError, KeyError, TypeError) as ex:
@@ -79,20 +79,20 @@ def user_custom_variables(queue, args, data):
             temp = ''
             if "${" in str(value):
                 # Match regular expression.
-                content = var_regx_compile.findall(value.__str__())
+                content = var_regx_compile.findall(str(value))
                 # # Parse replace variables.
                 for ilist in content:
                     if str(ilist) in args.keys():
                         va = args[str(ilist)]
 
                         value_var = eval_string_parse(va)
-                        
+
                         if isinstance(value_var, str):
                             value = str(value).replace(str(ilist), str(va))
                         else:
                             value = str(value).replace(
-                                "'{}'".format(ilist), va.__str__()
-                                ).replace('"{}"'.format(ilist), str(va))
+                                "'{}'".format(ilist), str(va)
+                            ).replace('"{}"'.format(ilist), str(va))
 
             if '%{' in str(value):
                 temp = parse_args_func(FUNC, value)
@@ -108,11 +108,11 @@ def user_custom_variables(queue, args, data):
         # Handles custom variables in USER_VAR
         for key, val in var_dict.items():
             # Match regular expression.
-            content = var_regx_compile.findall(val.__str__())
+            content = var_regx_compile.findall(str(val))
 
             # Parse replace variables.
             for klist in content:
-                var_dict[key] = eval(str(val).replace(klist.__str__(), str(var_dict[klist])))
+                var_dict[key] = eval(str(val).replace(repr(klist), str(var_dict[klist])))
 
 
 def req_headers_default(data, index):
@@ -140,7 +140,6 @@ def req_headers_default(data, index):
             # The request header itself is not set,
             # and the request header default is adopted.
             if not data[index]['Headers']:
-
                 data[index]['Headers'] = headers_default
 
         else:
@@ -153,7 +152,7 @@ def req_headers_default(data, index):
 def parse_data_point(dt, data):
     regx_compile = re.compile(r"(data\.\w+)")
 
-    data_point = regx_compile.findall(dt.__str__())
+    data_point = regx_compile.findall(repr(str))
 
     for i in data_point:
         tmp = parse_output_parameters(i)
@@ -162,10 +161,12 @@ def parse_data_point(dt, data):
 
         if isinstance(var_value, str) or isinstance(var_value, int):
             # Replace
-            dt = dt.__str__().replace(i, eval(tmp).__str__())
+            dt = repr(dt).replace(i, repr(eval(tmp)))
         else:
-            dt = dt.__str__().replace('"{}"'.format(i), eval(tmp).__str__()).replace("'{}'".format(i), eval(tmp).__str__())            
+            dt = repr(dt).replace('"{}"'.format(i), repr(eval(tmp))).replace("'{}'".format(i), repr(eval(tmp)))
 
+        print_backgroup_color(dt, color='red')
+        print_backgroup_color(type(dt), color='green')
         dt = eval(dt)
 
     return dt
@@ -180,7 +181,7 @@ def parse_data_to_uservar(args_dict, queue_list, dt, data):
 
     if 'OutPara' in dt.keys():
         conditions = dt["OutPara"]
-        regx_data_point = regx_compile.findall(conditions.__str__())
+        regx_data_point = regx_compile.findall(str(conditions))
         if conditions and regx_data_point:
             for key, val in conditions.items():
                 for point in regx_data_point:
@@ -237,7 +238,7 @@ def exec_test_case(data):
             data[index][key] = parse_args_func(FUNC, data[index][key])
 
         # Skip interface
-        if 'TRUE' in data[index].get("Skip", "NotExistSkip").__str__():
+        if 'TRUE' in str(data[index].get("Skip", "NotExistSkip")):
             continue
 
         # Send http request.
@@ -263,7 +264,7 @@ def send_http_request(req, data):
             gurl=data['Url'],
             headers=data['Headers'],
             method=method
-            )
+        )
     elif ('POST' in method) or ('PUT' in method):
         res, headers, cookie, result = req.post(
             data=data['Data'],
@@ -271,7 +272,7 @@ def send_http_request(req, data):
             gurl=data['Url'],
             headers=data['Headers'],
             method=method
-            )
+        )
     else:
         raise "Error request method: {}".format(data['Method'])
 
@@ -299,7 +300,7 @@ def param_to_queue(queue, dt, param_dict, res, headers, cookie, result):
     """
     # 出参写入队列
     try:
-        if dt['OutPara']:   
+        if dt['OutPara']:
             header = eval_string_parse(dt['Headers'])
             data = eval_string_parse(dt['Data'])
             # 组参数
@@ -314,7 +315,7 @@ def param_to_queue(queue, dt, param_dict, res, headers, cookie, result):
                 if "${" not in key:
                     key = "${%s}$" % key
 
-                if not cookie_string:    
+                if not cookie_string:
                     try:
                         ret = eval(output_string)
 

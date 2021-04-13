@@ -46,9 +46,9 @@ TEST_CASE:
                 vdef1: 2c9213a4-13af-4429-8d16-c3c881ac1ef5
             cashflowrecords: []
         OutPara: 
-            ${data_id}$: result.data
-            ${corpId}$: header.corpId
-            ${userId}$: header.userId
+            data_id: result.data
+            corpId: header.corpId
+            userId: header.userId
         Assert: 
             - ai: ['创建成功', 'result.message']
             - eq: ['result.status', 'success']

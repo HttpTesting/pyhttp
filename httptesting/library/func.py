@@ -128,8 +128,40 @@ class FUNC(Extend):
 
     @staticmethod
     def demo(a, b):
-        return a + b
-        
-if __name__ == "__main__":
-    a = FUNC.uuid1()
-    print(a)
+        return FUNC.sum(a, b)
+
+    @staticmethod
+    def sum(val, val1):
+        """
+        两个数值求和
+        Args:
+            val: 整型变量1
+            val1: 整型变量2
+
+        Returns:
+            两数相加之和
+        """
+        return val + val1
+
+    @staticmethod
+    def datetime_fmt(fmt):
+        """
+        按格式返回，日期时间
+        Args: fmt Y-m-d H:M:S
+        """
+        fmt_dict = {
+            'Y': '%Y',
+            'm': '%m',
+            'd': '%d',
+            'H': '%H',
+            'M': '%M',
+            'S': '%S'
+        }
+
+        fmt_str = ''.join(
+            [v if v in ('-', ' ', ':') else fmt_dict[v] for v in fmt]
+        )
+
+        datetime = str(time.strftime(fmt_str, time.localtime()))
+        return datetime
+
