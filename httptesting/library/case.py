@@ -35,22 +35,19 @@ def assert_test_case(res, headers, cookie, result, assert_list, data):
 
             for ite, val in enumerate(value):
 
-                if '.' in repr(val):
+                if '.' in str(val):
                     value[ite] = eval(parse_output_parameters(val))
 
             # Distinguish between two parameters and one parameter by key.
             if value[0] == 'result':
-                value[0] = repr(result).replace("'", '"')
+                value[0] = str(result).replace("'", '"')
             try:
                 if len(value) == 1:
                     ass_res = ac.format(eval_string_parse(value[0]))
                     assert eval(ass_res), ass_res
                 else:
-                    if value[1] == 'result':
-                        value[1] = repr(result).replace("'", '"')
-
+                    value[1] = str(result).replace("'", '"') if value[1] == 'result' else value[1]
                     ass_res = ac.format(value[0], value[1])
-                    # print_backgroup_color(ass_res, color='red')
                     assert eval(ass_res), ass_res
 
             except (IndexError, KeyError, TypeError) as ex:
@@ -60,12 +57,10 @@ def assert_test_case(res, headers, cookie, result, assert_list, data):
 def user_custom_variables(queue, args, data):
     """
     Handles custom variables in USER_VAR
-
     args:
         queue: variables queue
         args: User variables
         data: user variables value. data[0]
-
     return:
         There is no return.
     """
@@ -112,7 +107,7 @@ def user_custom_variables(queue, args, data):
 
             # Parse replace variables.
             for klist in content:
-                var_dict[key] = eval(str(val).replace(repr(klist), str(var_dict[klist])))
+                var_dict[key] = eval(str(val).replace(str(klist), str(var_dict[klist])))
 
 
 def req_headers_default(data, index):
@@ -152,7 +147,7 @@ def req_headers_default(data, index):
 def parse_data_point(dt, data):
     regx_compile = re.compile(r"(data\.\w+)")
 
-    data_point = regx_compile.findall(repr(str))
+    data_point = regx_compile.findall(str(dt))
 
     for i in data_point:
         tmp = parse_output_parameters(i)
@@ -161,12 +156,10 @@ def parse_data_point(dt, data):
 
         if isinstance(var_value, str) or isinstance(var_value, int):
             # Replace
-            dt = repr(dt).replace(i, repr(eval(tmp)))
+            dt = str(dt).replace(i, str(var_value))
         else:
-            dt = repr(dt).replace('"{}"'.format(i), repr(eval(tmp))).replace("'{}'".format(i), repr(eval(tmp)))
+            dt = str(dt).replace('"{}"'.format(i), str(var_value)).replace("'{}'".format(i), str(var_value))
 
-        print_backgroup_color(dt, color='red')
-        print_backgroup_color(type(dt), color='green')
         dt = eval(dt)
 
     return dt
@@ -282,7 +275,6 @@ def send_http_request(req, data):
 def param_to_queue(queue, dt, param_dict, res, headers, cookie, result):
     """
     Parse output parameters are written to the queue.
-
     args:
         queue: List the queue.
         data: The DATA content
@@ -291,10 +283,8 @@ def param_to_queue(queue, dt, param_dict, res, headers, cookie, result):
         headers: Repsonse headers.
         cookie: Repsonse cookies.
         result: Repsonse content JSON or text.
-
     usage:
         param_to_queue(outParaQueue, data[i], oPara, res, headers, cookie, result)
-
     return:
         There is no return.
     """
