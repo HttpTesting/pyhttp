@@ -19,6 +19,7 @@ from requests.exceptions import (
     HTTPError
     )
 from httptesting.library.case_queue import case_exec_queue
+from httptesting.library.config import conf
 
 
 # Datetime string.
@@ -102,7 +103,7 @@ def get_run_flag(skey):
     return:
         ret: 'Y' or 'N'
     """
-    yaml_dict = get_yaml_field(gl.exeConfigFile)
+    yaml_dict = conf.get_yaml_field(gl.exeConfigFile)
     ret_flag = yaml_dict['RUNING'][skey]['Flag']
     return ret_flag
 
@@ -184,7 +185,7 @@ def load_case_data(flag='TEST_CASE'):
             case_path = os.path.dirname(case_name)
 
             # Read the case
-            read_yaml = get_yaml_field(case_name)
+            read_yaml = conf.get_yaml_field(case_name)
             # yaml start the node，The default is TEST_CASE.
             case_dict = read_yaml[flag]
 

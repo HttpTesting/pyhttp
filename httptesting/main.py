@@ -6,18 +6,17 @@ curPath = os.path.abspath(os.path.dirname(__file__))
 rootPath = os.path.split(curPath)[0]
 sys.path.insert(0, rootPath)
 # ########################################################
-import os
 import shutil
 import time
 from httptesting.library import gl
 from httptesting.library import scripts
 from httptesting.library.parse import parse_string_value
-from httptesting.library.scripts import (get_yaml_field,
-                                         write_file,
+from httptesting.library.scripts import (write_file,
                                          read_file,
                                          remove_file,
                                          update_yam_content
                                          )
+from httptesting.library.config import conf
 from httptesting.library.emailstmp import EmailClass
 from httptesting.library.falsework import create_falsework
 from httptesting.library.har import ConvertHarToYAML
@@ -41,12 +40,13 @@ def _parse_config(config):
                 os.system(gl.configFile)
             except (KeyboardInterrupt, SystemExit):
                 print("已终止执行.")
-        elif config[0] == 'set' and config.__len__() == 2 and '=' in config[1]:
-            conf = config[1].split("=")
-            update_yam_content(gl.configFile, conf[0], parse_string_value(conf[1]))
+        elif config[0] == 'set' and len(config) == 2 and '=' in config[1]:
+            cf = config[1].split("=")
+            update_yam_content(gl.configFile, cf[0], parse_string_value(cf[1]))
 
-        elif config[0] == 'get' and config.__len__() == 2 and '=' not in config[1]:
-            content = get_yaml_field(gl.configFile)
+        elif config[0] == 'get' and len(config) == 2 and '=' not in config[1]:
+            content = conf.get_yaml_field(gl.configFile)
+
             try:
                 print(content[config[1]])
             except KeyError as ex:
@@ -196,7 +196,7 @@ def run_min():
     har = args.har
     vert = args.convert
 
-    # Conver YAML.
+    # convert YAML.
     _convert_case_to_yaml(vert)
 
     # Convert har files to YAML.
@@ -209,10 +209,7 @@ def run_min():
     _false_work(start_project)
 
     # Get the yaml file name and write to the queue.
-    temp_list = []
-    temp_list.append(_get_file_yaml(case_file))
-    temp_list.append(_get_dirs_case_yaml(case_dir))
-    if True in temp_list:
+    if _get_file_yaml(case_file) and _get_dirs_case_yaml(case_dir):
         # Began to call.
         RunTestCase.invoke()
 
@@ -227,20 +224,18 @@ class RunTestCase(object):
 
     @classmethod
     def create_report_file(cls):
-        # 测试报告文件名
-        report_dir = time.strftime('%Y%m%d_%H%M%S', time.localtime())
-
-        rdir = os.path.join(os.getcwd(), 'report')
-
         cls.file_name = 'report.html'
-        portdir = os.path.join(rdir, report_dir)
+        report_dir = os.path.join(
+            os.path.join(os.getcwd(), 'report'),
+            time.strftime('%Y%m%d_%H%M%S', time.localtime())
+        )
 
         # 按日期创建测试报告文件夹
-        if not os.path.exists(portdir):
-            # os.mkdir(portdir)
-            os.makedirs(portdir)
+        if not os.path.exists(report_dir):
+            # os.mkdir(report_dir)
+            os.makedirs(report_dir)
         # 确定生成报告的路径
-        cls.filePath = os.path.join(portdir, cls.file_name)  
+        cls.filePath = os.path.join(report_dir, cls.file_name)
 
         return cls.filePath
 
@@ -254,9 +249,9 @@ class RunTestCase(object):
             shutil.copy(func, target)  
 
     @staticmethod
-    def tmpl_msg(low_path, file_name):
+    def tmpl_msg(low_path):
         # 发送钉钉模版测试结果
-        config = get_yaml_field(gl.configFile)
+        config = conf.get_yaml_field(gl.configFile)
         # report外网发布地址ip+port
         report_url = config['REPORT_URL']
         # 钉钉标题
@@ -278,47 +273,46 @@ class RunTestCase(object):
         return msg
 
     @staticmethod
-    def run(filePath):
+    def run(path):
         """
         Execute the test and generate the test report file.
         Args:
-            fileath: Report file absolute path.
+            path: Report file absolute path.
         Return:
             There is no return.
         """
-        config = get_yaml_field(gl.configFile)
+        config = conf.get_yaml_field(gl.configFile)
         exe_con = config['ENABLE_EXECUTION']
         exe_num = config['EXECUTION_NUM']
         rerun = config['ENABLE_RERUN']
-        renum = config['RERUN_NUM']  
+        reruns_nums = config['RERUN_NUM']
         repeat = config['ENABLE_REPEAT']
         repeat_num = config['REPEAT_NUM']
         exec_mode = config['ENABLE_EXEC_MODE']
         debug_mode = config['ENABLE_DEBUG_MODE']
+        last_failed = config['ENABLE_LAST_FAILED']
+        failed_first = config['ENABLE_FAILED_FIRST']
 
         # custom function
         RunTestCase.copy_custom_function()
 
+        # failed first
+        failed_first_args = (' --ff ' if failed_first else '') if not last_failed else ''
+
+        # last failed
+        last_failed_args = (' --lf ' if last_failed else '') if not failed_first else ''
+
         # Enable repeat case.
-        peatargs = ''
-        if repeat:
-            peatargs = ' --count={} '.format(repeat_num)
+        repeat_args = ' --count={} '.format(repeat_num) if repeat else ''
 
         # Enable CPU concurrency
-        pyargs = ''
-        if exe_con:
-            pyargs = ' -n {} '.format(exe_num)
+        py_args = ' -n {} '.format(exe_num) if exe_con else ''
 
         # Enable failed retry
-        reargs = ''
-        if rerun:
-            reargs = ' --reruns {} '.format(renum)
+        reruns_args = ' --reruns {} '.format(reruns_nums) if rerun else ''
 
         # debug mode print debug info.
-        if not debug_mode:
-            debug = '--tb=no'
-        else:
-            debug = ''
+        debug = '' if debug_mode else '--tb=no'
 
         """
         Load the pytest framework,
@@ -329,13 +323,20 @@ class RunTestCase(object):
         # Output mode console or report.
         if exec_mode:
             cmd = 'cd {} && py.test -q -s {} {} {} {}'.format(
-                case_path, reargs, 'test_load_case.py',
-                peatargs, debug
+                case_path, reruns_args, 'test_load_case.py',
+                repeat_args, debug
             ) 
         else:
-            cmd = 'cd {} && py.test {} {} {} {} --html={} {} --self-contained-html'.format(
-                case_path, pyargs, reargs, 'test_load_case.py', 
-                peatargs, filePath, debug
+            cmd = 'cd {} && py.test {} {} {} {} {} {} --html={} {} --self-contained-html'.format(
+                case_path,
+                py_args,
+                reruns_args,
+                last_failed_args,
+                failed_first_args,
+                'test_load_case.py',
+                repeat_args,
+                path,
+                debug
             )
         try:
             os.system(cmd)
@@ -349,7 +350,7 @@ class RunTestCase(object):
         :return: There is no.
         """
         # CONFIG: Read configuration information
-        config = get_yaml_field(gl.configFile)
+        config = conf.get_yaml_field(gl.configFile)
         dd_enable = config['ENABLE_DDING']
         dd_token = config['DD_TOKEN']
         dd_url = config['DING_URL']
@@ -358,7 +359,7 @@ class RunTestCase(object):
 
         # Test report file name.
         time_str = time.strftime('%Y%m%d_%H%M%S', time.localtime())
-        filePath = RunTestCase.create_report_file()
+        path = RunTestCase.create_report_file()
 
         # Start test the send pin message.
         if dd_enable:
@@ -369,19 +370,19 @@ class RunTestCase(object):
             )
 
         # Execute the test and send the test report.
-        RunTestCase.run(filePath)
+        RunTestCase.run(path)
         if dd_enable:
             # Template message.
-            dir_list = filePath.split('\\')
+            dir_list = path.split('\\')
             low_path = dir_list[len(dir_list) - 2]
-            msg = RunTestCase.tmpl_msg(low_path, RunTestCase.file_name)
+            msg = RunTestCase.tmpl_msg(low_path)
             print(msg)
             scripts.send_msg_dding(msg, dd_token, dd_url)
 
         if email_enable:
             # Send test report to EMAIL.
             email = EmailClass()
-            email.send(filePath)
+            email.send(path)
 
 
 if __name__ == "__main__":

@@ -1,18 +1,16 @@
 import json
 from httptesting.library.scripts import (
     get_datetime_str,
-    retry,
-    get_yaml_field,
-    print_font_color,
-    print_backgroup_color
+    print_font_color
     )
 import requests
 from requests.exceptions import (HTTPError, ConnectionError, ConnectTimeout)
 from httptesting.library import gl
+from httptesting.library.config import conf
 from httptesting.library.Multipart import MultipartFormData
 #########################################################################
 # requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-# Remove warnings when SSL is turned off dueto requests.
+# Remove warnings when SSL is turned off queto requests.
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 ###########################################################################
@@ -30,39 +28,36 @@ class HttpWebRequest(object):
         res = http.post(**kwargs)
     """
     def __init__(self):
-        self.config = get_yaml_field(gl.configFile)
+        self.config = conf.get_yaml_field(gl.configFile)
         self.base_url = self.config['BASE_URL']
         self.OUT_TMPL = """{0} {1}请求:{2}\n请求:\n{3}\n响应:"""
 
-    def header_lower(self, hdict):
+    @staticmethod
+    def headers_to_lower(headers):
         """
         Convert HTTP header information to lowercase.
         param:
-            hdict: Head dictionary type.
+            headers: Head dictionary type.
         usage:
-            ret = header_lower(hdict)
+            ret = headers_to_lower(headers)
         return:
             dict Head dictionary type.
         """
-        tmp = {}
-        for key, val in hdict.items():
-            tmp[str(key).lower()] = str(val).lower()
-        return tmp
-
+        return {str(key).lower(): str(val).lower() for key, val in headers.items()}
 
     def _wisdom_url_mode(self, kwargs):
         """
         Wisdom to choose url.
 
         Return: 
-            http://xxxx.xxx/xxx/xxxx
+            url
         """
         # Whether to adopt , url = base_url + url
         if self.config['ENABLE_WISDOM_MODE']:
             if 'http://' in str(kwargs['gurl']) or 'https://' in str(kwargs['gurl']):
                 url = str(kwargs['gurl']).strip()
             else:
-               url = '{}{}'.format(self.base_url, str(kwargs['gurl']).strip())
+                url = '{}{}'.format(self.base_url, str(kwargs['gurl']).strip())
 
         elif self.config['ENABLE_BASE_URL']:
             url = '{}{}'.format(self.base_url, str(kwargs['gurl']).strip())
@@ -70,7 +65,6 @@ class HttpWebRequest(object):
             url = str(kwargs['gurl']).strip()
 
         return url
-
 
     def _print_mode_tmpl(self, kwargs, params):
         """
@@ -91,8 +85,8 @@ class HttpWebRequest(object):
         )
         print(tmpl)
 
-
-    def _request_header_type(self, header_dict, url, data, kwargs):
+    @staticmethod
+    def _request_header_type(header_dict, url, data, kwargs):
         """
         Select request content-type
         """
@@ -132,7 +126,8 @@ class HttpWebRequest(object):
                 )
         return res
 
-    def _header_content_type_lcase(self, header_dict):
+    @staticmethod
+    def _header_content_type_lcase(header_dict):
         """
         The Replace key-value in dict 
         """
@@ -140,8 +135,6 @@ class HttpWebRequest(object):
             header_dict['content-type'] = header_dict['Content-Type']
             header_dict.pop('Content-Type')
             return header_dict
-
-            
 
     def get(self, **kwargs):
         """
@@ -157,6 +150,8 @@ class HttpWebRequest(object):
             cookie: Request cookie.
             result: Request results result.json() or result.text
         """
+        res, headers, cookie = None, None, None
+
         try:
             params = eval(kwargs['params'])
         except (TypeError, ValueError):
@@ -171,7 +166,7 @@ class HttpWebRequest(object):
         self._print_mode_tmpl(kwargs, params_dumps)
 
         try:
-            res = requests.request(kwargs['method'], url, params=params, headers=kwargs['headers'], verify=False)
+            res = requests.request(kwargs['method'], str(url), params=params, headers=kwargs['headers'], verify=False)
             headers = res.headers
             cookie = res.cookies.get_dict()
             if res.status_code == 200:
@@ -180,12 +175,12 @@ class HttpWebRequest(object):
                 except:
                     result = res.text
             else:
-                result =  {"errcode": 9001, "errmsg": str(res)}
+                result = {"errcode": 9001, "errmsg": str(res)}
 
         except (HTTPError, ConnectionError, ConnectTimeout) as ex:
             result = {"errcode": 9002, "errmsg": str(ex)}
         except Exception as ex:
-            result = {"errcode": 9003, "errmsg": str(ex) }
+            result = {"errcode": 9003, "errmsg": str(ex)}
 
         tmpl_result = json.dumps(result, sort_keys=True, indent=4, ensure_ascii=False)
         # The Response results are output to the report.
@@ -195,6 +190,7 @@ class HttpWebRequest(object):
     # Post Request
     def post(self, **kwargs):
         """post请求"""
+        headers, cookie, res = None, None, None
 
         # Whether to adopt , url = base_url + url
         url = self._wisdom_url_mode(kwargs)
@@ -209,7 +205,7 @@ class HttpWebRequest(object):
         # console print color
         self._print_mode_tmpl(kwargs, tmpl_data)
 
-        header_dict = self.header_lower(kwargs['headers'])
+        header_dict = self.headers_to_lower(kwargs['headers'])
         try:
             # Convert the data to form-data.
             res = self._request_header_type(header_dict, url, data, kwargs)

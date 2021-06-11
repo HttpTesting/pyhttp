@@ -46,6 +46,10 @@ RERUN_NUM: 2
 ENABLE_REPEAT: False  
 REPEAT_NUM: 2
 
+# 仅运行最后一次执行失败的用例 --lf
+ENABLE_LAST_FAILED: False
+# 先运行上次失败的用例，再运行剩余的用例 --ff
+ENABLE_FAILED_FIRST: False
 
 ##########################钉钉设置###########################################
 # ENABLE_DDING:为True时启用钉钉消息，控制台模式不启用。
