@@ -93,7 +93,7 @@ def _get_file_yaml(case_file):
         temp_list.append(os.path.join(os.getcwd(), fargs))
 
         write_file(
-            os.path.join(gl.loadcasePath, 'temp.txt'),
+            os.path.join(gl.loadcasePath, 'temp.cache'),
             'w',
             ';'.join(temp_list)
         )
@@ -115,7 +115,7 @@ def _get_dirs_case_yaml(case_dir):
 
         # Write file absolute path to file.
         write_file(
-            os.path.join(gl.loadcasePath, 'temp.txt'),
+            os.path.join(gl.loadcasePath, 'temp.cache'),
             'w',
             ';'.join(temp_list)
         )
@@ -257,7 +257,7 @@ class RunTestCase(object):
         # 钉钉标题
         content = config['DING_TITLE']
         # 从报告中取得测试结果数据 e.g. 3 tests; 2.23 seconds; 3 passed; 0 failed; 0 errors
-        file_result = os.path.join(gl.loadcasePath, 'result.txt')
+        file_result = os.path.join(gl.loadcasePath, 'result.cache')
         #
         result_content = read_file(file_result, 'r')
         # Remove file

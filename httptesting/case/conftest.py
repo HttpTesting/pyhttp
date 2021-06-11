@@ -20,21 +20,21 @@ def pytest_html_results_summary(prefix, summary, postfix):
     prefix.extend([html.p("测试人: 测试组")])
 
     # Case number and time.
-    case_count = summary[0].__str__()
+    case_count = str(summary[0])
     # count[0] The case number
     # count[1] The case when
     count = count_regx_compile.findall(case_count)[0]
 
     # Passed
-    passed_str = summary[3].__str__()
+    passed_str = str(summary[3])
     passed = result_regx_compile.findall(passed_str)[0].strip()
 
     # Failed
-    failed_str = summary[9].__str__()
+    failed_str = str(summary[9])
     failed = result_regx_compile.findall(failed_str)[0].strip()
 
     # Error
-    error_str = summary[12].__str__()
+    error_str = str(summary[12])
     error = result_regx_compile.findall(error_str)[0].strip()
 
     #pass rate
@@ -42,10 +42,10 @@ def pytest_html_results_summary(prefix, summary, postfix):
     failed = failed.replace('failed', '').strip()
     error = error.replace('errors', '').strip()
     # %
-    passrate = str("%.2f%%" % (float(passed) / float(count[0]) * 100))
+    pass_rate = str("%.2f%%" % (float(passed) / float(count[0]) * 100))
 
-    file_path = os.path.join(gl.loadcasePath, 'result.txt')
-    result_text = "; ".join([count[0], count[1], passed.__str__(), failed, error, passrate.__str__()])
+    file_path = os.path.join(gl.loadcasePath, 'result.cache')
+    result_text = "; ".join([count[0], count[1], str(passed), failed, error, str(pass_rate)])
     write_file(file_path, 'w', result_text)
 
 

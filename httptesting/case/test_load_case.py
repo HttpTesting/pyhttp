@@ -8,7 +8,7 @@ from httptesting.library import gl
 # 单个文件Debug时启用
 from httptesting.library.case_queue import case_exec_queue
 # case_exec_queue.put(os.path.join(gl.testCasePath, "POS_INFO.yaml"))
-with open(os.path.join(gl.loadcasePath, 'temp.txt'), 'r', encoding='utf-8') as fp:
+with open(os.path.join(gl.loadcasePath, 'temp.cache'), 'r', encoding='utf-8') as fp:
     content = fp.read()
     clist = content.split(';')
     for abspath in clist:
