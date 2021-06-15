@@ -43,8 +43,10 @@ def pytest_html_results_summary(prefix, summary, postfix):
     error = error.replace('errors', '').strip()
     # %
     pass_rate = str("%.2f%%" % (float(passed) / float(count[0]) * 100))
-
-    file_path = os.path.join(gl.loadcasePath, 'result.cache')
+    # 缓存目录
+    cache_dir = os.path.join(gl.loadcasePath, ".am_cache")
+    # 结果缓存目录
+    file_path = os.path.join(cache_dir, 'result.cache')
     result_text = "; ".join([count[0], count[1], str(passed), failed, error, str(pass_rate)])
     write_file(file_path, 'w', result_text)
 

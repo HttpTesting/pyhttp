@@ -112,10 +112,11 @@ def _get_dirs_case_yaml(case_dir):
                 if 'yaml' in f:
                     d = os.path.join(os.getcwd(), case_dir)
                     temp_list.append(os.path.join(d, f))
-
+        # 缓存目录
+        cache_dir = os.path.join(gl.loadcasePath, ".am_cache")
         # Write file absolute path to file.
         write_file(
-            os.path.join(gl.loadcasePath, 'temp.cache'),
+            os.path.join(cache_dir, 'yaml.cache'),
             'w',
             ';'.join(temp_list)
         )
