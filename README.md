@@ -37,60 +37,25 @@ httptesting通过YAML编写测试用例，安装httptesting后通过amt命令执
 
 ## 快速开始
 
-### 环境准备
+### 安装
 
-#### python虚拟环境virtualenv使用
-
-- 安装虚拟环境: pip install virtualenv
-
-- 创建虚拟环境: virtualenv  demo_env
-
-- 命令行模式切换到虚拟环境Script目录: /../scripts/
-
-- 激活虚拟环境: activate.bat 
-
-#### HttpTesting安装
-以下三种方式选择其一即可。
-
-##### pip在线安装
-
-- pip install HttpTesting==1.1.69
-
-##### 下载whl文件进行安装
-
-- pip install HttpTesting-1.1.69-py3-none-any.whl 
-
-
-##### 更新httptesting包
-
-已安装httptesting包,通过pip命令进行更新
-
-- pip list  查看HttpTesting安装包版本信息
-
-- pip install --upgrade HttpTesting
-
-- pip install --upgrade HttpTesting==1.0.26
-
-
+#### pip 包管理直接安装
+```
+- pip install HttpTesting
+```
 
 ### 使用命令运行
-
-以下四个命令作用相同
-
-- am 
-- AM
-- amt
-- AMT
+通过am命令加上不同的参数来驱动执行；注意区分参数大小写；
+- am
 
 |序号|命令参数|描述|
 |:---|:---|:---|  
-|1|am -conf set 或--config set|此命令用来设置config.yaml基本配置|
+|1|am -conf set 或--config set|此命令用来设置基本配置|
 |2|am -f template.yaml或--file template.yaml|执行YAML用例，支持绝对或相对路径|
 |3|am -d testcase或--dir testcase|批量执行testcase目录下的YAML用例，支持绝对路径或相对路径|
 |4|am -sp demo或--startproject demo|生成脚手架demo目录,以及用例模版|
 |5|am -har httphar.har|根据抓包工具导出的http har文件，生成测试用例YAML|
 |6|am -c demo.yaml或--convert demo.yaml|转换数据为HttpTesting测试用例|
-
 
 
 
@@ -128,7 +93,7 @@ httptesting通过YAML编写测试用例，安装httptesting后通过amt命令执
 
 - [批量执行testcase目录下所有YAML测试用例文件]
 
-- am -dir testcase
+- am -d testcase
 
 
 
@@ -141,7 +106,7 @@ httptesting通过YAML编写测试用例，安装httptesting后通过amt命令执
 
 
 #### HAR
-
+转换，通过charles抓包工具，导出的har文件为工具能识别的yaml用例文件；
 - 执行命令: am -har httphar.har  自动生成httptesting用例 har_testcase.yaml。
 
 - har命令来解析, Charles抓包工具导出的http .har请求文件, 自动生成HttpTesting用例格式.
@@ -152,23 +117,11 @@ httptesting通过YAML编写测试用例，安装httptesting后通过amt命令执
 
 ### 用例编写
 
-
-#### 用例模型
-
->TESTCASE{
-
->>'case1':['description',{},{}],  #场景模式每个{}一个接口
-
->>'case2':['description',{}],     #单接口模式
-
->}
-
-
 ### YAML用例格式  
 
 ### 场景模式
 	TESTCASE:
-		#Case1由两个请求组成的场景
+		#Case1由登录，编辑两个接口组成的场景用例
 		Case1:
 			-
 				Desc: xxxx业务场景(登录->编辑)
@@ -207,9 +160,10 @@ httptesting通过YAML编写测试用例，安装httptesting后通过amt命令执
 					- eq: ['result.status', '修改成功']
 
 ### 多CASE模式
-
+    1.多CASE由两种组成，第1种，在YAML中写多个Case1...CaseN
+    2.第2种，通过参数化的型势，关于参数化，文档参数化部分有介绍
 	TESTCASE:
-		#同一接口,不同参数,扩充为多个CASE
+		#同一接口,不同参数,扩充为多个CASE，Case1为场景用例，Case2为单接口用例
 		Case1:
 			-
 				Desc: 登录接口-正常登录功能
@@ -246,10 +200,9 @@ httptesting通过YAML编写测试用例，安装httptesting后通过amt命令执
 					- eq: [result.status, 'error']
 
 
-### 参数说明
+### httptesting中的变量及函数引用方式
+httptesting采用双${变量}$为变量标识符；%{函数名称}%为函数标识；
 
-- "${H_cookie}$": 为参数变量,可以头信息里与Data数据里进行使用
-- "%{md5('aaaa')}%": 为函数原型,具体支持函数下方表格可见.
 
 ### 自定义变量
 
@@ -258,7 +211,7 @@ httptesting通过YAML编写测试用例，安装httptesting后通过amt命令执
 - 通过在Case下定义USER_VAR字段，来自定义变量
 - USER_VAR字段下定义的字段为用户变量，作用于当前Case
 
-### 示例1(自定义变量)
+### 示例1(自定义变量使用)
 
 	TESTCASE: 
 		Case1:

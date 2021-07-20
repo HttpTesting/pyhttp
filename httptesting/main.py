@@ -91,9 +91,9 @@ def _get_file_yaml(case_file):
         # Specify the execution CASE.
         fargs = '&#'.join(case_file)
         temp_list.append(os.path.join(os.getcwd(), fargs))
-
+        cache_dir = os.path.join(gl.loadcasePath, ".am_cache")
         write_file(
-            os.path.join(gl.loadcasePath, 'temp.cache'),
+            os.path.join(cache_dir, 'yaml.cache'),
             'w',
             ';'.join(temp_list)
         )
@@ -209,10 +209,14 @@ def run_min():
     # False work.
     _false_work(start_project)
 
+    # Write file absolute path to file.
     # Get the yaml file name and write to the queue.
-    if _get_file_yaml(case_file) and _get_dirs_case_yaml(case_dir):
-        # Began to call.
-        RunTestCase.invoke()
+
+    _get_file_yaml(case_file)
+    _get_dirs_case_yaml(case_dir)
+    # Began to call.
+    RunTestCase.invoke()
+
 
 #########################################################################
 # Not in command mode --dir defaults to the testcase directory.
@@ -247,7 +251,7 @@ class RunTestCase(object):
         target = os.path.join(gl.loadcasePath, 'extfunc.py')
 
         if os.path.exists(func):
-            shutil.copy(func, target)  
+            shutil.copy(func, target)
 
     @staticmethod
     def tmpl_msg(low_path):
@@ -326,7 +330,7 @@ class RunTestCase(object):
             cmd = 'cd {} && py.test -q -s {} {} {} {}'.format(
                 case_path, reruns_args, 'test_load_case.py',
                 repeat_args, debug
-            ) 
+            )
         else:
             cmd = 'cd {} && py.test {} {} {} {} {} {} --html={} {} --self-contained-html'.format(
                 case_path,
